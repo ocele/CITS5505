@@ -6,5 +6,5 @@ Group Project
 | ocele | Jiahe Fan | 24014534 |
 | *** | Veronica Lyu | 24516605 |
 | *** | Shuhan Wang  | 24057211 |
-| *** | Haoran Yu | 24180266  |
+| MuzzleThing | Haoran Yu | 24180266  |
 
