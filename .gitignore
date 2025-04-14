@@ -7,8 +7,23 @@ __pycache__/
 # C extensions
 *.so
 
-# ignore vene file
+# Python
 venv/
+*.pyc
+__pycache__/
+*.egg-info/
+instance/
+
+# Environment variables
+.env
+
+# Databases
+*.db
+*.sqlite3
+
+# OS generated files
+.DS_Store
+Thumbs.db
 
 # Distribution / packaging
 .Python
