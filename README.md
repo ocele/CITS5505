@@ -4,7 +4,7 @@ Group Project
 |GitHub ID| Student Name  | Student ID |
 |----------|----------------|------|
 | ocele | Jiahe Fan | 24014534 |
-| *** | Veronica Lyu | 24516605 |
+| vandvennie | Veronica Lyu | 24516605 |
 | *** | Shuhan Wang  | 24057211 |
 | MuzzleThing | Haoran Yu | 24180266  |
 
