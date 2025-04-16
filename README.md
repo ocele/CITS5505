@@ -8,3 +8,6 @@ Group Project
 | *** | Shuhan Wang  | 24057211 |
 | MuzzleThing | Haoran Yu | 24180266  |
 
+Requirment and Prototype:
+
+https://o67l5u.axshare.com
