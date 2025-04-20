@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Login Page DailyBite</title>
+        <meta name="description" content="The login and register page of DailyBite">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- Bootstrap CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Custom CSS -->
+        <link rel="stylesheet" href="../static/styleLogin.css">
+    </head>
+    <body>
+        <div class="container" id="all">
+            <div class="container" id="loginContainer">
+                <form action="{{ url_for('login') }}" method="POST" class="pt-5 pb-5">
+                    {{ form1.hidden_tag() }}
+                    <input type="hidden" name="form_type" value="login">
+                    
+                    <label for="emailLogin" class="form-label">Email</label><br>
+                    {{ form1.emailLogin(class="form-control") }}<br><br>
+                    
+                    <div class="row">
+                        <div class="col">
+                            <label for="passwordLogin" class="form-label">Password</label>
+                        </div>
+                        <div class="col">
+                            <!-- TODO:Need to verify the requirement -->
+                            <a href="#" class="text-muted"><small>Forgot password?</small></a> 
+                        </div><br>
+                    </div>
+                    {{ form1.passwordLogin(class="form-control") }}<br><br>
+
+                    <input type="submit" value="Sign In"><br><br>
+                    <div class="text-center">
+                        <small><span class="text-muted">Don't have an account yet?</span> <a href="#SignUpLocation">Sign up</a></small>
+                    </div>
+                    
+                </form><br>
+            </div>
+
+            <div class="container" id="registerContainer">
+                <form action="{{ url_for('login') }}" method="POST" class="pt-5">
+
+                    {{ form2.hidden_tag() }}
+                    <input type="hidden" name="form_type" value="register">
+
+                    <div class="row">
+                        <div class="col">
+                            <label for="firstName" class="form-label"> First Name<span style="color: red;">*</span></label><br>
+                            {{ form2.firstName(class="form-control") }}
+                        </div>
+                        <div class="col">
+                            <label for="lastName" class="form-label"> Last Name<span style="color: red;">*</span></label><br>
+                            {{ form2.lastName(class="form-control") }}
+                        </div>
+                    </div> <br>
+
+                    <label for="emailRegister" class="form-label">Email<span style="color: red;">*</span></label><br>
+                    {{ form2.emailRegister(class="form-control") }}<br><br>
+                    <label for="passwordRegister" class="form-label">Password<span style="color: red;">*</span></label><br>
+                    {{ form2.passwordRegister(class="form-control") }}<br><br>
+
+                    {{ form2.subscription }}
+                    <label for="subscription" class="form-label">Subscribe for Sales & New Themes</label>
+                    <br><br>
+                    <input type="submit" value="Sign Up" id="SignUpLocation"><br><br>
+                </form>
+            </div>
+
+            <script>
+                {% if error_message %}
+                    alert("{{ error_message }}");
+                {% endif %}
+            </script>
+
+            <!-- Custom JS -->
+            <script src="../static/scripts.js" async defer></script>
+
+            <!-- Bootstrap JS Bundle with Popper -->
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+        </div>
+    </body>
+</html>

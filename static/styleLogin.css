@@ -1,0 +1,32 @@
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+input[type="submit"] {
+    width: 100%;
+    color: white;
+    background-color: gray;
+    border-radius: 10px;
+    padding: 0.5rem 0;
+}
+label {
+    font-weight: bold;
+}
+
+#all {
+    max-width: 800px;
+    border: 1px solid black;
+}
+
+#loginContainer {
+    width: 60%;
+}
+
+#registerContainer {
+    width: 80%;
+}
