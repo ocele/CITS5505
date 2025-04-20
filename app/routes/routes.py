@@ -1,8 +1,10 @@
-from flask import redirect, render_template, request, url_for
-from forms import LoginForm, RegisterForm
-# TODO:from ??? import app 
+from flask import redirect, render_template, request, url_for, Blueprint
+from app.forms import LoginForm, RegisterForm
+from flask_login import current_user
 
-@app.route('/login', methods=['GET', 'POST'])
+bp = Blueprint('routes', __name__)
+
+@bp.route('/login', methods=['GET', 'POST'])
 def login():
     form1 = LoginForm()
     form2 = RegisterForm()
