@@ -17,7 +17,6 @@ login_manager.login_message_category = 'info'
 def create_app(config_class=Config):
     # create the Flask app instance
     app = Flask(__name__)
-    # load the config
     app.config.from_object(config_class)
 
     # initialize the extensions with the app instance
