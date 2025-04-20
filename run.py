@@ -1,5 +1,5 @@
 # run.py
-from app.routes import create_app, db # importing the create_app function and db instance
+from app import create_app, db # importing the create_app function and db instance
 # importing the User model for shell context
 from app.models import User 
 
