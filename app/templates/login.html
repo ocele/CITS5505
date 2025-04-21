@@ -16,7 +16,7 @@
     <body>
         <div class="container" id="all">
             <div class="container" id="loginContainer">
-                <form action="{{ url_for('login') }}" method="POST" class="pt-5 pb-5">
+                <form action="{{ url_for('main.login') }}" method="POST" class="pt-5 pb-5">
                     {{ form1.hidden_tag() }}
                     <input type="hidden" name="form_type" value="login">
                     
