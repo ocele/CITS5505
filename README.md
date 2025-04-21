@@ -5,7 +5,7 @@ Group Project
 |----------|----------------|------|
 | ocele | Jiahe Fan | 24014534 |
 | vandvennie | Veronica Lyu | 24516605 |
-| *** | Shuhan Wang  | 24057211 |
+| Zongzi-Zoe-Shuhan | Shuhan Wang  | 24057211 |
 | MuzzleThing | Haoran Yu | 24180266  |
 
 Requirment and Prototype:
