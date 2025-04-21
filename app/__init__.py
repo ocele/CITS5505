@@ -21,14 +21,11 @@ def create_app(config_class=Config):
     migrate.init_app(app, db)
     login_manager.init_app(app)
 
-    # register the blueprints
-    # from app.routes.auth import bp as auth_bp
-    # app.register_blueprint(auth_bp, url_prefix='/auth')
+    from app.routes.auth import bp as auth_bp
+    app.register_blueprint(auth_bp, url_prefix='/auth')
 
-    # registering the main blueprint
-    from app.routes.routes import bp as routes_bp
-    app.register_blueprint(routes_bp)
-
+    from app.routes.main import bp as main_bp 
+    app.register_blueprint(main_bp)
     # return the app instance
     return app
 
