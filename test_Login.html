@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Login Page DailyBite</title>
+        <meta name="description" content="The login and register page of DailyBite">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- Bootstrap CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Custom CSS -->
+        <link rel="stylesheet" href="static/styleLogin.css">
+    </head>
+    <body>
+        <div class="container" id="all">
+            <div class="container" id="loginContainer">
+                <form action="#" method="POST" class="pt-5 pb-5">
+                    <!-- Login form -->
+                    <input type="hidden" name="form_type" value="login">
+                    
+                    <label for="emailLogin" class="form-label">Email</label><br>
+                    <input type="email" class="form-control" id="emailLogin" name="emailLogin"><br><br>
+                    
+                    <div class="row">
+                        <div class="col">
+                            <label for="passwordLogin" class="form-label">Password</label>
+                        </div>
+                        <div class="col">
+                            <a href="#" class="text-muted"><small>Forgot password?</small></a> 
+                        </div><br>
+                    </div>
+                    <input type="password" class="form-control" id="passwordLogin" name="passwordLogin"><br><br>
+
+                    <input type="submit" value="Sign In"><br><br>
+                    <div class="text-center">
+                        <small><span class="text-muted">Don't have an account yet?</span> <a href="#SignUpLocation">Sign up</a></small>
+                    </div>
+                    
+                </form><br>
+            </div>
+
+            <div class="container" id="registerContainer">
+                <form action="#" method="POST" class="pt-5">
+                    <!-- Register form -->
+                    <input type="hidden" name="form_type" value="register">
+
+                    <div class="row">
+                        <div class="col">
+                            <label for="firstName" class="form-label"> First Name<span style="color: red;">*</span></label><br>
+                            <input type="text" class="form-control" id="firstName" name="firstName">
+                        </div>
+                        <div class="col">
+                            <label for="lastName" class="form-label"> Last Name<span style="color: red;">*</span></label><br>
+                            <input type="text" class="form-control" id="lastName" name="lastName">
+                        </div>
+                    </div> <br>
+
+                    <label for="emailRegister" class="form-label">Email<span style="color: red;">*</span></label><br>
+                    <input type="email" class="form-control" id="emailRegister" name="emailRegister"><br><br>
+                    <label for="passwordRegister" class="form-label">Password<span style="color: red;">*</span></label><br>
+                    <input type="password" class="form-control" id="passwordRegister" name="passwordRegister"><br><br>
+
+                    <input type="checkbox" id="subscription" name="subscription">
+                    <label for="subscription" class="form-label">Subscribe for Sales & New Themes</label>
+                    <br><br>
+                    <input type="submit" value="Sign Up" id="SignUpLocation"><br><br>
+                </form>
+            </div>
+
+            <!-- Custom JS -->
+            <script src="static/scripts.js" async defer></script>
+
+            <!-- Bootstrap JS Bundle with Popper -->
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+        </div>
+    </body>
+</html>

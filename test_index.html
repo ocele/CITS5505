@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DailyBite - Track Your Nutrition</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            color: #333;
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            background-color: #f1f8e9 !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 15px 0;
+        }
+
+        .navbar-brand {
+            color: #2196F3 !important;
+            font-weight: bold;
+            font-size: 1.8rem;
+        }
+
+        .nav-link {
+            color: #555 !important;
+            font-weight: 500;
+            margin: 0 10px;
+            font-size: 1.1rem;
+        }
+
+        .nav-link:hover {
+            color: #2196F3 !important;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background-color: #f1f8e9;
+            padding: 50px 0 70px;
+            position: relative;
+            min-height: 500px;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><path fill="%23c8e6c9" d="M40,40 L160,40 L160,160 L40,160 Z" opacity="0.2"/><circle cx="100" cy="100" r="30" fill="%238bc34a" opacity="0.2"/><circle cx="50" cy="50" r="15" fill="%234caf50" opacity="0.2"/><circle cx="150" cy="150" r="20" fill="%234caf50" opacity="0.2"/><circle cx="150" cy="50" r="10" fill="%238bc34a" opacity="0.2"/><circle cx="50" cy="150" r="25" fill="%238bc34a" opacity="0.2"/></svg>');
+            opacity: 0.3;
+            z-index: 0;
+        }
+
+        .hero-content {
+            padding-top: 50px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-title {
+            color: #333;
+            font-size: 3.2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-text {
+            color: #555;
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            max-width: 90%;
+        }
+
+        .hero-image-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-image-placeholder {
+            width: 100%;
+            height: 250px;
+            background-color: #e0e0e0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .btn-primary {
+            background-color: #2196F3;
+            border-color: #2196F3;
+            padding: 10px 30px;
+            font-size: 1.1rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 10;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+            border-color: #1976D2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(33,150,243,0.3);
+        }
+
+        /* Divider line */
+        .divider-line {
+            border-top: 1px dashed #bdbdbd;
+            margin: 30px 0;
+        }
+
+        /* About Section */
+        .about-section {
+            padding: 60px 0;
+            background-color: #fff;
+        }
+
+        .section-heading {
+            color: #333;
+            text-align: center;
+            font-weight: 700;
+            font-size: 2.2rem;
+            margin-bottom: 40px;
+        }
+
+        .about-text {
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .group-image-placeholder {
+            width: 100%;
+            height: 200px;
+            background-color: #e0e0e0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        /* Features Section */
+        .features-section {
+            padding: 60px 0;
+            background-color: #f5f5f5;
+        }
+
+        .feature-icon {
+            color: #2196F3;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .feature-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .feature-text {
+            color: #555;
+        }
+
+        .feature-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #f1f8e9;
+            padding: 40px 0 30px;
+            color: #555;
+        }
+
+        .footer-slogan {
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+            color: #333;
+        }
+
+        .copyright-text {
+            margin-bottom: 5px;
+        }
+
+        .contact-heading {
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .social-icons a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #e0e0e0;
+            color: #2196F3;
+            margin-right: 10px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .social-icons a:hover {
+            background-color: #2196F3;
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        .placeholder-text {
+            color: #757575;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand" href="test_index.html">DailyBite</a>
+            <div class="d-flex">
+                <a class="nav-link" href="#about">About US</a>
+                <a class="nav-link" href="test_Login.html">Join Us</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="hero-content">
+                        <h1 class="hero-title">Track Your Nutrition Journey</h1>
+                        <p class="hero-text">DailyBite helps you monitor your daily calorie intake, set nutritional goals, and achieve a healthier lifestyle.</p>
+                        <a href="test_Login.html" class="btn btn-primary" onclick="window.location.href='test_Login.html'; return false;">Join Us</a>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="hero-image-container">
+                        <div class="hero-image-placeholder">
+                            <span class="placeholder-text">Hero Image</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider-line"></div>
+
+    <!-- About Section -->
+    <section class="about-section" id="about">
+        <div class="container">
+            <h2 class="section-heading">About Us</h2>
+            <div class="row align-items-center">
+                <div class="col-md-7">
+                    <p class="about-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet. Proin gravida dolor sit amet lacus accumsan et viverra justo commodo. Proin sodales pulvinar sic tempor. Sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p>
+                    <p class="about-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet. Proin gravida dolor sit amet lacus accumsan et viverra justo commodo. Proin sodales pulvinar sic tempor. Sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p>
+                </div>
+                <div class="col-md-5">
+                    <div class="group-image-placeholder">
+                        <span class="placeholder-text">Group Image</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <div class="container">
+            <h2 class="section-heading">Key Features</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="feature-container">
+                        <div class="feature-icon">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                        <h3 class="feature-title">Food Tracking</h3>
+                        <p class="feature-text">Record your meals and automatically calculate calories and nutrients.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-container">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3 class="feature-title">Data Analysis</h3>
+                        <p class="feature-text">Visualize your nutrition patterns and track progress over time.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-container">
+                        <div class="feature-icon">
+                            <i class="fas fa-share-alt"></i>
+                        </div>
+                        <h3 class="feature-title">Selective Sharing</h3>
+                        <p class="feature-text">Share your achievements and progress with friends or nutritionists.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h3 class="footer-slogan">Improve your life by recording your habits</h3>
+                    <p class="copyright-text">© Copyright DailyBite All Rights Reserved</p>
+                    <p>Designed by Group 52</p>
+                </div>
+                <div class="col-md-3">
+                    <h4 class="contact-heading">Contact Us</h4>
+                    <p>35 Stirling Hwy, Crawley<br>WA 6009</p>
+                </div>
+                <div class="col-md-3">
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</body>
+</html>
