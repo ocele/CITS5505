@@ -1,83 +1,74 @@
 {% extends "base.html" %}
- 
+
 {% block title %}DailyBite - Track Your Nutrition{% endblock %}
- 
+
 {% block content %}
-<!-- Hero Section -->
-<section class="hero-section">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="hero-content">
-                    <h1 class="hero-title">Track Your Nutrition Journey</h1>
-                    <p class="hero-text">DailyBite helps you monitor your daily calorie intake, set nutritional goals, and achieve a healthier lifestyle.</p>
-                    <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Join Us</a>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="hero-image-container">
-                    <div class="hero-image-placeholder">
-                        <span class="placeholder-text">Hero Image</span>
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-5">
+                    <div class="hero-content">
+                        <h1 class="hero-title">Tracking your meal</h1>
+                        <p class="hero-text">Eat healthier and achieve your goal</p>
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Join Us</a>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
- 
-<div class="divider-line"></div>
- 
-<!-- About Section -->
-<section class="about-section" id="about">
-    <div class="container">
-        <h2 class="section-heading">About Us</h2>
-        <div class="row align-items-center">
-            <div class="col-md-7">
-                <p class="about-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet. Proin gravida dolor sit amet lacus accumsan et viverra justo commodo. Proin sodales pulvinar sic tempor. Sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p>
-                <p class="about-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet. Proin gravida dolor sit amet lacus accumsan et viverra justo commodo. Proin sodales pulvinar sic tempor. Sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p>
-            </div>
-            <div class="col-md-5">
-                <div class="group-image-placeholder">
-                    <span class="placeholder-text">Group Image</span>
+    </section>
+
+    <div class="divider-line"></div>
+
+    <!-- About Section -->
+    <section class="about-section" id="about">
+        <div class="container">
+            <h2 class="section-heading">About Us</h2>
+            <div class="row align-items-center">
+                <div class="col-md-7">
+                    <p class="about-text">DailyBite is a nutrition tracking application that helps you monitor your daily food intake, analyze nutritional patterns, and achieve your health goals.</p>
+                    <p class="about-text">Our platform provides an intuitive interface for recording meals, visualizing nutrition data, and selectively sharing your progress with friends, family, or healthcare professionals.</p>
+                </div>
+                <div class="col-md-5">
+                    <img src="{{ url_for('static', filename='project_group.jpg') }}" alt="Team Collaboration" class="group-image">
                 </div>
             </div>
         </div>
-    </div>
-</section>
- 
-<!-- Features Section -->
-<section class="features-section">
-    <div class="container">
-        <h2 class="section-heading">Key Features</h2>
-        <div class="row">
-            <div class="col-md-4">
-                <div class="feature-container">
-                    <div class="feature-icon">
-                        <i class="fas fa-utensils"></i>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <div class="container">
+            <h2 class="section-heading">Key Features</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="feature-container">
+                        <div class="feature-icon">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                        <h3 class="feature-title">Food Tracking</h3>
+                        <p class="feature-text">Record your meals and automatically calculate calories and nutrients.</p>
                     </div>
-                    <h3 class="feature-title">Food Tracking</h3>
-                    <p class="feature-text">Record your meals and automatically calculate calories and nutrients.</p>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="feature-container">
-                    <div class="feature-icon">
-                        <i class="fas fa-chart-line"></i>
+                <div class="col-md-4">
+                    <div class="feature-container">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3 class="feature-title">Data Analysis</h3>
+                        <p class="feature-text">Visualize your nutrition patterns and track progress over time.</p>
                     </div>
-                    <h3 class="feature-title">Data Analysis</h3>
-                    <p class="feature-text">Visualize your nutrition patterns and track progress over time.</p>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="feature-container">
-                    <div class="feature-icon">
-                        <i class="fas fa-share-alt"></i>
+                <div class="col-md-4">
+                    <div class="feature-container">
+                        <div class="feature-icon">
+                            <i class="fas fa-share-alt"></i>
+                        </div>
+                        <h3 class="feature-title">Selective Sharing</h3>
+                        <p class="feature-text">Share your achievements and progress with friends or nutritionists.</p>
                     </div>
-                    <h3 class="feature-title">Selective Sharing</h3>
-                    <p class="feature-text">Share your achievements and progress with friends or nutritionists.</p>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 {% endblock %}
