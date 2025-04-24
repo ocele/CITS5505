@@ -1,7 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms.validators import DataRequired, ValidationError, Email, EqualTo, Length
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, EmailField
-from wtforms.validators import DataRequired, ValidationError, Email, EqualTo, Length
+from wtforms.validators import DataRequired, ValidationError, Email, EqualTo, Length, NumberRange
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, EmailField, SelectField, SearchField, DecimalField
 from app.models import User 
 
 class LoginForm(FlaskForm):
@@ -16,3 +15,8 @@ class RegisterForm(FlaskForm):
     password2 = PasswordField(
         'Repeat Password', validators=[DataRequired(), EqualTo('password', message='Passwords must match.')])
     submit = SubmitField('Register')
+
+class AddMealForm(FlaskForm):
+    mealType = SelectField('Meal Type', validators=[DataRequired()])
+    food = SearchField('Food', validators=[DataRequired(), Length(min=2, max = 128)])
+    quantity = DecimalField('Quantity', validators=[DataRequired(), NumberRange(min=0)])

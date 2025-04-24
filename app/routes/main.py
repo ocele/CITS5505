@@ -15,6 +15,16 @@ def index():
         print(f"ERROR rendering template: {e}")
         raise
 
+@bp.route('/addMeal')
+def addMeal():
+    # TODO:
+    return
+
+@bp.route('/getHistory')
+def getHistory():
+    # TODO:
+    item = request.args.get('item')
+    return
 # def index():
 #     print(f"DEBUG: App template folder: {current_app.template_folder}") # 打印模板文件夹路径
 #     try:
