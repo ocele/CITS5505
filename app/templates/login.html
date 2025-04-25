@@ -16,12 +16,12 @@
     <body>
         <div class="container" id="all">
             <div class="container" id="loginContainer">
-                <form action="{{ url_for('main.login') }}" method="POST" class="pt-5 pb-5">
+                <form action="{{ url_for('auth.login') }}" method="POST" class="pt-3 pb-3">
                     {{ form1.hidden_tag() }}
                     <input type="hidden" name="form_type" value="login">
                     
                     <label for="emailLogin" class="form-label">Email</label><br>
-                    {{ form1.emailLogin(class="form-control") }}<br><br>
+                    {{ form1.emailLogin(class="form-control") }}<br>
                     
                     <div class="row">
                         <div class="col">
@@ -32,7 +32,10 @@
                             <a href="#" class="text-muted"><small>Forgot password?</small></a> 
                         </div><br>
                     </div>
-                    {{ form1.passwordLogin(class="form-control") }}<br><br>
+                    {{ form1.passwordLogin(class="form-control") }}<br>
+
+                    {{ form1.remember_me }}
+                    <label for="remember_me" class="form-label">Remember me</label>
 
                     <input type="submit" value="Sign In"><br><br>
                     <div class="text-center">
@@ -43,7 +46,7 @@
             </div>
 
             <div class="container" id="registerContainer">
-                <form action="{{ url_for('login') }}" method="POST" class="pt-5">
+                <form action="{{ url_for('auth.register') }}" method="POST" class="pt-3">
 
                     {{ form2.hidden_tag() }}
                     <input type="hidden" name="form_type" value="register">
@@ -60,21 +63,27 @@
                     </div> <br>
 
                     <label for="emailRegister" class="form-label">Email<span style="color: red;">*</span></label><br>
-                    {{ form2.emailRegister(class="form-control") }}<br><br>
+                    {{ form2.emailRegister(class="form-control") }}<br>
+
                     <label for="passwordRegister" class="form-label">Password<span style="color: red;">*</span></label><br>
-                    {{ form2.passwordRegister(class="form-control") }}<br><br>
+                    {{ form2.passwordRegister(class="form-control") }}<br>
+
+                    <label for="passwordRegisterRepeat" class="form-label">Repeat Your Password<span style="color: red;">*</span></label><br>
+                    {{ form2.passwordRegisterRepeat(class="form-control") }}<br>
 
                     {{ form2.subscription }}
                     <label for="subscription" class="form-label">Subscribe for Sales & New Themes</label>
                     <br><br>
+
                     <input type="submit" value="Sign Up" id="SignUpLocation"><br><br>
                 </form>
             </div>
 
             <script>
-                {% if error_message %}
-                    alert("{{ error_message }}");
-                {% endif %}
+                const messages = {{ get_flashed_messages()|tojson }};
+                if (messages.length > 0) {
+                    alert(messages.join('\n'));
+                }
             </script>
 
             <!-- Custom JS -->
