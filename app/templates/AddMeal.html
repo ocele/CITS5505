@@ -2,19 +2,19 @@
 {% block title %} DailyBite - Add Meal{% endblock %}
 {% block content %}
     <div class="container">
-        <form action="{{ url_for('main.addMeal')}}" method="post">
+        <form action="{{ url_for('addMeal')}}" method="POST">
             <h2>Add Meal</h2>
             {{ form.hidden_tag }}
 
             <label for="mealType" class="form-label">Meal Type</label>
-            {{ form.mealType }}
+            {{ form.mealType(class="form-control") }}
             <br><br>
 
             <div class="container" id="foodinputcontainer">
                 <label for="food" class="form-label">Food</label>
                 <div class="input-group">
-                    {{ form.food }}
-                    <span class="input-group-text"><a href="{{ url_for('main.searchFood') }}"><i class="fa-solid fa-magnifying-glass"></i></a></span>
+                    {{ form.food(class="form-control", id="foodInput") }}
+                    <span class="input-group-text"><a href="{{ url_for('searchFood') }}"><i class="fa-solid fa-magnifying-glass"></i></a></span>
                 </div>
                 {% if foodFound %}
                 <br>
@@ -34,38 +34,57 @@
 
             <label for="quantity" class="form-label">Quantity</label>
             <div class="input-group">
-                {{ food.quantity }}
-                <span class="input-group-text">gram</span>
+                {{ form.quantity(class="form-control", id="quantityInput") }}
+                {{ form.unit(class="form-control", id="unitInput", readonly=True) }}
             </div>
             <br><br>
-        </form>
+        
 
-        <div class="container" id="historyContainer">
-            <div class="row">
-                <div class="col-sm-2">
-                    <p>History</p>
-                </div>
-                <div class="col-sm-10">
-                    {% for item in historyItems %}
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-primary" onclick="location.href='{{ url_for(\'getHistory\', item=item) }}'">{{ item }}</button>
+            <div class="container" id="historyContainer">
+                <div class="row">
+                    <div class="col-sm-2">
+                        <p>History</p>
                     </div>
-                    {% endfor %}
+                    <div class="col-sm-10">
+                        {% for item in historyItems %}
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-primary" onclick="location.href='{{ url_for(\'getHistory\', item=item) }}'">{{ item }}</button>
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
-        </div>
-        <br><br>
+            <br><br>
 
-        <div class="container" id="suggestionsContainer">
-            <div class="row">
-                <div class="col-sm-2">
-                    <p>Suggestions</p>
-                </div>
-                <div class="col-sm-10">
-                    TODO:
+            <div class="container" id="suggestionsContainer">
+                <div class="row">
+                    <div class="col-sm-2">
+                        <p>Suggestions</p>
+                    </div>
+                    <div class="col-sm-10">
+                        {% for suggestion in suggestions %}
+                            <div class="row">
+                                <div class="col-sm-11">
+                                    <h3>{{ suggestion.name }}</h3>
+                                    <p> {{ suggestion.calories}}/ {{ suggestion.serving_size}} {{ suggestion.serving_unit}}</p>
+                                </div>
+                                <div class="col-sm-1">
+                                    <a href="#" class="add-suggestion" data-name="{{ suggestion.name }}" data-quantity="{{ suggestion.serving_size}}" data-unit="{{ suggestion.serving_unit}}">
+                                        <i class="fa-solid fa-plus"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
-        </div>
+
+            <div class="btn-group">
+                <input type="submit" class="btn btn-secondary" value="Save">
+                <a href="url_for('index.html')" class="btn btn-light">Cancel</a>
+                <!-- TODO: url for homepage -->
+            </div>
+        </form>
         <br><br>
     </div>
 {% endblock %}

@@ -1,6 +1,9 @@
 from flask import redirect, render_template, request, url_for, Blueprint,current_app
-from app.forms import LoginForm, RegisterForm
-from flask_login import current_user
+from app.forms import AddMealForm
+from flask_login import current_user, login_required
+from app import db
+from sqlalchemy import select
+from app.models import FoodLog, FoodItem
 
 bp = Blueprint('main', __name__)
 
@@ -15,16 +18,80 @@ def index():
         print(f"ERROR rendering template: {e}")
         raise
 
-@bp.route('/addMeal')
+@bp.get('/addMeal')
+@login_required
 def addMeal():
-    # TODO:
-    return
+    form = AddMealForm()
+    form.mealType.choices = ["breakfast", "lunch", "supper", "dinner", "snacks"]
+    # TODO: customised choices of mealType
+
+    historyItemsID = db.session.execute(select(FoodLog.food_item_id).where(FoodLog.user_id == current_user.id)).scalars().all()
+    historyItemsNames = []
+    if historyItemsID:
+        historyItemsNames = db.session.execute(select(FoodItem.name).where(FoodItem.id.in_(historyItemsID))).scalars().all()
+
+    suggestions = db.session.execute(select(FoodItem.name, FoodItem.calories, FoodItem.serving_size, FoodItem.serving_unit)).all()
+    if not suggestions:
+        suggestions = []
+    elif len(suggestions) > 10:
+        suggestionsTopTen = suggestions[:10]
+    else:
+        suggestionsTopTen = suggestions
+    # I picked only ten suggestions to avoid the list being too long
+    # TODO: Some sort of priority might come handy here
+
+    foodFound = request.args.getlist('foodFound', default=[])
+    form.mealType.data= request.args.get('mealType')
+    historyItem = request.args.get('item')
+    if historyItem:
+        form.food = historyItem.name
+        form.quantity = historyItem.serving_size
+        form.unit = historyItem.serving_unit
+    
+    return render_template('addMeal.html', form=form, foodFound=foodFound, historyItems=historyItemsNames, suggestions=suggestionsTopTen)
+
+@bp.post('/addMeal')
+@login_required
+def addMealPost():
+    form = AddMealForm()
+    if form.validate_on_submit():
+        foodName = form.food.data
+        inputFood = db.session.execute(select(FoodItem).where(FoodItem.name == foodName).one_or_none())
+        if not inputFood: # Create a new food item entry if the input food is not recorded yet in the database
+            foodItem = FoodItem(name = foodName, serving_size = form.quantity.data, serving_unit = form.unit.data, calories = 0 ) 
+            # TODO: What are the calories for a new item???
+            db.session.add(foodItem)
+            db.session.commit()
+        
+        # Create and add new food log entry
+        inputFoodID = db.session.execute(select(FoodItem.id).where(FoodItem.name == foodName).scalars.one_or_none())
+        foodLog = FoodLog(user_id = current_user.id, food_item_id = inputFoodID, meal_type = form.mealType.data, quantity_consumed = form.quantity.data, unit_consumed = form.unit.data)
+        db.session.add(foodLog)
+        db.session.commit() 
+        return redirect(url_for('index.html')) # TODO: add home page url here
+    else:
+        return redirect(url_for('addMeal'))
+
+@bp.route('/searchFood')
+@login_required
+def searchFood():
+    form = AddMealForm()
+    mealType = form.mealType.data
+    foodSearched = form.food.data
+    foodFound = db.session.execute(select(FoodItem.name, FoodItem.calories, FoodItem.serving_size, FoodItem.serving_unit).where(FoodItem.name == foodSearched).all())
+    return redirect(url_for('addMeal', foodFound = foodFound, mealType = mealType))
 
 @bp.route('/getHistory')
+@login_required
 def getHistory():
-    # TODO:
+    form = AddMealForm()
+    mealType = form.mealType.data
     item = request.args.get('item')
-    return
+    history = db.session.execute(select(FoodItem).where(FoodItem.name == item))
+
+    return redirect(url_for('addMeal', mealType = mealType, item = history))
+
+
 # def index():
 #     print(f"DEBUG: App template folder: {current_app.template_folder}") # 打印模板文件夹路径
 #     try:

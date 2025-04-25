@@ -24,3 +24,4 @@ class AddMealForm(FlaskForm):
     mealType = SelectField('Meal Type', validators=[DataRequired()])
     food = SearchField('Food', validators=[DataRequired(), Length(min=2, max = 128)])
     quantity = DecimalField('Quantity', validators=[DataRequired(), NumberRange(min=0)])
+    unit = StringField('unit', validators=[DataRequired(), Length(min=1, max = 32)])
