@@ -14,6 +14,7 @@ def login():
         return redirect(url_for('main.index')) 
 
     form = LoginForm()
+    form2 = RegisterForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.emailLogin.data).first() 
         if user is None or not user.check_password(form.passwordLogin.data):
@@ -27,7 +28,7 @@ def login():
         flash('Login successful!', 'success')
         return redirect(next_page)
 
-    return render_template('auth/login.html', title='Sign In', form1=form)
+    return render_template('login.html', title='Sign In', form1=form, form2=form2)
 
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
@@ -35,15 +36,17 @@ def register():
         return redirect(url_for('main.index'))
 
     form = RegisterForm()
+    form1 = LoginForm()
     if form.validate_on_submit():
-        user = User(username=form.username.data, email=form.email.data)
-        user.set_password(form.password.data) 
+        fullName = form.firstName.data + form.lastName.data
+        user = User(username=fullName, email=form.emailRegister.data)
+        user.set_password(form.passwordRegister.data) 
         db.session.add(user)
         db.session.commit()
         flash('Congratulations, you are now a registered user!', 'success')
         return redirect(url_for('auth.login')) 
     # register page requires both login and register forms
-    return render_template('auth/register.html', title='Register', form2=form)
+    return render_template('login.html', title='Register', form2=form, form1 = form1)
 
 @bp.route('/logout')
 def logout():
