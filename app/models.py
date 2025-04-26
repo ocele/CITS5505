@@ -2,6 +2,8 @@ from datetime import datetime, timezone
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from app import db, login_manager
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import String
 
 # Loads a user object based on the user ID stored in the session.
 @login_manager.user_loader
@@ -14,7 +16,9 @@ class User(UserMixin, db.Model):
 
     # Core user identification and credentials.
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(64), index=True, unique=True, nullable=False)
+    # username = db.Column(db.String(64), index=True, unique=True, nullable=False)
+    firstName: Mapped[str] = mapped_column(String(128), index=True, nullable=False)
+    lastName: Mapped[str] = mapped_column(String(128), index=True, nullable=False)
     email = db.Column(db.String(120), index=True, unique=True, nullable=False)
     password_hash = db.Column(db.String(128))
 

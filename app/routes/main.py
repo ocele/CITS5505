@@ -1,4 +1,4 @@
-from flask import redirect, render_template, request, url_for, Blueprint,current_app
+from flask import redirect, render_template, request, url_for, Blueprint,current_app, flash
 from app.forms import AddMealForm
 from flask_login import current_user, login_required
 from app import db
@@ -57,12 +57,14 @@ def addMealPost():
     if form.validate_on_submit():
         foodName = form.food.data
         inputFood = db.session.execute(select(FoodItem).where(FoodItem.name == foodName).one_or_none())
-        if not inputFood: # Create a new food item entry if the input food is not recorded yet in the database
-            foodItem = FoodItem(name = foodName, serving_size = form.quantity.data, serving_unit = form.unit.data, calories = 0 ) 
-            # TODO: What are the calories for a new item???
-            db.session.add(foodItem)
-            db.session.commit()
-        
+        if not inputFood:
+            # foodItem = FoodItem(name = foodName, serving_size = form.quantity.data, serving_unit = form.unit.data, calories = 0 ) 
+            # # TODO: What are the calories for a new item???
+            # db.session.add(foodItem)
+            # db.session.commit()
+            flash("The food you chose is not yet in the database. Please add a new product in the setting")
+            return redirect(url_for('index.html')) # TODO: change the url to settings
+            
         # Create and add new food log entry
         inputFoodID = db.session.execute(select(FoodItem.id).where(FoodItem.name == foodName).scalars.one_or_none())
         foodLog = FoodLog(user_id = current_user.id, food_item_id = inputFoodID, meal_type = form.mealType.data, quantity_consumed = form.quantity.data, unit_consumed = form.unit.data)
@@ -78,7 +80,7 @@ def searchFood():
     form = AddMealForm()
     mealType = form.mealType.data
     foodSearched = form.food.data
-    foodFound = db.session.execute(select(FoodItem.name, FoodItem.calories, FoodItem.serving_size, FoodItem.serving_unit).where(FoodItem.name == foodSearched).all())
+    foodFound = db.session.execute(select(FoodItem.name, FoodItem.calories, FoodItem.serving_size, FoodItem.serving_unit).where(FoodItem.name.ilike(f"%{foodSearched}%"))).all()
     return redirect(url_for('addMeal', foodFound = foodFound, mealType = mealType))
 
 @bp.route('/getHistory')
