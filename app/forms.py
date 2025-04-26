@@ -12,13 +12,17 @@ class LoginForm(FlaskForm):
 class RegisterForm(FlaskForm):
     firstName = StringField('First Name', validators=[DataRequired(), Length(min=3, max=64)])
     lastName = StringField('Last Name', validators=[DataRequired(), Length(min=3, max=64)])
-    # username = StringField('Username', validators=[DataRequired(), Length(min=3, max=64)])
     emailRegister = EmailField('Email', validators=[DataRequired(), Email(), Length(max=120)]) 
     passwordRegister = PasswordField('Password', validators=[DataRequired(), Length(min=6)])
     passwordRegisterRepeat = PasswordField(
-        'Repeat Password', validators=[DataRequired(), EqualTo('password', message='Passwords must match.')])
+        'Repeat Password', validators=[DataRequired(), EqualTo('passwordRegister', message='Passwords must match.')])
     subscription = BooleanField('Subscribe for Sales & New Themes')
     submit = SubmitField('Register')
+
+    # def validate_email(self, email):
+    # user = User.query.filter_by(email=email.data).first()
+    # if user is not None:
+    #     raise ValidationError('Email address already registered.')
 
 class AddMealForm(FlaskForm):
     mealType = SelectField('Meal Type', validators=[DataRequired()])

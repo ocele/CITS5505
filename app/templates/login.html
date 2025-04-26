@@ -64,12 +64,22 @@
 
                     <label for="emailRegister" class="form-label">Email<span style="color: red;">*</span></label><br>
                     {{ form2.emailRegister(class="form-control") }}<br>
+                    {% if form2.emailRegister.errors %}
+                    {% for error in form2.emailRegister.errors %}
+                            <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
 
                     <label for="passwordRegister" class="form-label">Password<span style="color: red;">*</span></label><br>
                     {{ form2.passwordRegister(class="form-control") }}<br>
 
                     <label for="passwordRegisterRepeat" class="form-label">Repeat Your Password<span style="color: red;">*</span></label><br>
                     {{ form2.passwordRegisterRepeat(class="form-control") }}<br>
+                    {% if form2.passwordRegisterRepeat.errors %}
+                        {% for error in form2.passwordRegisterRepeat.errors %}
+                            <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
 
                     {{ form2.subscription }}
                     <label for="subscription" class="form-label">Subscribe for Sales & New Themes</label>

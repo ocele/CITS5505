@@ -29,3 +29,4 @@ def create_app(config_class=Config):
     # return the app instance
     return app
 
+from app.models import User, FoodItem, FoodLog
