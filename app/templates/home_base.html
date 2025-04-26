@@ -82,5 +82,11 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Custom JS -->
     {% block extra_js %}{% endblock %}
+    <script defer>
+        const messages = {{ get_flashed_messages()|tojson }};
+        if (messages.length > 0) {
+            alert(messages.join('\n'));
+        }
+    </script>
 </body>
 </html>
