@@ -1,9 +1,9 @@
 from flask import redirect, render_template, request, url_for, Blueprint,current_app, flash
-from app.forms import AddMealForm
+from app.forms import AddMealForm, AddMealTypeForm, SetGoalForm, AddNewProductForm
 from flask_login import current_user, login_required
 from app import db
 from sqlalchemy import select
-from app.models import FoodLog, FoodItem
+from app.models import FoodLog, FoodItem, MealType
 
 bp = Blueprint('main', __name__)
 
@@ -62,7 +62,7 @@ def addMealPost():
             # # TODO: What are the calories for a new item???
             # db.session.add(foodItem)
             # db.session.commit()
-            flash("The food you chose is not yet in the database. Please add a new product in the setting")
+            flash("The food you chose is not yet in the database. Please add a new product in the setting", "error")
             return redirect(url_for('index.html')) # TODO: change the url to settings
             
         # Create and add new food log entry
@@ -92,6 +92,55 @@ def getHistory():
     history = db.session.execute(select(FoodItem).where(FoodItem.name == item))
 
     return redirect(url_for('addMeal', mealType = mealType, item = history))
+
+@bp.get('/setting')
+@login_required
+def setting():
+    form1 = AddMealTypeForm()
+    form2 = SetGoalForm()
+    form3 = AddNewProductForm()
+    
+    return render_template('setting.html', form1=form1, form2=form2, form3=form3)
+
+@bp.post('/addMealType')
+@login_required
+def addMealType():
+    form1 = AddMealTypeForm()
+    if form1.validate_on_submit(): 
+        mealType = MealType(user_id=current_user.id, type_name=form1.typeName.data)
+        db.session.add(mealType)
+        db.session.commit()
+        return redirect(url_for()) # TODO: homepage
+    else:
+        return redirect(url_for('setting'))
+
+@bp.post('/setGoal')
+@login_required
+def setGoal():
+    form2 = SetGoalForm()
+    if form2.validate_on_submit(): 
+        current_user.target_calories = form2.goal.data
+        db.session.commit()
+        return redirect(url_for()) # TODO: homepage
+    else:
+        return redirect(url_for('setting'))
+
+@bp.post('/addNewProduct')
+@login_required
+def addNewProduct():
+    form3 = AddNewProductForm()
+    if form3.validate_on_submit():
+        if db.session.execute(select(FoodItem).where(FoodItem.name == form3.productName.data).one_or_none):
+            flash("Error: The food with the same name already exist!", "error")
+            return redirect(url_for('setting'))
+        else:
+            foodItem = FoodItem(name=form3.productName.data, serving_size=form3.quantity.data, serving_unit=form3.unit.data, calories=form3.kilojoules.data)
+            db.session.add(foodItem)
+            db.session.commit()
+            return redirect(url_for()) # TODO: homepage
+    else:
+        return redirect(url_for('setting'))
+
 
 
 # def index():

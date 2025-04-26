@@ -1,0 +1,90 @@
+{% extends home_base.html %}
+{% block title %} DailyBite - setting{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="../static/styleSetting.css">
+{% endblock %}
+
+{% block content %}
+<div class="row halfPage">
+    <div class="col-sm-6">
+        <div class="row titleRow">
+            <div class="col-1 emptyCol"></div>
+            <div class="col-2 titleCol">Meal</div>
+            <div class="col-5 shadowCol"></div>
+        </div>
+        <div class="container">
+            <form action="{{ url.for('addMealType') }}" method="POST">
+                {{ form.hidden_tag() }}
+                <h2> Meal Type </h2>
+                <label for="typeName" class="form-label">Type Name</label><br>
+                {{ form1.typeName(class="form-control") }}
+                <br><br>
+                <div class="btn-group">
+                    <input type="submit" class="btn btn-secondary" value="Save">
+                    <a href="url_for('index.html')" class="btn btn-light">Cancel</a>
+                    <!-- TODO: change the url for homepage -->
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-sm-6">
+        <div class="row titleRow">
+            <div class="col-1 emptyCol"></div>
+            <div class="col-2 titleCol">Goal</div>
+            <div class="col-5 shadowCol"></div>
+        </div>
+        <div class="container">
+            <form action="{{ url.for('setGoal') }}" method="POST">
+                {{ form.hidden_tag() }}
+                <h2> Set Goal </h2>
+                <label for="goal" class="form-label">Set Goal</label><br>
+                {{ form2.goal(class="form-control") }}
+                <br><br>
+                <div class="btn-group">
+                    <input type="submit" class="btn btn-secondary" value="Save">
+                    <a href="url_for('index.html')" class="btn btn-light">Cancel</a>
+                    <!-- TODO: change the url for homepage -->
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="row halfPage">
+    <div class="col-sm-6">
+        <div class="row titleRow">
+            <div class="col-1 emptyCol"></div>
+            <div class="col-2 titleCol">Product</div>
+            <div class="col-5 shadowCol"></div>
+        </div>
+        <div class="container">
+            <form action="{{ url.for('addNewProduct') }}" method="POST">
+                {{ form.hidden_tag() }}
+                <h2> Add New Product </h2>
+                <label class="form-label" for="productName"></label><br>
+                {{ form3.productName(class="form-control") }}
+                <br>
+                <label class="form-label" for="quantity"></label><br>
+                {{ form3.quantity(class="form-control") }}
+                <br>
+                <label class="form-label" for="unit"></label><br>
+                {{ form3.unit(class="form-control") }}
+                <br>
+                <label class="form-label" for="kilojoules"></label><br>
+                {{ form3.kilojoules(class="form-control") }}
+                <br>
+                <div class="btn-group">
+                    <input type="submit" class="btn btn-secondary" value="Save">
+                    <a href="url_for('index.html')" class="btn btn-light">Cancel</a>
+                    <!-- TODO: change the url for homepage -->
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% endblock %}

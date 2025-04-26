@@ -25,3 +25,15 @@ class AddMealForm(FlaskForm):
     food = SearchField('Food', validators=[DataRequired(), Length(min=2, max = 128)])
     quantity = DecimalField('Quantity', validators=[DataRequired(), NumberRange(min=0)])
     unit = StringField('unit', validators=[DataRequired(), Length(min=1, max = 32)])
+
+class AddMealTypeForm(FlaskForm):
+    typeName = StringField('Type Name', validators=[DataRequired(), Length(min=1, max = 128)])
+
+class SetGoalForm(FlaskForm):
+    goal = DecimalField('kilojoules/ Day', validators=[DataRequired(), NumberRange(min=0)])
+
+class AddNewProductForm(FlaskForm):
+    productName = StringField('Product Name', validators=[DataRequired(), Length(min=1, max = 128)])
+    quantity = DecimalField('Quantity', validators=[DataRequired(), NumberRange(min=0)])
+    unit = SelectField('Unit', choices=['gram', 'medium', 'cup', 'ml', 'serving'], validators=[DataRequired()])
+    kilojoules = DecimalField('Kilojoules', validators=[DataRequired(), NumberRange(min=0)])

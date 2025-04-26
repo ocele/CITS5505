@@ -23,7 +23,7 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128))
 
     # Optional user dietary goals.
-    target_calories = db.Column(db.Float, nullable=True)
+    target_calories = db.Column(db.Float, nullable=True, default=2000.0)
     target_protein = db.Column(db.Float, nullable=True)
     target_fat = db.Column(db.Float, nullable=True)
     target_carbs = db.Column(db.Float, nullable=True)
@@ -99,3 +99,12 @@ class FoodLog(db.Model):
         user_name = self.logger.username if self.logger else 'Unknown User'
         time_str = self.log_timestamp.strftime('%Y-%m-%d %H:%M') if self.log_timestamp else 'No Time'
         return f'<FoodLog {self.quantity_consumed} {self.unit_consumed} of {food_name} for {user_name} at {time_str}>'
+    
+class MealType(db.Model):
+    __tablename__ = 'meal_type'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+
+    user_id: Mapped[int] = mapped_column(db.ForeignKey('user.id'), nullable=False, index=True)
+    type_name: Mapped[str] = mapped_column(String(128), unique=False, nullable=False)
+
