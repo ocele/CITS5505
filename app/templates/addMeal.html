@@ -21,7 +21,7 @@
                 <div id="foodFoundContainer">
                     {% for food in foodFound %}
                     <input type="radio" id="{{ food.name }}" name="foundFood" value="{{ food.name }}">
-                    <label for="{{ food.name }}">
+                    <label for="{{ food.name }}" class="form-label">
                         <h3>{{ food.name }}</h3>
                         <p> {{ food.calories}}/ {{ food.serving_size}} {{ food.serving_unit}}</p>
                     </label>
