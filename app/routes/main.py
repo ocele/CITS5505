@@ -4,6 +4,7 @@ from flask_login import current_user, login_required
 from app import db
 from sqlalchemy import select
 from app.models import FoodLog, FoodItem, MealType
+from datetime import date
 
 bp = Blueprint('main', __name__)
 
@@ -17,6 +18,13 @@ def index():
     except Exception as e:
         print(f"ERROR rendering template: {e}")
         raise
+
+@bp.route('/home')
+@login_required
+def home():
+    user = current_user
+    return render_template('home_base.html', user=user)
+    # return f"<h1>Welcome, {user.first_name} {user.last_name}!</h1>" 
 
 @bp.get('/addMeal')
 @login_required
@@ -140,7 +148,24 @@ def addNewProduct():
             return redirect(url_for()) # TODO: homepage
     else:
         return redirect(url_for('setting'))
+    
+@bp.route('/friends')
+@login_required
+def friends():
 
+    return "friends page" # TODO: need a friends page
+
+@bp.route('/meal_list')
+def meal_list():
+
+    # TODO: need a meal list page
+    return "Meal List page coming soon!"
+
+@bp.route('/settings')
+def settings():
+
+    # TODO: need a settings page
+    return "settings page coming soon!"
 
 
 # def index():
