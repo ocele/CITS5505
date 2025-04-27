@@ -99,3 +99,11 @@ class FoodLog(db.Model):
         user_identifier = self.logger.email if self.logger else 'Unknown User'
         time_str = self.log_timestamp.strftime('%Y-%m-%d %H:%M') if self.log_timestamp else 'No Time'
         return f'<FoodLog {self.quantity_consumed} {self.unit_consumed} of {food_name} for {user_identifier} at {time_str}>'
+
+class MealType(db.Model):
+    __tablename__ = 'meal_type'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+
+    user_id: Mapped[int] = mapped_column(db.ForeignKey('user.id'), nullable=False, index=True)
+    type_name: Mapped[str] = mapped_column(String(128), unique=False, nullable=False)
