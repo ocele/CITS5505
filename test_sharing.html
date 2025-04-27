@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DailyBite - Share with Friends</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Arial', 'Open Sans', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .dashboard-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Navbar styles */
+        .navbar {
+            padding: 0.8rem 1rem;
+            background-color: #FFB84D !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+            color: white !important;
+        }
+
+        .nav-link {
+            color: white !important;
+        }
+
+        /* Dashboard content layout */
+        .dashboard-content {
+            display: flex;
+            flex: 1;
+        }
+
+        /* Sidebar styles */
+        .sidebar {
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .profile-section {
+            background-color: #FFB84D;
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .navigation-section {
+            background-color: #f1f1f1;
+            flex: 1;
+            padding: 20px;
+        }
+
+        /* User profile section */
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #f8f8f8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+        }
+
+        .avatar i {
+            font-size: 3rem;
+            color: #FFB84D;
+        }
+
+        .username {
+            font-size: 1.4rem;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .userid {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 15px;
+        }
+
+        .calorie-badge {
+            background-color: white;
+            border-radius: 50px;
+            padding: 8px 20px;
+            font-size: 1rem;
+            display: inline-block;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .calorie-badge i {
+            color: #F57C00;
+            margin-right: 5px;
+        }
+
+        /* Sidebar navigation icons */
+        .nav-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            background-color: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .nav-icon:hover, .nav-icon.active {
+            background-color: #FFB84D;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .nav-icon i {
+            font-size: 1.5rem;
+        }
+
+        .nav-icon-row {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Main content area */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Share modal styling */
+        .share-modal {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.15);
+            width: 100%;
+            max-width: 500px;
+            padding: 30px;
+        }
+
+        .share-modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .share-section {
+            margin-bottom: 25px;
+        }
+
+        .share-section-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .option-label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            cursor: pointer;
+            font-weight: normal;
+        }
+
+        .option-label input {
+            margin-right: 10px;
+        }
+
+        .friend-search {
+            position: relative;
+            margin: 20px 0;
+        }
+
+        .friend-search input {
+            width: 100%;
+            padding: 10px 40px 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 50px;
+            font-size: 1rem;
+        }
+
+        .friend-search .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+
+        .friend-list {
+            margin-top: 15px;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+        }
+
+        .btn-confirm {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 4px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-confirm:hover {
+            background-color: #5a6268;
+        }
+
+        .btn-cancel {
+            background-color: transparent;
+            color: #6c757d;
+            border: 1px solid #6c757d;
+            padding: 10px 30px;
+            border-radius: 4px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-cancel:hover {
+            background-color: #f8f9fa;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 240px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-content {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                flex-direction: row;
+            }
+            
+            .profile-section {
+                width: 30%;
+            }
+            
+            .navigation-section {
+                width: 70%;
+                display: flex;
+                align-items: center;
+            }
+            
+            .nav-icon-row {
+                margin-bottom: 0;
+            }
+
+            .share-modal {
+                margin: 0 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Top Navigation Bar -->
+        <nav class="navbar navbar-expand-lg">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">DailyBite</a>
+                <div class="navbar-nav me-auto">
+                    <a class="nav-link" href="#">Home</a>
+                </div>
+                <div class="navbar-nav ms-auto">
+                    <a class="nav-link" href="#"><i class="fa-solid fa-sign-out-alt"></i> Logout</a>
+                </div>
+            </div>
+        </nav>
+
+        <div class="dashboard-content">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Profile Section -->
+                <div class="profile-section">
+                    <div class="avatar">
+                        <i class="fa-regular fa-face-smile"></i>
+                    </div>
+                    <div class="username">Veronica</div>
+                    <div class="userid">ID: 2077</div>
+                    <div class="calorie-badge">
+                        <i class="fa-solid fa-bullseye"></i> 2000 kcal
+                    </div>
+                </div>
+                
+                <!-- Navigation Section -->
+                <div class="navigation-section">
+                    <div class="nav-icon-row">
+                        <a href="#" class="nav-icon">
+                            <i class="fa-solid fa-house"></i>
+                        </a>
+                        <a href="#" class="nav-icon">
+                            <i class="fa-solid fa-plus"></i>
+                        </a>
+                    </div>
+                    <div class="nav-icon-row">
+                        <a href="#" class="nav-icon active">
+                            <i class="fa-solid fa-users"></i>
+                        </a>
+                        <a href="#" class="nav-icon">
+                            <i class="fa-solid fa-list"></i>
+                        </a>
+                    </div>
+                    <div class="nav-icon-row">
+                        <a href="#" class="nav-icon">
+                            <i class="fa-solid fa-gear"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Area with Share Modal -->
+            <div class="main-content">
+                <div class="share-modal">
+                    <h2 class="share-modal-title">Share to Friends</h2>
+                    
+                    <!-- Content Selection Section -->
+                    <div class="share-section">
+                        <h5 class="share-section-title">Select content to share</h5>
+                        <label class="option-label">
+                            <input type="radio" name="content-type" value="ranking" checked>
+                            My Current Ranking
+                        </label>
+                        <label class="option-label">
+                            <input type="radio" name="content-type" value="calorie">
+                            My Calorie Intake
+                        </label>
+                    </div>
+                    
+                    <!-- Date Range Selection -->
+                    <div class="share-section">
+                        <h5 class="share-section-title">Select Data Range</h5>
+                        <div class="d-flex">
+                            <label class="option-label me-4">
+                                <input type="radio" name="date-range" value="daily">
+                                Daily
+                            </label>
+                            <label class="option-label me-4">
+                                <input type="radio" name="date-range" value="weekly" checked>
+                                Weekly
+                            </label>
+                            <label class="option-label">
+                                <input type="radio" name="date-range" value="monthly">
+                                Monthly
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Friend Search -->
+                    <div class="friend-search">
+                        <input type="text" placeholder="Find your friend" class="form-control">
+                        <span class="search-icon">
+                            <i class="fas fa-search"></i>
+                        </span>
+                    </div>
+                    
+                    <!-- Friend List -->
+                    <div class="friend-list">
+                        <label class="option-label">
+                            <input type="checkbox" name="friend" value="veronica">
+                            Veronica (ID: 2077)
+                        </label>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        <button class="btn btn-confirm">Confirm</button>
+                        <button class="btn btn-cancel">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</body>
+</html>
