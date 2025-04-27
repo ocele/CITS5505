@@ -81,19 +81,15 @@ class FoodLog(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
-    # Foreign keys linking the log to a user and a food item.
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
     food_item_id = db.Column(db.Integer, db.ForeignKey('food_item.id'), nullable=False, index=True)
 
-    # Details about the consumption event.
     log_date = db.Column(db.DateTime, index=True, default=date.today)
     meal_type = db.Column(db.String(50), index=True, nullable=False)
 
-    # Amount consumed by the user.
     quantity_consumed = db.Column(db.Float, nullable=False)
-    unit_consumed = db.Column(db.String(20), nullable=False, default='serving') # Unit for the quantity_consumed field
+    unit_consumed = db.Column(db.String(20), nullable=False, default='serving')
 
-    # String representation for debugging.
     def __repr__(self):
         food_name = self.food_details.name if self.food_details else 'Unknown Food'
         user_identifier = self.logger.email if self.logger else 'Unknown User'

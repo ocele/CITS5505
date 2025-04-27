@@ -19,11 +19,55 @@ def index():
         print(f"ERROR rendering template: {e}")
         raise
 
-@bp.route('/home')
+@bp.route('/profile', methods=['GET', 'POST'])
 @login_required
-def home():
+def profile():
     user = current_user
-    return render_template('home_base.html', user=user)
+    form = AddMealForm()
+    if form.validate_on_submit():
+        foodName = form.food.data
+        inputFoodItem = db.session.scalar(
+            select(FoodItem).filter_by(name=foodNmae)
+            ).one_or_none()
+
+        if not inputFoodItem:
+            flash(f"'{foodName}' Food not found, please add it", 'warning')
+            return redirect(url_for('main.home'))
+        else:
+            try:
+                foodLog = FoodLog(
+                    user_id=current_user.id,
+                    food_item_id=inputFoodItem.id,
+                    meal_type=form.mealType.data,
+                    quantity_consumed=float(form.quantity.data),
+                )
+                db.session.add(foodLog)
+                db.session.commit()
+                flash('Food loged!', 'success')
+            except Exception as e:
+                db.session.rollback() 
+                flash(f'Adding error: {e}', 'danger')
+
+            return redirect(url_for('main.home'))
+
+    # form.mealType.choices = ["Breakfast", "Lunch", "Dinner", "Snacks"] 
+
+    recent_logs = db.session.scalars(
+        select(FoodLog).filter_by(user_id=current_user.id)
+                      .order_by(FoodLog.log_date.desc())
+                      .limit(5)
+    ).all()
+
+
+    return render_template(
+        'profile.html', 
+        title='My profile',
+        user=user,
+        form=form,
+        recent_logs=recent_logs 
+    )
+
+    # return render_template('home_base.html', user=user)
     # return f"<h1>Welcome, {user.first_name} {user.last_name}!</h1>" 
 
 @bp.get('/addMeal')

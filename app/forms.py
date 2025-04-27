@@ -30,12 +30,24 @@ def meal_type_query():
     return MealType.query
 
 class AddMealForm(FlaskForm):
-    MealType = QuerySelectField('Meal Type', query_factory=meal_type_query, allow_blank=True, get_label='typeName',allow_bank=True, validators=[DataRequired()])
+    # mealType = QuerySelectField('Meal Type', query_factory=meal_type_query, allow_blank=True, get_label='typeName', validators=[DataRequired()])
+    mealType = SelectField(
+        'Meal Type',
+        choices=[ # 直接在这里定义 choices
+            ('Breakfast', 'Breakfast'),
+            ('Lunch', 'Lunch'),
+            ('Dinner', 'Dinner'),
+            ('Snacks', 'Snacks')
+        ],
+        validators=[DataRequired()]
+    )
 # class AddMealForm(FlaskForm):
+
 #     mealType = SelectField('Meal Type', validators=[DataRequired()])
     food = SearchField('Food', validators=[DataRequired(), Length(min=2, max = 128)])
     quantity = DecimalField('Quantity', validators=[DataRequired(), NumberRange(min=0)])
     unit = StringField('unit', validators=[DataRequired(), Length(min=1, max = 32)])
+    submit = SubmitField('Add Meal')
 
 class AddMealTypeForm(FlaskForm):
     typeName = StringField('Type Name', validators=[DataRequired(), Length(min=1, max = 128)])
