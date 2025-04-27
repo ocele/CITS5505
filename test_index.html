@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DailyBite - Track Your Nutrition</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Open Sans', 'Noto Sans', sans-serif;
+            color: #212121;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            background-color: transparent !important;
+            box-shadow: none;
+            padding: 15px 0;
+            position: absolute;
+            width: 100%;
+            z-index: 100;
+        }
+
+        .navbar-brand {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 600;
+            font-size: 1.8rem;
+            font-family: 'Poppins', 'Inter', sans-serif;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 500;
+            margin: 0 10px;
+            font-size: 1.1rem;
+        }
+
+        .nav-link:hover {
+            color: #FFB84D !important;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background-image: url('app/static/background.jpg');
+            background-size: cover;
+            background-position: center;
+            min-height: 500px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            text-align: left;
+            padding-top: 70px;
+        }
+
+        /* Overlay to darken background */
+        .hero-section:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.2); /* Semi-transparent dark overlay */
+        }
+
+        /* Hero Content Container */
+        .hero-content {
+            padding: 60px 0;
+            max-width: 500px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-title {
+            color: #FFFFFF;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            font-family: 'Poppins', 'Inter', sans-serif;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .hero-text {
+            color: #FFFFFF;
+            font-size: 18px;
+            margin-bottom: 1.5rem;
+            font-weight: 400;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .btn-primary {
+            background-color: #FFB84D;
+            border-color: #FFB84D;
+            color: #FFFFFF;
+            padding: 10px 40px;
+            font-size: 16px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background-color: #F57C00;
+            border-color: #F57C00;
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(255,184,77,0.3);
+        }
+
+        /* Divider line */
+        .divider-line {
+            border-top: 1px solid #E0E0E0;
+            margin: 30px 0;
+        }
+
+        /* About Section */
+        .about-section {
+            padding: 60px 0;
+            background-color: #FFFFFF;
+        }
+
+        .section-heading {
+            color: #212121;
+            text-align: center;
+            font-weight: 700;
+            font-size: 24px;
+            margin-bottom: 40px;
+            font-family: 'Poppins', 'Inter', sans-serif;
+            position: relative;
+        }
+
+        .section-heading::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background-color: #FFB84D;
+        }
+
+        .about-text {
+            line-height: 1.8;
+            margin-bottom: 20px;
+            color: #212121;
+            font-size: 16px;
+        }
+
+        .group-image {
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        /* Features Section */
+        .features-section {
+            padding: 60px 0;
+            background-color: #F3F3F3;
+        }
+
+        .feature-icon {
+            color: #FFB84D;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .feature-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 18px;
+            color: #212121;
+            font-family: 'Poppins', 'Inter', sans-serif;
+        }
+
+        .feature-text {
+            color: #757575;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .feature-container {
+            text-align: center;
+            margin-bottom: 30px;
+            background-color: #FFFFFF;
+            padding: 30px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.10), 0 1.5px 3px rgba(0,0,0,0.06);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-container:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Footer */
+        footer {
+            background-color: #FFFFFF;
+            padding: 40px 0 30px;
+            color: #757575;
+            border-top: 1px solid #E0E0E0;
+        }
+
+        .footer-slogan {
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 18px;
+            color: #212121;
+            font-family: 'Poppins', 'Inter', sans-serif;
+        }
+
+        .copyright-text {
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .contact-heading {
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 16px;
+            color: #212121;
+        }
+
+        .social-icons a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #F3F3F3;
+            color: #FFB84D;
+            margin-right: 10px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .social-icons a:hover {
+            background-color: #FFB84D;
+            color: #FFFFFF;
+            transform: translateY(-3px);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 28px;
+            }
+            
+            .hero-section {
+                padding: 40px 0;
+            }
+            
+            .about-section, .features-section {
+                padding: 50px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="test_index.html">DailyBite</a>
+            <div class="d-flex">
+                <a class="nav-link" href="#about">About US</a>
+                <a class="nav-link" href="test_Login.html">Join Us</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-5">
+                    <div class="hero-content">
+                        <h1 class="hero-title">Tracking your meal</h1>
+                        <p class="hero-text">Eat healthier and achieve your goal</p>
+                        <a href="test_Login.html" class="btn btn-primary">Join Us</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider-line"></div>
+
+    <!-- About Section -->
+    <section class="about-section" id="about">
+        <div class="container">
+            <h2 class="section-heading">About Us</h2>
+            <div class="row align-items-center">
+                <div class="col-md-7">
+                    <p class="about-text">DailyBite is a nutrition tracking application that helps you monitor your daily food intake, analyze nutritional patterns, and achieve your health goals.</p>
+                    <p class="about-text">Our platform provides an intuitive interface for recording meals, visualizing nutrition data, and selectively sharing your progress with friends, family, or healthcare professionals.</p>
+                </div>
+                <div class="col-md-5">
+                    <img src="app/static/project_group.jpg" alt="Team Collaboration" class="group-image">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <div class="container">
+            <h2 class="section-heading">Key Features</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="feature-container">
+                        <div class="feature-icon">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                        <h3 class="feature-title">Food Tracking</h3>
+                        <p class="feature-text">Record your meals and automatically calculate calories and nutrients.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-container">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3 class="feature-title">Data Analysis</h3>
+                        <p class="feature-text">Visualize your nutrition patterns and track progress over time.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-container">
+                        <div class="feature-icon">
+                            <i class="fas fa-share-alt"></i>
+                        </div>
+                        <h3 class="feature-title">Selective Sharing</h3>
+                        <p class="feature-text">Share your achievements and progress with friends or nutritionists.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h3 class="footer-slogan">Improve your life by recording your habits</h3>
+                    <p class="copyright-text">© Copyright DailyBite All Rights Reserved</p>
+                    <p>Designed by Group 52</p>
+                </div>
+                <div class="col-md-3">
+                    <h4 class="contact-heading">Contact Us</h4>
+                    <p>35 Stirling Hwy, Crawley<br>WA 6009</p>
+                </div>
+                <div class="col-md-3">
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</body>
+</html>
