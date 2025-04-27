@@ -3,7 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from app import db, login_manager
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import String
+from sqlalchemy import String, Integer, Float, DateTime, Boolean, ForeignKey
 
 # Loads a user object based on the user ID stored in the session.
 @login_manager.user_loader
@@ -16,11 +16,11 @@ class User(UserMixin, db.Model):
 
     # Core user identification and credentials.
     id = db.Column(db.Integer, primary_key=True)
-    # username = db.Column(db.String(64), index=True, unique=True, nullable=False)
-    firstName: Mapped[str] = mapped_column(String(128), index=True, nullable=False)
-    lastName: Mapped[str] = mapped_column(String(128), index=True, nullable=False)
-    email = db.Column(db.String(120), index=True, unique=True, nullable=False)
-    password_hash = db.Column(db.String(128))
+
+    first_name: Mapped[str] = mapped_column(String(64), nullable=False) # Changed length to 64, nullable=False
+    last_name: Mapped[str] = mapped_column(String(64), nullable=False)  # Changed length to 64, nullable=False
+    email: Mapped[str] = mapped_column(String(120), index=True, unique=True, nullable=False)
+    password_hash: Mapped[str | None] = mapped_column(String(128), nullable=True) # Password hash can be initially null before set? Usually False after set.
 
     # Optional user dietary goals.
     target_calories = db.Column(db.Float, nullable=True, default=2000.0)
@@ -44,7 +44,7 @@ class User(UserMixin, db.Model):
 
     # String representation for debugging.
     def __repr__(self):
-        return f'<User {self.username}>'
+        return f'<User {self.email}>'
 
 # Represents a food item with its standard nutritional information.
 class FoodItem(db.Model):
@@ -96,10 +96,10 @@ class FoodLog(db.Model):
     # String representation for debugging.
     def __repr__(self):
         food_name = self.food_details.name if self.food_details else 'Unknown Food'
-        user_name = self.logger.username if self.logger else 'Unknown User'
+        user_identifier = self.logger.email if self.logger else 'Unknown User'
         time_str = self.log_timestamp.strftime('%Y-%m-%d %H:%M') if self.log_timestamp else 'No Time'
-        return f'<FoodLog {self.quantity_consumed} {self.unit_consumed} of {food_name} for {user_name} at {time_str}>'
-    
+        return f'<FoodLog {self.quantity_consumed} {self.unit_consumed} of {food_name} for {user_identifier} at {time_str}>'
+
 class MealType(db.Model):
     __tablename__ = 'meal_type'
 
@@ -107,4 +107,3 @@ class MealType(db.Model):
 
     user_id: Mapped[int] = mapped_column(db.ForeignKey('user.id'), nullable=False, index=True)
     type_name: Mapped[str] = mapped_column(String(128), unique=False, nullable=False)
-
