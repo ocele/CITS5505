@@ -24,7 +24,7 @@ def login():
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
         if not next_page or urlsplit(next_page).netloc != '':
-            next_page = url_for('main.index')
+            next_page = url_for('main.profile')
         flash('Login successful!', 'success')
         return redirect(next_page)
 
@@ -33,7 +33,7 @@ def login():
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.profile'))
 
     form = RegisterForm()
     form1 = LoginForm()
@@ -57,6 +57,7 @@ def register():
         try:
             db.session.add(user)
             db.session.commit()
+            login_user(user)
             flash('Congratulations, you are now registered!', 'success')
             return redirect(url_for('auth.login'))
         except Exception as e:
