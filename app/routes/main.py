@@ -22,8 +22,10 @@ def index():
 @login_required
 def addMeal():
     form = AddMealForm()
-    form.mealType.choices = ["breakfast", "lunch", "supper", "dinner", "snacks"]
-    # TODO: customised choices of mealType
+    # 查询所有 MealType 选项
+    mealtypes = MealType.query.filter_by(user_id=current_user.id).all()  # 用户只能选自己加的类型，不能选别人的。
+    form.mealType.choices = [(m.id, m.type_name) for m in mealtypes]
+    # DONE: customised choices of mealType
 
     historyItemsID = db.session.execute(select(FoodLog.food_item_id).where(FoodLog.user_id == current_user.id)).scalars().all()
     historyItemsNames = []
@@ -32,7 +34,7 @@ def addMeal():
 
     suggestions = db.session.execute(select(FoodItem.name, FoodItem.calories, FoodItem.serving_size, FoodItem.serving_unit)).all()
     if not suggestions:
-        suggestions = []
+        suggestionsTopTen = []
     elif len(suggestions) > 10:
         suggestionsTopTen = suggestions[:10]
     else:
@@ -40,7 +42,7 @@ def addMeal():
     # I picked only ten suggestions to avoid the list being too long
     # TODO: Some sort of priority might come handy here
 
-    foodFound = request.args.getlist('foodFound', default=[])
+    foodFound = request.args.getlist('foodFound')
     form.mealType.data= request.args.get('mealType')
     historyItem = request.args.get('item')
     if historyItem:

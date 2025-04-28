@@ -25,7 +25,7 @@ class RegisterForm(FlaskForm):
     #     raise ValidationError('Email address already registered.')
 
 class AddMealForm(FlaskForm):
-    mealType = SelectField('Meal Type', validators=[DataRequired()])
+    mealType = SelectField('Meal Type', validators=[DataRequired()], choices=[], coerce=str)
     food = SearchField('Food', validators=[DataRequired(), Length(min=2, max = 128)])
     quantity = DecimalField('Quantity', validators=[DataRequired(), NumberRange(min=0)])
     unit = StringField('unit', validators=[DataRequired(), Length(min=1, max = 32)])
