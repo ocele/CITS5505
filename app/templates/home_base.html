@@ -19,7 +19,7 @@
             <div class="container-fluid">
                 <a class="navbar-brand" href="{{ url_for('main.index') }}">DailyBite</a>
                 <div class="navbar-nav me-auto">
-                    <a class="nav-link active" href="{{ url_for('main.index') }}">Home</a>
+                    <a class="nav-link active" href="{{ url_for('main.dashboard') }}">Home</a>
                 </div>
                 <div class="navbar-nav ms-auto">
                     <a class="nav-link" href="#"><i class="fa-solid fa-bell"></i></a>
@@ -46,7 +46,7 @@
                 <!-- Navigation Section -->
                 <div class="navigation-section">
                     <div class="nav-icon-row">
-                        <a href="{{ url_for('main.index') }}" class="nav-icon {% if request.endpoint == 'main.index' %}active{% endif %}">
+                        <a href="{{ url_for('main.dashboard') }}" class="nav-icon {% if request.endpoint == 'main.index' %}active{% endif %}">
                             <i class="fa-solid fa-house"></i>
                         </a>
                         <a href="{{ url_for('main.addMeal') }}" class="nav-icon {% if request.endpoint == 'main.addMeal' %}active{% endif %}">
