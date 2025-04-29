@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from app import db, login_manager
@@ -84,23 +84,19 @@ class FoodLog(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
-    # Foreign keys linking the log to a user and a food item.
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
     food_item_id = db.Column(db.Integer, db.ForeignKey('food_item.id'), nullable=False, index=True)
 
-    # Details about the consumption event.
-    log_timestamp = db.Column(db.DateTime, index=True, default=lambda: datetime.now(timezone.utc))
+    log_date = db.Column(db.DateTime, index=True, default=date.today)
     meal_type = db.Column(db.String(50), index=True, nullable=False)
 
-    # Amount consumed by the user.
     quantity_consumed = db.Column(db.Float, nullable=False)
-    unit_consumed = db.Column(db.String(20), nullable=False, default='serving') # Unit for the quantity_consumed field
+    unit_consumed = db.Column(db.String(20), nullable=False, default='serving')
 
-    # String representation for debugging.
     def __repr__(self):
         food_name = self.food_details.name if self.food_details else 'Unknown Food'
         user_identifier = self.logger.email if self.logger else 'Unknown User'
-        time_str = self.log_timestamp.strftime('%Y-%m-%d %H:%M') if self.log_timestamp else 'No Time'
+        date_str = self.log_date.strftime('%Y-%m-%d %H:%M') if self.log_date else 'No Date'
         return f'<FoodLog {self.quantity_consumed} {self.unit_consumed} of {food_name} for {user_identifier} at {time_str}>'
 
 class MealType(db.Model):

@@ -4,6 +4,7 @@ from flask_login import current_user, login_required
 from app import db
 from sqlalchemy import select
 from app.models import FoodLog, FoodItem, MealType
+from datetime import date
 
 bp = Blueprint('main', __name__)
 
@@ -17,6 +18,57 @@ def index():
     except Exception as e:
         print(f"ERROR rendering template: {e}")
         raise
+
+@bp.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    user = current_user
+    form = AddMealForm()
+    if form.validate_on_submit():
+        foodName = form.food.data
+        inputFoodItem = db.session.scalar(
+            select(FoodItem).filter_by(name=foodNmae)
+            ).one_or_none()
+
+        if not inputFoodItem:
+            flash(f"'{foodName}' Food not found, please add it", 'warning')
+            return redirect(url_for('main.home'))
+        else:
+            try:
+                foodLog = FoodLog(
+                    user_id=current_user.id,
+                    food_item_id=inputFoodItem.id,
+                    meal_type=form.mealType.data,
+                    quantity_consumed=float(form.quantity.data),
+                )
+                db.session.add(foodLog)
+                db.session.commit()
+                flash('Food loged!', 'success')
+            except Exception as e:
+                db.session.rollback() 
+                flash(f'Adding error: {e}', 'danger')
+
+            return redirect(url_for('main.home'))
+
+    # form.mealType.choices = ["Breakfast", "Lunch", "Dinner", "Snacks"] 
+
+    recent_logs = db.session.scalars(
+        select(FoodLog).filter_by(user_id=current_user.id)
+                      .order_by(FoodLog.log_date.desc())
+                      .limit(5)
+    ).all()
+
+
+    return render_template(
+        'profile.html', 
+        title='My profile',
+        user=user,
+        form=form,
+        recent_logs=recent_logs 
+    )
+
+    # return render_template('home_base.html', user=user)
+    # return f"<h1>Welcome, {user.first_name} {user.last_name}!</h1>" 
 
 @bp.get('/addMeal')
 @login_required
@@ -142,7 +194,24 @@ def addNewProduct():
             return redirect(url_for()) # TODO: homepage
     else:
         return redirect(url_for('setting'))
+    
+@bp.route('/friends')
+@login_required
+def friends():
 
+    return "friends page" # TODO: need a friends page
+
+@bp.route('/meal_list')
+def meal_list():
+
+    # TODO: need a meal list page
+    return "Meal List page coming soon!"
+
+@bp.route('/settings')
+def settings():
+
+    # TODO: need a settings page
+    return "settings page coming soon!"
 
 
 # def index():

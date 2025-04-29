@@ -1,7 +1,9 @@
 from flask_wtf import FlaskForm
 from wtforms.validators import DataRequired, ValidationError, Email, EqualTo, Length, NumberRange
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, EmailField, SelectField, SearchField, DecimalField
-from app.models import User 
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, EmailField, SelectField, SearchField, DecimalField, FloatField, DateField
+from wtforms_sqlalchemy.fields import QuerySelectField
+from app.models import User, FoodItem, MealType
+from datetime import date
 
 class LoginForm(FlaskForm):
     emailLogin = EmailField('Email', validators=[DataRequired(), Email()]) 
@@ -24,11 +26,28 @@ class RegisterForm(FlaskForm):
     # if user is not None:
     #     raise ValidationError('Email address already registered.')
 
+def meal_type_query():
+    return MealType.query
+
 class AddMealForm(FlaskForm):
-    mealType = SelectField('Meal Type', validators=[DataRequired()], choices=[], coerce=str)
+    # mealType = QuerySelectField('Meal Type', query_factory=meal_type_query, allow_blank=True, get_label='typeName', validators=[DataRequired()])
+    mealType = SelectField(
+        'Meal Type',
+        choices=[ # 直接在这里定义 choices
+            ('Breakfast', 'Breakfast'),
+            ('Lunch', 'Lunch'),
+            ('Dinner', 'Dinner'),
+            ('Snacks', 'Snacks')
+        ],
+        validators=[DataRequired()]
+    )
+# class AddMealForm(FlaskForm):
+
+#     mealType = SelectField('Meal Type', validators=[DataRequired()])
     food = SearchField('Food', validators=[DataRequired(), Length(min=2, max = 128)])
     quantity = DecimalField('Quantity', validators=[DataRequired(), NumberRange(min=0)])
     unit = StringField('unit', validators=[DataRequired(), Length(min=1, max = 32)])
+    submit = SubmitField('Add Meal')
 
 class AddMealTypeForm(FlaskForm):
     typeName = StringField('Type Name', validators=[DataRequired(), Length(min=1, max = 128)])
