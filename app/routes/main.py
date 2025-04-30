@@ -2,7 +2,8 @@ from flask import redirect, render_template, request, url_for, Blueprint,current
 from app.forms import AddMealForm, AddMealTypeForm, SetGoalForm, AddNewProductForm
 from flask_login import current_user, login_required
 from app import db
-from sqlalchemy import select
+from sqlalchemy import select, or_
+from app.models import User
 from app.models import FoodLog, FoodItem, MealType
 from datetime import date
 
@@ -75,7 +76,13 @@ def profile():
 def addMeal():
     form = AddMealForm()
     # 查询所有 MealType 选项
-    mealtypes = MealType.query.filter_by(user_id=current_user.id).all()  # 用户只能选自己加的类型，不能选别人的。
+    admin = User.query.filter_by(email='admin@DailyBite.com').first()
+    # 用户只能选自己或者admin加的类型，不能选别人的。
+    mealtypes = MealType.query.filter(
+        (MealType.user_id == current_user.id) | (MealType.user_id == admin.id)
+    ).all()
+
+      
     form.mealType.choices = [(m.id, m.type_name) for m in mealtypes]
     # DONE: customised choices of mealType
 
@@ -83,8 +90,14 @@ def addMeal():
     historyItemsNames = []
     if historyItemsID:
         historyItemsNames = db.session.execute(select(FoodItem.name).where(FoodItem.id.in_(historyItemsID))).scalars().all()
+    
+    suggestions = FoodItem.query.filter(
+        or_(
+            FoodItem.user_id == current_user.id,
+            FoodItem.user_id == admin.id
+        )
+    ).order_by(FoodItem.id).all()# 按id升序排序
 
-    suggestions = db.session.execute(select(FoodItem.name, FoodItem.calories, FoodItem.serving_size, FoodItem.serving_unit)).all()
     if not suggestions:
         suggestionsTopTen = []
     elif len(suggestions) > 10:
@@ -92,7 +105,7 @@ def addMeal():
     else:
         suggestionsTopTen = suggestions
     # I picked only ten suggestions to avoid the list being too long
-    # TODO: Some sort of priority might come handy here
+    # DONE: Some sort of priority might come handy here. V: sort by id.
 
     foodFound = request.args.getlist('foodFound')
     form.mealType.data= request.args.get('mealType')
@@ -135,7 +148,7 @@ def searchFood():
     mealType = form.mealType.data
     foodSearched = form.food.data
     foodFound = db.session.execute(select(FoodItem.name, FoodItem.calories, FoodItem.serving_size, FoodItem.serving_unit).where(FoodItem.name.ilike(f"%{foodSearched}%"))).all()
-    return redirect(url_for('addMeal', foodFound = foodFound, mealType = mealType))
+    return redirect(url_for('main.addMeal', foodFound = foodFound, mealType = mealType))
 
 @bp.route('/getHistory')
 @login_required

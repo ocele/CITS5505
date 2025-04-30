@@ -1,4 +1,4 @@
-{% extends home_base.html %}
+{% extends "home_base.html" %}
 {% block title %} DailyBite - Add Meal{% endblock %}
 {% block content %}
     <div class="container">
@@ -48,7 +48,7 @@
                     <div class="col-sm-10">
                         {% for item in historyItems %}
                         <div class="btn-group">
-                            <button type="button" class="btn btn-primary" onclick="location.href='{{ url_for(\'main.getHistory\', item=item) }}'">{{ item }}</button>
+                            <button type="button" class="btn btn-primary" onclick="location.href='{{ url_for(main.getHistory, item=item) }}'">{{ item }}</button>
                         </div>
                         {% endfor %}
                     </div>
