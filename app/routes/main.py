@@ -87,6 +87,7 @@ def addMeal():
     historyItemsNames = []
     if historyItemsID:
         historyItemsNames = db.session.execute(select(FoodItem.name).where(FoodItem.id.in_(historyItemsID))).scalars().all()
+        historyItemsNames = historyItemsNames[:8] # Limit the showing items to 8 items
 
     suggestions = db.session.execute(select(FoodItem.name, FoodItem.calories, FoodItem.serving_size, FoodItem.serving_unit)).all()
     if not suggestions:
@@ -103,7 +104,9 @@ def addMeal():
         foodFound = db.session.execute(select(FoodItem).where(FoodItem.name.ilike(f"%{foodSearched}%"))).scalars().all()
     else:
         foodFound = []
+        
     form.mealType.data= request.args.get('mealType')
+
     historyItemName = request.args.get('item')
     if historyItemName:
         historyItem = db.session.execute(select(FoodItem).where(FoodItem.name == historyItemName)).scalars().one()
@@ -210,15 +213,13 @@ def addNewProduct():
     
 @bp.route('/friends')
 @login_required
-def friends():
+def share():
 
-    return "friends page" # TODO: need a friends page
+    return render_template('share.html')
 
-@bp.route('/meal_list')
-def meal_list():
-
-    # TODO: need a meal list page
-    return "Meal List page coming soon!"
+@bp.route('/sharin_list')
+def sharing_list():
+    return render_template('sharing_list.html')
 
 
 

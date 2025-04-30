@@ -6,79 +6,70 @@
 {% endblock %}
 
 {% block content %}
-<div class="row halfPage">
-    <div class="col-sm-6">
-        <div class="row titleRow">
-            <div class="col-1 emptyCol"></div>
-            <div class="col-2 titleCol">Meal</div>
-            <div class="col-5 shadowCol"></div>
+<div class="whole mx-auto">
+    <ul class="nav nav-tabs" id="formTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="mealType-tab" data-bs-toggle="tab" data-bs-target="#mealType" type="button" role="tab" aria-controls="mealType" aria-selected="true">Meal Type</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="setGoal-tab" data-bs-toggle="tab" data-bs-target="#setGoal" type="button" role="tab" aria-controls="setGoal" aria-selected="false">Set Goal</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="addProduct-tab" data-bs-toggle="tab" data-bs-target="#addProduct" type="button" role="tab" aria-controls="addProduct" aria-selected="false">Add New Product</button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="formTabsContent">
+        <!-- Add New Product Form -->
+        <div class="tab-pane fade show active" id="addProduct" role="tabpanel" aria-labelledby="addProduct-tab">
+            <form action="{{ url_for('main.addNewProduct') }}" method="POST">
+                {{ form3.hidden_tag() }}
+                <h2>Add New Product</h2>
+                <label for="productName" class="form-label">Product Name</label><br>
+                {{ form3.productName(class="form-control") }}
+                <br>
+                <label for="quantity" class="form-label">Quantity</label><br>
+                {{ form3.quantity(class="form-control") }}
+                <br>
+                <label for="unit" class="form-label">Unit</label><br>
+                {{ form3.unit(class="form-control") }}
+                <br>
+                <label for="kilojoules" class="form-label">Kilojoules</label><br>
+                {{ form3.kilojoules(class="form-control") }}
+                <br>
+                <div class="d-flex justify-content-between">
+                    <input type="submit" class="btn btn-secondary" value="Save">
+                    <a href="{{ url_for('main.dashboard') }}" class="btn btn-danger">Cancel</a>
+                </div>
+            </form>
         </div>
-        <div class="container">
-            <form action="{{ url_for('main.addMealType') }}" method="POST">
+
+        <!-- Meal Type Form -->
+        <div class="tab-pane fade" id="mealType" role="tabpanel" aria-labelledby="mealType-tab">
+            <form action="{{ url_for('main.addMealType') }}" method="POST" >
                 {{ form1.hidden_tag() }}
-                <h2> Meal Type </h2>
+                <h2>Meal Type</h2>
                 <label for="typeName" class="form-label">Type Name</label><br>
                 {{ form1.typeName(class="form-control") }}
                 <br><br>
-                <div class="btn-group">
+                <div class="d-flex justify-content-between">
                     <input type="submit" class="btn btn-secondary" value="Save">
-                    <a href="url_for('main.dashboard')" class="btn btn-light">Cancel</a>
-                    <!-- TODO: change the url for homepage -->
+                    <a href="{{ url_for('main.dashboard') }}" class="btn btn-danger">Cancel</a>
                 </div>
             </form>
         </div>
-    </div>
 
-    <div class="col-sm-6">
-        <div class="row titleRow">
-            <div class="col-1 emptyCol"></div>
-            <div class="col-2 titleCol">Goal</div>
-            <div class="col-5 shadowCol"></div>
-        </div>
-        <div class="container">
+        <!-- Set Goal Form -->
+        <div class="tab-pane fade" id="setGoal" role="tabpanel" aria-labelledby="setGoal-tab">
             <form action="{{ url_for('main.setGoal') }}" method="POST">
                 {{ form2.hidden_tag() }}
-                <h2> Set Goal </h2>
+                <h2>Set Goal</h2>
                 <label for="goal" class="form-label">Set Goal</label><br>
                 {{ form2.goal(class="form-control") }}
                 <br><br>
-                <div class="btn-group">
+                <div class="d-flex justify-content-between">
                     <input type="submit" class="btn btn-secondary" value="Save">
-                    <a href="url_for('main.dashboard')" class="btn btn-light">Cancel</a>
-                    <!-- TODO: change the url for homepage -->
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<div class="row halfPage">
-    <div class="col-sm-6">
-        <div class="row titleRow">
-            <div class="col-1 emptyCol"></div>
-            <div class="col-2 titleCol">Product</div>
-            <div class="col-5 shadowCol"></div>
-        </div>
-        <div class="container">
-            <form action="{{ url_for('main.addNewProduct') }}" method="POST">
-                {{ form3.hidden_tag() }}
-                <h2> Add New Product </h2>
-                <label class="form-label" for="productName"></label>Product Name<br>
-                {{ form3.productName(class="form-control") }}
-                <br>
-                <label class="form-label" for="quantity"></label>Quantity<br>
-                {{ form3.quantity(class="form-control") }}
-                <br>
-                <label class="form-label" for="unit"></label>Unit<br>
-                {{ form3.unit(class="form-control") }}
-                <br>
-                <label class="form-label" for="kilojoules"></label>Kilojoules<br>
-                {{ form3.kilojoules(class="form-control") }}
-                <br>
-                <div class="btn-group">
-                    <input type="submit" class="btn btn-secondary" value="Save">
-                    <a href="url_for('main.dashboard')" class="btn btn-light">Cancel</a>
-                    <!-- TODO: change the url for homepage -->
+                    <a href="{{ url_for('main.dashboard') }}" class="btn btn-danger">Cancel</a>
                 </div>
             </form>
         </div>

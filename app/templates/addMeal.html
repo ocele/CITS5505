@@ -1,7 +1,10 @@
 {% extends "home_base.html" %}
 {% block title %} DailyBite - Add Meal{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='styleAddMeal.css') }}">
+{% endblock %}
 {% block content %}
-    <div class="container">
+    <div class="container wholeContainer">
         <form action="{{ url_for('main.addMeal')}}" method="POST">
             <h2>Add Meal</h2>
             {{ form.hidden_tag() }}
@@ -18,15 +21,15 @@
                 </div>
                 {% if foodFound %}
                 <br>
-                <div class="alert alert-info alert-dismissible" id="foodFoundContainer">
+                <div class="alert alert-info alert-dismissible scrollable" id="foodFoundContainer">
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     {% for food in foodFound %}
-                    <input type="radio" class="searchResult" id="{{ food.name }}" name="foundFood" value="{{ food.name }}" data-name="{{ food.name }}" data-quantity="{{ food.serving_size }}" data-unit="{{ food.serving_unit }}">
-                    <label for="{{ food.name }}" class="form-label">
-                        <h3>{{ food.name }}</h3>
-                        <p> {{ food.calories }}/ {{ food.serving_size }} {{ food.serving_unit }}</p>
-                    </label>
-                    <br><br>
+                        <input type="radio" class="searchResult" id="{{ food.name }}" name="foundFood" value="{{ food.name }}" data-name="{{ food.name }}" data-quantity="{{ food.serving_size }}" data-unit="{{ food.serving_unit }}">
+                        <label for="{{ food.name }}" class="form-label">
+                            <h3>{{ food.name }}</h3>
+                            <p> {{ food.calories }}kJ / {{ food.serving_size }} {{ food.serving_unit }}</p>
+                        </label>
+                        <br>
                     {% endfor %}
                 </div>
                 {% endif %}
@@ -62,12 +65,12 @@
                     <div class="col-sm-2">
                         <p>Suggestions</p>
                     </div>
-                    <div class="col-sm-10">
+                    <div class="col-sm-10 scrollable suggestions">
                         {% for suggestion in suggestions %}
-                            <div class="row">
+                            <div class="row suggestion">
                                 <div class="col-sm-11">
                                     <h3>{{ suggestion.name }}</h3>
-                                    <p> {{ suggestion.calories}}/ {{ suggestion.serving_size}} {{ suggestion.serving_unit}}</p>
+                                    <p> {{ suggestion.calories}}kJ / {{ suggestion.serving_size}} {{ suggestion.serving_unit}}</p>
                                 </div>
                                 <div class="col-sm-1">
                                     <a href="#" class="add-suggestion" data-name="{{ suggestion.name }}" data-quantity="{{ suggestion.serving_size}}" data-unit="{{ suggestion.serving_unit}}">
@@ -79,11 +82,10 @@
                     </div>
                 </div>
             </div>
-
-            <div class="btn-group">
+            <br>
+            <div class="d-flex justify-content-between">
                 <input type="submit" class="btn btn-secondary" value="Save">
-                <a href="url_for('main.dashboard')" class="btn btn-light">Cancel</a>
-                <!-- TODO: url for homepage -->
+                <a href="{{ url_for('main.dashboard') }}" class="btn btn-danger">Cancel</a>
             </div>
         </form>
         <br><br>
