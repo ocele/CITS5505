@@ -1,146 +1,105 @@
-{% extends "base.html" %}
+{% extends "home_base.html" %}
 
 {% block title %}DailyBite Dashboard{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='style_dashboard.css') }}">
+<script defer>
+    const messages = {{ get_flashed_messages()|tojson }};
+    if (messages.length > 0) {
+        alert(messages.join('\n'));
+    }
+</script>
 {% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
-    <div class="dashboard-content">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <!-- Profile Section -->
-            <div class="profile-section">
-                <div class="avatar">
-                    <i class="fa-regular fa-face-smile"></i>
-                </div>
-                <div class="username">Veronica</div>
-                <div class="userid">ID: 2077</div>
-                <div class="calorie-badge">
-                    <i class="fa-solid fa-bullseye"></i> 2000 kcal
+
+<div class="row">
+    <!-- Calorie Intake Chart -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-sm btn-outline-secondary">D</button>
+                    <button type="button" class="btn btn-sm btn-primary active">W</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary">M</button>
                 </div>
             </div>
-            
-            <!-- Navigation Section -->
-            <div class="navigation-section">
-                <div class="nav-icon-row">
-                    <a href="{{ url_for('main.dashboard') }}" class="nav-icon active">
-                        <i class="fa-solid fa-house"></i>
-                    </a>
-                    <a href="{{ url_for('main.add_meal') }}" class="nav-icon">
-                        <i class="fa-solid fa-plus"></i>
-                    </a>
-                </div>
-                <div class="nav-icon-row">
-                    <a href="{{ url_for('main.friends') }}" class="nav-icon">
-                        <i class="fa-solid fa-users"></i>
-                    </a>
-                    <a href="{{ url_for('main.meal_list') }}" class="nav-icon">
-                        <i class="fa-solid fa-list"></i>
-                    </a>
-                </div>
-                <div class="nav-icon-row">
-                    <a href="{{ url_for('main.settings') }}" class="nav-icon">
-                        <i class="fa-solid fa-gear"></i>
-                    </a>
+            <div class="card-body">
+                <div class="chart-placeholder">
+                    <i class="fas fa-chart-line fa-3x"></i>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Main Content Area -->
-        <div class="main-content">
-            <!-- Dashboard Content -->
-            <div class="row">
-                <!-- Calorie Intake Chart -->
-                <div class="col-md-6 mb-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="btn-group" role="group">
-                                <button type="button" class="btn btn-sm btn-outline-secondary">D</button>
-                                <button type="button" class="btn btn-sm btn-primary active">W</button>
-                                <button type="button" class="btn btn-sm btn-outline-secondary">M</button>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="chart-placeholder">
-                                <i class="fas fa-chart-line fa-3x"></i>
-                            </div>
-                        </div>
-                    </div>
+    <!-- Nutrition Breakdown Chart -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-sm btn-outline-secondary">D</button>
+                    <button type="button" class="btn btn-sm btn-primary active">W</button>
                 </div>
-
-                <!-- Nutrition Breakdown Chart -->
-                <div class="col-md-6 mb-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="btn-group" role="group">
-                                <button type="button" class="btn btn-sm btn-outline-secondary">D</button>
-                                <button type="button" class="btn btn-sm btn-primary active">W</button>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="chart-placeholder">
-                                <i class="fas fa-chart-bar fa-3x"></i>
-                            </div>
-                        </div>
-                    </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-placeholder">
+                    <i class="fas fa-chart-bar fa-3x"></i>
                 </div>
+            </div>
+        </div>
+    </div>
 
-                <!-- Food Categories Chart -->
-                <div class="col-md-6 mb-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="btn-group" role="group">
-                                <button type="button" class="btn btn-sm btn-outline-secondary">D</button>
-                                <button type="button" class="btn btn-sm btn-primary active">W</button>
-                                <button type="button" class="btn btn-sm btn-outline-secondary">M</button>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="chart-placeholder">
-                                <i class="fas fa-chart-pie fa-3x"></i>
-                            </div>
-                        </div>
-                    </div>
+    <!-- Food Categories Chart -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-sm btn-outline-secondary">D</button>
+                    <button type="button" class="btn btn-sm btn-primary active">W</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary">M</button>
                 </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-placeholder">
+                    <i class="fas fa-chart-pie fa-3x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                <!-- Recent Activity -->
-                <div class="col-md-6 mb-4">
-                    <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">Recent Activity</h5>
-                            <span class="text-muted small">Today</span>
-                        </div>
-                        <div class="card-body">
-                            <div class="activity-item">
-                                <div class="activity-indicator bg-success"></div>
-                                <div class="activity-time">32 min</div>
-                                <div>Quia quae rerum explicabo officis</div>
-                            </div>
-                            <div class="activity-item">
-                                <div class="activity-indicator bg-danger"></div>
-                                <div class="activity-time">56 min</div>
-                                <div>Voluptatem blanditiis blanditiis eveniet</div>
-                            </div>
-                            <div class="activity-item">
-                                <div class="activity-indicator bg-primary"></div>
-                                <div class="activity-time">2 hrs</div>
-                                <div>Voluptates corrupti molestias voluptatem</div>
-                            </div>
-                            <div class="activity-item">
-                                <div class="activity-indicator bg-info"></div>
-                                <div class="activity-time">1 day</div>
-                                <div>Tempore autem saepe occaecati voluptatem</div>
-                            </div>
-                            <div class="activity-item">
-                                <div class="activity-indicator bg-warning"></div>
-                                <div class="activity-time">2 days</div>
-                                <div>Est sit eum reiciendis exercitationem</div>
-                            </div>
-                        </div>
-                    </div>
+    <!-- Recent Activity -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Recent Activity</h5>
+                <span class="text-muted small">Today</span>
+            </div>
+            <div class="card-body">
+                <div class="activity-item">
+                    <div class="activity-indicator bg-success"></div>
+                    <div class="activity-time">32 min</div>
+                    <div>Quia quae rerum explicabo officis</div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-indicator bg-danger"></div>
+                    <div class="activity-time">56 min</div>
+                    <div>Voluptatem blanditiis blanditiis eveniet</div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-indicator bg-primary"></div>
+                    <div class="activity-time">2 hrs</div>
+                    <div>Voluptates corrupti molestias voluptatem</div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-indicator bg-info"></div>
+                    <div class="activity-time">1 day</div>
+                    <div>Tempore autem saepe occaecati voluptatem</div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-indicator bg-warning"></div>
+                    <div class="activity-time">2 days</div>
+                    <div>Est sit eum reiciendis exercitationem</div>
                 </div>
             </div>
         </div>

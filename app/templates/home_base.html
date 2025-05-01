@@ -19,7 +19,7 @@
             <div class="container-fluid">
                 <a class="navbar-brand" href="{{ url_for('main.index') }}">DailyBite</a>
                 <div class="navbar-nav me-auto">
-                    <a class="nav-link active" href="{{ url_for('main.index') }}">Home</a>
+                    <a class="nav-link active" href="{{ url_for('main.dashboard') }}">Home</a>
                 </div>
                 <div class="navbar-nav ms-auto">
                     <a class="nav-link" href="#"><i class="fa-solid fa-bell"></i></a>
@@ -36,17 +36,17 @@
                     <div class="avatar">
                         <i class="fa-regular fa-face-smile"></i>
                     </div>
-                    <div class="username">{{ current_user.username }}</div>
-                    <div class="userid">ID: {{ current_user.id }}</div>
+                    <div class="username">{{ current_user.first_name }}</div>
+                    <div class="userid">Email: {{ current_user.email }}</div>
                     <div class="calorie-badge">
-                        <i class="fa-solid fa-bullseye"></i> {{ calorie_goal }} kcal
+                        <i class="fa-solid fa-bullseye"></i> {{ current_user.target_calories }} kcal
                     </div>
                 </div>
                 
                 <!-- Navigation Section -->
                 <div class="navigation-section">
                     <div class="nav-icon-row">
-                        <a href="{{ url_for('main.index') }}" class="nav-icon {% if request.endpoint == 'main.index' %}active{% endif %}">
+                        <a href="{{ url_for('main.dashboard') }}" class="nav-icon {% if request.endpoint == 'main.index' %}active{% endif %}">
                             <i class="fa-solid fa-house"></i>
                         </a>
                         <a href="{{ url_for('main.addMeal') }}" class="nav-icon {% if request.endpoint == 'main.addMeal' %}active{% endif %}">
@@ -54,10 +54,10 @@
                         </a>
                     </div>
                     <div class="nav-icon-row">
-                        <a href="{{ url_for('main.friends') }}" class="nav-icon {% if request.endpoint == 'main.friends' %}active{% endif %}">
+                        <a href="{{ url_for('main.share') }}" class="nav-icon {% if request.endpoint == 'main.friends' %}active{% endif %}">
                             <i class="fa-solid fa-users"></i>
                         </a>
-                        <a href="{{ url_for('main.meal_list') }}" class="nav-icon {% if request.endpoint == 'main.meal_list' %}active{% endif %}">
+                        <a href="{{ url_for('main.sharing_list') }}" class="nav-icon {% if request.endpoint == 'main.sharing_list' %}active{% endif %}">
                             <i class="fa-solid fa-list"></i>
                         </a>
                     </div>

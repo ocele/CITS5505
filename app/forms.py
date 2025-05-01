@@ -4,6 +4,7 @@ from wtforms import StringField, PasswordField, BooleanField, SubmitField, Email
 from wtforms_sqlalchemy.fields import QuerySelectField
 from app.models import User, FoodItem, MealType
 from datetime import date
+from flask_login import current_user
 
 class LoginForm(FlaskForm):
     emailLogin = EmailField('Email', validators=[DataRequired(), Email()]) 
@@ -30,24 +31,25 @@ def meal_type_query():
     return MealType.query
 
 class AddMealForm(FlaskForm):
-    # mealType = QuerySelectField('Meal Type', query_factory=meal_type_query, allow_blank=True, get_label='typeName', validators=[DataRequired()])
-    mealType = SelectField(
-        'Meal Type',
-        choices=[ # 直接在这里定义 choices
+    mealType = SelectField('Meal Type', validators=[DataRequired()])
+    food = SearchField('Food', validators=[DataRequired(), Length(min=2, max=128)])
+    quantity = DecimalField('Quantity', validators=[DataRequired(), NumberRange(min=0)])
+    unit = StringField('Unit', validators=[DataRequired(), Length(min=1, max=32)])
+    submit = SubmitField('Add Meal')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        defaultChoices = [
             ('Breakfast', 'Breakfast'),
             ('Lunch', 'Lunch'),
             ('Dinner', 'Dinner'),
             ('Snacks', 'Snacks')
-        ],
-        validators=[DataRequired()]
-    )
-# class AddMealForm(FlaskForm):
-
-#     mealType = SelectField('Meal Type', validators=[DataRequired()])
-    food = SearchField('Food', validators=[DataRequired(), Length(min=2, max = 128)])
-    quantity = DecimalField('Quantity', validators=[DataRequired(), NumberRange(min=0)])
-    unit = StringField('unit', validators=[DataRequired(), Length(min=1, max = 32)])
-    submit = SubmitField('Add Meal')
+        ]
+        if current_user.is_authenticated:
+            userMealtype = [(meal.type_name, meal.type_name) for meal in current_user.meal_types.all()]
+        else:
+            userMealtype = []
+        self.mealType.choices = defaultChoices + userMealtype
 
 class AddMealTypeForm(FlaskForm):
     typeName = StringField('Type Name', validators=[DataRequired(), Length(min=1, max = 128)])

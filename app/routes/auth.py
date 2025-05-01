@@ -14,7 +14,6 @@ def login():
         return redirect(url_for('main.index')) 
 
     form = LoginForm()
-    form2 = RegisterForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.emailLogin.data).first() 
         if user is None or not user.check_password(form.passwordLogin.data):
@@ -24,20 +23,17 @@ def login():
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
         if not next_page or urlsplit(next_page).netloc != '':
-            next_page = url_for('main.profile')
+            next_page = url_for('main.dashboard')
         flash('Login successful!', 'success')
         return redirect(next_page)
 
-    return render_template('login.html', title='Sign In', form1=form, form2=form2)
+    return render_template('login.html', title='Sign In', form=form)
 
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for('main.profile'))
-
+        return redirect(url_for('main.dashboard'))
     form = RegisterForm()
-    form1 = LoginForm()
-
     if form.validate_on_submit():
         user = User(first_name=form.firstName.data,
                     last_name=form.lastName.data,
@@ -59,16 +55,16 @@ def register():
             db.session.commit()
             login_user(user)
             flash('Congratulations, you are now registered!', 'success')
-            return redirect(url_for('auth.login'))
+            return redirect(url_for('main.dashboard'))
         except Exception as e:
             db.session.rollback()
             flash('Registration failed due to a server error.', 'danger')
             print(f"DB Error on Registration: {e}")
-            return render_template('login.html', title='Register Failed', form2=form, form1=form1)
+            return render_template('register.html', title='Register Failed', form=form)
     else:
         if request.method == 'POST':
             flash('Please correct the errors in the registration form.', 'warning')
-        return render_template('login.html', title='Register', form2=form, form1=form1)
+        return render_template('register.html', title='Register', form=form)
 
 @bp.route('/logout')
 def logout():

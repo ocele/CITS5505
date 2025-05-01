@@ -28,3 +28,23 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+
+document.addEventListener('DOMContentLoaded', function(){
+    const searchResults = document.querySelectorAll('.searchResult');
+
+    searchResults.forEach( result => {
+        result.addEventListener('click', function(){
+            const resultName = this.getAttribute('data-name');
+            const resultQuantity = this.getAttribute('data-quantity');
+            const resultUnit = this.getAttribute('data-unit');
+
+            const foodInput = document.getElementById('foodInput');
+            const quantityInput = document.getElementById("quantityInput");
+            const unitInput = document.getElementById('unitInput');
+
+            foodInput.value = resultName;
+            quantityInput.value = resultQuantity;
+            unitInput.value = resultUnit;
+        });
+    });
+});

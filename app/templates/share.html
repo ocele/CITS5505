@@ -7,118 +7,71 @@
 {% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
-    <div class="dashboard-content">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <!-- Profile Section -->
-            <div class="profile-section">
-                <div class="avatar">
-                    <i class="fa-regular fa-face-smile"></i>
-                </div>
-                <div class="username">{{ current_user.username }}</div>
-                <div class="userid">ID: {{ current_user.id }}</div>
-                <div class="calorie-badge">
-                    <i class="fa-solid fa-bullseye"></i> {{ current_user.calorie_goal }} kcal
-                </div>
-            </div>
-            
-            <!-- Navigation Section -->
-            <div class="navigation-section">
-                <div class="nav-icon-row">
-                    <a href="{{ url_for('main.dashboard') }}" class="nav-icon">
-                        <i class="fa-solid fa-house"></i>
-                    </a>
-                    <a href="{{ url_for('main.add_meal') }}" class="nav-icon">
-                        <i class="fa-solid fa-plus"></i>
-                    </a>
-                </div>
-                <div class="nav-icon-row">
-                    <a href="{{ url_for('main.friends') }}" class="nav-icon active">
-                        <i class="fa-solid fa-users"></i>
-                    </a>
-                    <a href="{{ url_for('main.meal_list') }}" class="nav-icon">
-                        <i class="fa-solid fa-list"></i>
-                    </a>
-                </div>
-                <div class="nav-icon-row">
-                    <a href="{{ url_for('main.settings') }}" class="nav-icon">
-                        <i class="fa-solid fa-gear"></i>
-                    </a>
-                </div>
+<div class="share-modal">
+    <h2 class="share-modal-title">Share to Friends</h2>
+    
+    <form method="POST" action="{{ url_for('main.share') }}">
+        {{ form.hidden_tag() }}
+        
+        <!-- Content Selection Section -->
+        <div class="share-section">
+            <h5 class="share-section-title">Select content to share</h5>
+            <label class="option-label">
+                <input type="radio" name="content_type" value="ranking" checked>
+                <span class="ms-2">My Current Ranking</span>
+            </label>
+            <label class="option-label">
+                <input type="radio" name="content_type" value="calorie">
+                <span class="ms-2">My Calorie Intake</span>
+            </label>
+        </div>
+        
+        <!-- Date Range Selection -->
+        <div class="share-section">
+            <h5 class="share-section-title">Select Data Range</h5>
+            <div class="radio-container">
+                <label class="option-label">
+                    <input type="radio" name="date_range" value="daily">
+                    <span class="ms-2">Daily</span>
+                </label>
+                <label class="option-label">
+                    <input type="radio" name="date_range" value="weekly" checked>
+                    <span class="ms-2">Weekly</span>
+                </label>
+                <label class="option-label">
+                    <input type="radio" name="date_range" value="monthly">
+                    <span class="ms-2">Monthly</span>
+                </label>
             </div>
         </div>
-
-        <!-- Main Content Area with Share Modal -->
-        <div class="main-content">
-            <div class="share-modal">
-                <h2 class="share-modal-title">Share to Friends</h2>
-                
-                <form method="POST" action="{{ url_for('main.share') }}">
-                    {{ form.hidden_tag() }}
-                    
-                    <!-- Content Selection Section -->
-                    <div class="share-section">
-                        <h5 class="share-section-title">Select content to share</h5>
-                        <label class="option-label">
-                            <input type="radio" name="content_type" value="ranking" checked>
-                            <span class="ms-2">My Current Ranking</span>
-                        </label>
-                        <label class="option-label">
-                            <input type="radio" name="content_type" value="calorie">
-                            <span class="ms-2">My Calorie Intake</span>
-                        </label>
-                    </div>
-                    
-                    <!-- Date Range Selection -->
-                    <div class="share-section">
-                        <h5 class="share-section-title">Select Data Range</h5>
-                        <div class="radio-container">
-                            <label class="option-label">
-                                <input type="radio" name="date_range" value="daily">
-                                <span class="ms-2">Daily</span>
-                            </label>
-                            <label class="option-label">
-                                <input type="radio" name="date_range" value="weekly" checked>
-                                <span class="ms-2">Weekly</span>
-                            </label>
-                            <label class="option-label">
-                                <input type="radio" name="date_range" value="monthly">
-                                <span class="ms-2">Monthly</span>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <!-- Friend Search -->
-                    <div class="friend-search">
-                        <input type="text" name="search" placeholder="Find your friend">
-                        <span class="search-icon">
-                            <i class="fas fa-search"></i>
-                        </span>
-                    </div>
-                    
-                    <!-- Friend List -->
-                    <div class="friend-list">
-                        {% if friends %}
-                            {% for friend in friends %}
-                            <label class="option-label">
-                                <input type="checkbox" name="friend_ids" value="{{ friend.id }}">
-                                <span class="ms-2">{{ friend.username }} (ID: {{ friend.id }})</span>
-                            </label>
-                            {% endfor %}
-                        {% else %}
-                            <p class="text-muted">No friends found.</p>
-                        {% endif %}
-                    </div>
-                    
-                    <!-- Action Buttons -->
-                    <div class="action-buttons">
-                        <button type="submit" class="btn-confirm">Confirm</button>
-                        <a href="{{ url_for('main.dashboard') }}" class="btn-cancel">Cancel</a>
-                    </div>
-                </form>
-            </div>
+        
+        <!-- Friend Search -->
+        <div class="friend-search">
+            <input type="text" name="search" placeholder="Find your friend">
+            <span class="search-icon">
+                <i class="fas fa-search"></i>
+            </span>
         </div>
-    </div>
+        
+        <!-- Friend List -->
+        <div class="friend-list">
+            {% if friends %}
+                {% for friend in friends %}
+                <label class="option-label">
+                    <input type="checkbox" name="friend_ids" value="{{ friend.id }}">
+                    <span class="ms-2">{{ friend.username }} (ID: {{ friend.id }})</span>
+                </label>
+                {% endfor %}
+            {% else %}
+                <p class="text-muted">No friends found.</p>
+            {% endif %}
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button type="submit" class="btn-confirm">Confirm</button>
+            <a href="{{ url_for('main.dashboard') }}" class="btn-cancel">Cancel</a>
+        </div>
+    </form>
 </div>
 {% endblock %}

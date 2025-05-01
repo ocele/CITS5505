@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "home_base.html" %}
 
 {% block title %}DailyBite - Sharing List{% endblock %}
 
@@ -8,80 +8,33 @@
 {% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
-    <div class="dashboard-content">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <!-- Profile Section -->
-            <div class="profile-section">
-                <div class="avatar">
-                    <i class="fa-regular fa-face-smile"></i>
-                </div>
-                <div class="username">{{ current_user.username }}</div>
-                <div class="userid">ID: {{ current_user.id }}</div>
-                <div class="calorie-badge">
-                    <i class="fa-solid fa-bullseye"></i> {{ current_user.calorie_goal }} kcal
-                </div>
-            </div>
-            
-            <!-- Navigation Section -->
-            <div class="navigation-section">
-                <div class="nav-icon-row">
-                    <a href="{{ url_for('main.dashboard') }}" class="nav-icon">
-                        <i class="fa-solid fa-house"></i>
-                    </a>
-                    <a href="{{ url_for('main.add_meal') }}" class="nav-icon">
-                        <i class="fa-solid fa-plus"></i>
-                    </a>
-                </div>
-                <div class="nav-icon-row">
-                    <a href="{{ url_for('main.friends') }}" class="nav-icon active">
-                        <i class="fa-solid fa-users"></i>
-                    </a>
-                    <a href="{{ url_for('main.meal_list') }}" class="nav-icon">
-                        <i class="fa-solid fa-list"></i>
-                    </a>
-                </div>
-                <div class="nav-icon-row">
-                    <a href="{{ url_for('main.settings') }}" class="nav-icon">
-                        <i class="fa-solid fa-gear"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
+<h1 class="sharing-list-title">Sharing List</h1>
 
-        <!-- Main Content Area -->
-        <div class="main-content">
-            <h1 class="sharing-list-title">Sharing List</h1>
-            
-            <div class="sharing-list-container">
-                {% if shares %}
-                    {% for share in shares %}
-                        <div class="sharing-item">
-                            <div class="sharing-avatar">
-                                <i class="fa-solid fa-user fa-lg"></i>
-                            </div>
-                            <div class="sharing-content">
-                                <div class="sharing-user">{{ share.sender.username }}</div>
-                                <div class="sharing-text">
-                                    Shared you a 
-                                    {% if share.content_type == 'ranking' %}
-                                        Ranking.
-                                    {% elif share.content_type == 'calorie' %}
-                                        {{ share.date_range|capitalize }}'s Calorie Intake
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="sharing-time">{{ share.elapsed_time }}</div>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="no-shares">
-                        <p class="text-muted text-center my-5">No shared content yet.</p>
+<div class="sharing-list-container">
+    {% if shares %}
+        {% for share in shares %}
+            <div class="sharing-item">
+                <div class="sharing-avatar">
+                    <i class="fa-solid fa-user fa-lg"></i>
+                </div>
+                <div class="sharing-content">
+                    <div class="sharing-user">{{ share.sender.username }}</div>
+                    <div class="sharing-text">
+                        Shared you a 
+                        {% if share.content_type == 'ranking' %}
+                            Ranking.
+                        {% elif share.content_type == 'calorie' %}
+                            {{ share.date_range|capitalize }}'s Calorie Intake
+                        {% endif %}
                     </div>
-                {% endif %}
+                </div>
+                <div class="sharing-time">{{ share.elapsed_time }}</div>
             </div>
+        {% endfor %}
+    {% else %}
+        <div class="no-shares">
+            <p class="text-muted text-center my-5">No shared content yet.</p>
         </div>
-    </div>
+    {% endif %}
 </div>
 {% endblock %}

@@ -20,6 +20,11 @@ def index():
         print(f"ERROR rendering template: {e}")
         raise
 
+@bp.get('/dashboard_home.html')
+@login_required
+def dashboard():
+    return render_template('dashboard_home.html')
+
 @bp.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
@@ -28,12 +33,12 @@ def profile():
     if form.validate_on_submit():
         foodName = form.food.data
         inputFoodItem = db.session.scalar(
-            select(FoodItem).filter_by(name=foodNmae)
+            select(FoodItem).filter_by(name=foodName)
             ).one_or_none()
 
         if not inputFoodItem:
             flash(f"'{foodName}' Food not found, please add it", 'warning')
-            return redirect(url_for('main.home'))
+            return redirect(url_for('main.dashboard'))
         else:
             try:
                 foodLog = FoodLog(
@@ -49,7 +54,7 @@ def profile():
                 db.session.rollback() 
                 flash(f'Adding error: {e}', 'danger')
 
-            return redirect(url_for('main.home'))
+            return redirect(url_for('main.dashboard'))
 
     # form.mealType.choices = ["Breakfast", "Lunch", "Dinner", "Snacks"] 
 
@@ -107,13 +112,22 @@ def addMeal():
     # I picked only ten suggestions to avoid the list being too long
     # DONE: Some sort of priority might come handy here. V: sort by id.
 
-    foodFound = request.args.getlist('foodFound')
+    foodSearched = request.args.get("food")
+    if foodSearched:
+        foodFound = db.session.execute(select(FoodItem).where(FoodItem.name.ilike(f"%{foodSearched}%"))).scalars().all()
+    else:
+        foodFound = []
+        
     form.mealType.data= request.args.get('mealType')
-    historyItem = request.args.get('item')
-    if historyItem:
-        form.food = historyItem.name
-        form.quantity = historyItem.serving_size
-        form.unit = historyItem.serving_unit
+
+    historyItemName = request.args.get('item')
+    if historyItemName:
+        historyItem = db.session.execute(select(FoodItem).where(FoodItem.name == historyItemName)).scalars().one()
+        form.food.data = historyItem.name
+        form.quantity.data = historyItem.serving_size
+        form.unit.data = historyItem.serving_unit
+    else:
+        form.unit.data = "gram"
     
     return render_template('addMeal.html', form=form, foodFound=foodFound, historyItems=historyItemsNames, suggestions=suggestionsTopTen)
 
@@ -123,51 +137,53 @@ def addMealPost():
     form = AddMealForm()
     if form.validate_on_submit():
         foodName = form.food.data
-        inputFood = db.session.execute(select(FoodItem).where(FoodItem.name == foodName).one_or_none())
+        inputFood = db.session.execute(select(FoodItem).where(FoodItem.name == foodName)).scalars().one_or_none()
         if not inputFood:
             # foodItem = FoodItem(name = foodName, serving_size = form.quantity.data, serving_unit = form.unit.data, calories = 0 ) 
-            # # TODO: What are the calories for a new item???
             # db.session.add(foodItem)
             # db.session.commit()
-            flash("The food you chose is not yet in the database. Please add a new product in the setting", "error")
-            return redirect(url_for('index.html')) # TODO: change the url to settings
+            flash("The food you chose is not yet in the database. Please add a new product in the settings", "error")
+            return redirect(url_for('main.settings')) 
             
         # Create and add new food log entry
-        inputFoodID = db.session.execute(select(FoodItem.id).where(FoodItem.name == foodName).scalars.one_or_none())
+        inputFoodID = inputFood.id
         foodLog = FoodLog(user_id = current_user.id, food_item_id = inputFoodID, meal_type = form.mealType.data, quantity_consumed = form.quantity.data, unit_consumed = form.unit.data)
         db.session.add(foodLog)
         db.session.commit() 
-        return redirect(url_for('index.html')) # TODO: add home page url here
+        return redirect(url_for('main.dashboard'))
     else:
-        return redirect(url_for('addMeal'))
+        flash("The form validation failed", "error")
+        return redirect(url_for('main.addMeal'))
 
-@bp.route('/searchFood')
+# @bp.route('/searchFood')
+# @login_required
+# def searchFood():
+#     form = AddMealForm()
+#     mealType = request.args.get("mealType")
+#     foodSearched = request.args.get("food")
+#     print ("retrieved data is", form.food.data)
+#     foodFound = db.session.execute(select(FoodItem).where(FoodItem.name.ilike(f"%{foodSearched}%"))).all()
+#     print("This is the food found", foodFound, type(foodFound))
+#     return redirect(url_for('main.addMeal', foodFound = foodFound, mealType = mealType))
+
+# @bp.route('/getHistory')
+# @login_required
+# def getHistory():
+#     form = AddMealForm()
+#     mealType = form.mealType.data
+#     item = request.args.get('item')
+#     history = db.session.execute(select(FoodItem).where(FoodItem.name == item)).scalars()
+
+#     return redirect(url_for('main.addMeal', mealType = mealType, item = history))
+
+@bp.get('/settings')
 @login_required
-def searchFood():
-    form = AddMealForm()
-    mealType = form.mealType.data
-    foodSearched = form.food.data
-    foodFound = db.session.execute(select(FoodItem.name, FoodItem.calories, FoodItem.serving_size, FoodItem.serving_unit).where(FoodItem.name.ilike(f"%{foodSearched}%"))).all()
-    return redirect(url_for('main.addMeal', foodFound = foodFound, mealType = mealType))
-
-@bp.route('/getHistory')
-@login_required
-def getHistory():
-    form = AddMealForm()
-    mealType = form.mealType.data
-    item = request.args.get('item')
-    history = db.session.execute(select(FoodItem).where(FoodItem.name == item))
-
-    return redirect(url_for('addMeal', mealType = mealType, item = history))
-
-@bp.get('/setting')
-@login_required
-def setting():
+def settings():
     form1 = AddMealTypeForm()
     form2 = SetGoalForm()
     form3 = AddNewProductForm()
     
-    return render_template('setting.html', form1=form1, form2=form2, form3=form3)
+    return render_template('settings.html', form1=form1, form2=form2, form3=form3)
 
 @bp.post('/addMealType')
 @login_required
@@ -177,9 +193,9 @@ def addMealType():
         mealType = MealType(user_id=current_user.id, type_name=form1.typeName.data)
         db.session.add(mealType)
         db.session.commit()
-        return redirect(url_for()) # TODO: homepage
+        return redirect(url_for('main.dashboard'))
     else:
-        return redirect(url_for('setting'))
+        return redirect(url_for('main.settings'))
 
 @bp.post('/setGoal')
 @login_required
@@ -188,43 +204,37 @@ def setGoal():
     if form2.validate_on_submit(): 
         current_user.target_calories = form2.goal.data
         db.session.commit()
-        return redirect(url_for()) # TODO: homepage
+        return redirect(url_for('main.dashboard'))
     else:
-        return redirect(url_for('setting'))
+        return redirect(url_for('main.settings'))
 
 @bp.post('/addNewProduct')
 @login_required
 def addNewProduct():
     form3 = AddNewProductForm()
     if form3.validate_on_submit():
-        if db.session.execute(select(FoodItem).where(FoodItem.name == form3.productName.data).one_or_none):
+        if db.session.execute(select(FoodItem).where(FoodItem.name == form3.productName.data)).one_or_none():
             flash("Error: The food with the same name already exist!", "error")
-            return redirect(url_for('setting'))
+            return redirect(url_for('main.settings'))
         else:
             foodItem = FoodItem(name=form3.productName.data, serving_size=form3.quantity.data, serving_unit=form3.unit.data, calories=form3.kilojoules.data)
             db.session.add(foodItem)
             db.session.commit()
-            return redirect(url_for()) # TODO: homepage
+            return redirect(url_for('main.dashboard'))
     else:
-        return redirect(url_for('setting'))
+        return redirect(url_for('main.settings'))
     
 @bp.route('/friends')
 @login_required
-def friends():
+def share():
 
-    return "friends page" # TODO: need a friends page
+    return render_template('share.html')
 
-@bp.route('/meal_list')
-def meal_list():
+@bp.route('/sharin_list')
+def sharing_list():
+    return render_template('sharing_list.html')
 
-    # TODO: need a meal list page
-    return "Meal List page coming soon!"
 
-@bp.route('/settings')
-def settings():
-
-    # TODO: need a settings page
-    return "settings page coming soon!"
 
 
 # def index():
