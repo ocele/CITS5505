@@ -59,7 +59,7 @@ def register():
             db.session.commit()
             login_user(user)
             flash('Congratulations, you are now registered!', 'success')
-            return redirect(url_for('auth.login'))
+            return redirect(url_for('main.dashboard'))
         except Exception as e:
             db.session.rollback()
             flash('Registration failed due to a server error.', 'danger')

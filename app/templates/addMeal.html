@@ -1,4 +1,4 @@
-{% extends home_base.html %}
+{% extends "home_base.html" %}
 {% block title %} DailyBite - Add Meal{% endblock %}
 {% block content %}
     <div class="container">
@@ -7,23 +7,24 @@
             {{ form.hidden_tag() }}
 
             <label for="mealType" class="form-label">Meal Type</label>
-            {{ form.mealType(class="form-control") }}
+            {{ form.mealType(class="form-control", id="mealTypeInput") }}
             <br><br>
 
             <div class="container" id="foodinputcontainer">
                 <label for="food" class="form-label">Food</label>
                 <div class="input-group">
                     {{ form.food(class="form-control", id="foodInput") }}
-                    <span class="input-group-text"><a href="{{ url_for('main.searchFood') }}"><i class="fa-solid fa-magnifying-glass"></i></a></span>
+                    <span class="input-group-text"><a href="#" id="searchFoodLink"><i class="fa-solid fa-magnifying-glass"></i></a></span>
                 </div>
                 {% if foodFound %}
                 <br>
-                <div id="foodFoundContainer">
+                <div class="alert alert-info alert-dismissible" id="foodFoundContainer">
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     {% for food in foodFound %}
-                    <input type="radio" id="{{ food.name }}" name="foundFood" value="{{ food.name }}">
+                    <input type="radio" class="searchResult" id="{{ food.name }}" name="foundFood" value="{{ food.name }}" data-name="{{ food.name }}" data-quantity="{{ food.serving_size }}" data-unit="{{ food.serving_unit }}">
                     <label for="{{ food.name }}" class="form-label">
                         <h3>{{ food.name }}</h3>
-                        <p> {{ food.calories}}/ {{ food.serving_size}} {{ food.serving_unit}}</p>
+                        <p> {{ food.calories }}/ {{ food.serving_size }} {{ food.serving_unit }}</p>
                     </label>
                     <br><br>
                     {% endfor %}
@@ -43,12 +44,12 @@
             <div class="container" id="historyContainer">
                 <div class="row">
                     <div class="col-sm-2">
-                        <p>History</p>
+                        <p>History Items</p>
                     </div>
                     <div class="col-sm-10">
                         {% for item in historyItems %}
                         <div class="btn-group">
-                            <button type="button" class="btn btn-primary" onclick="location.href='{{ url_for(\'main.getHistory\', item=item) }}'">{{ item }}</button>
+                            <a class="btn btn-primary historyItem" href="{{ url_for('main.addMeal', item=item) }}" data-name="{{ item }}">{{ item }}</a>
                         </div>
                         {% endfor %}
                     </div>
@@ -81,7 +82,7 @@
 
             <div class="btn-group">
                 <input type="submit" class="btn btn-secondary" value="Save">
-                <a href="url_for('main.index')" class="btn btn-light">Cancel</a>
+                <a href="url_for('main.dashboard')" class="btn btn-light">Cancel</a>
                 <!-- TODO: url for homepage -->
             </div>
         </form>
@@ -89,5 +90,39 @@
     </div>
 {% endblock %}
 {% block extra_js %}
-    <script src="../static/addMeal.js"></script>
+    <script defer src="../static/addMeal.js"></script>
+
+    <!-- Please don't move the scripts below to the .js. -->
+    <!-- They have templates inside -->
+
+    <script defer>
+
+        const initialMealType = document.getElementById('mealTypeInput').value
+        const historyItems = document.querySelectorAll('.historyItem');
+        historyItems.forEach( historyItem => {
+            historyItem.href = "{{ url_for('main.addMeal') }}?mealType=" + encodeURIComponent(initialMealType) + "&item=" + historyItem.getAttribute("data-name");
+        });
+
+        // JavaScript to dynamically update the search URL
+        document.getElementById('foodInput').addEventListener('input', function () {
+            const foodInputValue = document.getElementById('foodInput').value; // Get the value of the food input field
+            const mealTypeValue = document.getElementById('mealTypeInput').value; // Get the value of the meal type input field
+            const searchFoodLink = document.getElementById('searchFoodLink');
+            searchFoodLink.href = "{{ url_for('main.addMeal') }}?food=" + encodeURIComponent(foodInputValue) + "&mealType=" + encodeURIComponent(mealTypeValue);
+        });
+
+        // Update the links when the meal type changes
+        document.getElementById('mealTypeInput').addEventListener('change', function () {
+            const foodInputValue = document.getElementById('foodInput').value; // Get the value of the food input field
+            const mealTypeValue = document.getElementById('mealTypeInput').value; // Get the value of the meal type input field
+            const searchFoodLink = document.getElementById('searchFoodLink');
+            searchFoodLink.href = "{{ url_for('main.addMeal') }}?food=" + encodeURIComponent(foodInputValue) + "&mealType=" + encodeURIComponent(mealTypeValue);
+            const historyItems = document.querySelectorAll('.historyItem');
+            historyItems.forEach( historyItem => {
+                historyItem.href = "{{ url_for('main.addMeal') }}?mealType=" + encodeURIComponent(mealTypeValue) + "&item=" + historyItem.getAttribute("data-name");
+            });
+        });
+
+    
+</script>
 {% endblock %}

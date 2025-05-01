@@ -1,8 +1,8 @@
-{% extends home_base.html %}
-{% block title %} DailyBite - setting{% endblock %}
+{% extends "home_base.html" %}
+{% block title %} DailyBite - settings{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="../static/styleSetting.css">
+<link rel="stylesheet" href="../static/styleSettings.css">
 {% endblock %}
 
 {% block content %}
@@ -14,15 +14,15 @@
             <div class="col-5 shadowCol"></div>
         </div>
         <div class="container">
-            <form action="{{ url.for('addMealType') }}" method="POST">
-                {{ form.hidden_tag() }}
+            <form action="{{ url_for('main.addMealType') }}" method="POST">
+                {{ form1.hidden_tag() }}
                 <h2> Meal Type </h2>
                 <label for="typeName" class="form-label">Type Name</label><br>
                 {{ form1.typeName(class="form-control") }}
                 <br><br>
                 <div class="btn-group">
                     <input type="submit" class="btn btn-secondary" value="Save">
-                    <a href="url_for('index.html')" class="btn btn-light">Cancel</a>
+                    <a href="url_for('main.dashboard')" class="btn btn-light">Cancel</a>
                     <!-- TODO: change the url for homepage -->
                 </div>
             </form>
@@ -36,15 +36,15 @@
             <div class="col-5 shadowCol"></div>
         </div>
         <div class="container">
-            <form action="{{ url.for('setGoal') }}" method="POST">
-                {{ form.hidden_tag() }}
+            <form action="{{ url_for('main.setGoal') }}" method="POST">
+                {{ form2.hidden_tag() }}
                 <h2> Set Goal </h2>
                 <label for="goal" class="form-label">Set Goal</label><br>
                 {{ form2.goal(class="form-control") }}
                 <br><br>
                 <div class="btn-group">
                     <input type="submit" class="btn btn-secondary" value="Save">
-                    <a href="url_for('index.html')" class="btn btn-light">Cancel</a>
+                    <a href="url_for('main.dashboard')" class="btn btn-light">Cancel</a>
                     <!-- TODO: change the url for homepage -->
                 </div>
             </form>
@@ -60,24 +60,24 @@
             <div class="col-5 shadowCol"></div>
         </div>
         <div class="container">
-            <form action="{{ url.for('addNewProduct') }}" method="POST">
-                {{ form.hidden_tag() }}
+            <form action="{{ url_for('main.addNewProduct') }}" method="POST">
+                {{ form3.hidden_tag() }}
                 <h2> Add New Product </h2>
-                <label class="form-label" for="productName"></label><br>
+                <label class="form-label" for="productName"></label>Product Name<br>
                 {{ form3.productName(class="form-control") }}
                 <br>
-                <label class="form-label" for="quantity"></label><br>
+                <label class="form-label" for="quantity"></label>Quantity<br>
                 {{ form3.quantity(class="form-control") }}
                 <br>
-                <label class="form-label" for="unit"></label><br>
+                <label class="form-label" for="unit"></label>Unit<br>
                 {{ form3.unit(class="form-control") }}
                 <br>
-                <label class="form-label" for="kilojoules"></label><br>
+                <label class="form-label" for="kilojoules"></label>Kilojoules<br>
                 {{ form3.kilojoules(class="form-control") }}
                 <br>
                 <div class="btn-group">
                     <input type="submit" class="btn btn-secondary" value="Save">
-                    <a href="url_for('index.html')" class="btn btn-light">Cancel</a>
+                    <a href="url_for('main.dashboard')" class="btn btn-light">Cancel</a>
                     <!-- TODO: change the url for homepage -->
                 </div>
             </form>

@@ -34,6 +34,9 @@ class User(UserMixin, db.Model):
     # Defines the one-to-many relationship between User and FoodLog.
     food_logs = db.relationship('FoodLog', backref='logger', lazy='dynamic', cascade='all, delete-orphan')
 
+    # Defines the one-to-many relationship between User and MealType.
+    meal_types = db.relationship('MealType', backref='inputter', lazy='dynamic', cascade='all, delete-orphan')
+
     # Sets the user's password with proper hashing.
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
