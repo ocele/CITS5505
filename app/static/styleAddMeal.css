@@ -1,0 +1,22 @@
+.scrollable {
+    overflow: auto;
+    height: 10rem;  
+}
+
+.wholeContainer {
+    width: 70%;
+}
+
+h2 {
+    margin-bottom: 2rem ;
+}
+
+.suggestions, .suggestion {
+    border: solid 1px;
+}
+.suggestion {
+    margin: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

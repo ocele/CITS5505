@@ -1,0 +1,32 @@
+.row-cols-2 {
+    display: flex;
+    /* justify-content: center; */
+    align-items: center;
+}
+
+.col-sm-6 {
+    background-color: white;
+    border: orange solid 1px;
+}
+
+.shadowCol, .emptyCol {
+    background-color: rgb(215, 215, 215);
+}
+
+.titleCol {
+    text-align: center;
+}
+
+.btn-group {
+    margin-bottom: 2rem;
+}
+
+h2 {
+    padding-top: 1rem;
+    text-align: center;
+}
+
+.whole {
+    margin-top: 3rem;
+    width: 50vw;
+}

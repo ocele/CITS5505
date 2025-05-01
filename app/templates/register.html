@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Login Page DailyBite</title>
+        <meta name="description" content="The login and register page of DailyBite">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- Bootstrap CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Custom CSS -->
+        <link rel="stylesheet" href="../static/styleLogin.css">
+    </head>
+    <body>
+        <div class="container" id="registerContainer">
+            <form action="{{ url_for('auth.register') }}" method="POST" class="pt-3">
+
+                {{ form.hidden_tag() }}
+                <input type="hidden" name="form_type" value="register">
+
+                <div class="row">
+                    <div class="col">
+                        <label for="firstName" class="form-label"> First Name<span style="color: red;">*</span></label><br>
+                        {{ form.firstName(class="form-control") }}
+                    </div>
+                    <div class="col">
+                        <label for="lastName" class="form-label"> Last Name<span style="color: red;">*</span></label><br>
+                        {{ form.lastName(class="form-control") }}
+                    </div>
+                </div> <br>
+
+                <label for="emailRegister" class="form-label">Email<span style="color: red;">*</span></label><br>
+                {{ form.emailRegister(class="form-control") }}<br>
+                {% if form.emailRegister.errors %}
+                {% for error in form.emailRegister.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+
+                <label for="passwordRegister" class="form-label">Password<span style="color: red;">*</span></label><br>
+                {{ form.passwordRegister(class="form-control") }}<br>
+
+                <label for="passwordRegisterRepeat" class="form-label">Repeat Your Password<span style="color: red;">*</span></label><br>
+                {{ form.passwordRegisterRepeat(class="form-control") }}<br>
+                {% if form.passwordRegisterRepeat.errors %}
+                    {% for error in form.passwordRegisterRepeat.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+
+                {{ form.subscription }}
+                <label for="subscription" class="form-label">Subscribe for Sales & New Themes</label>
+                <br><br>
+
+                <input type="submit" value="Sign Up" id="SignUpLocation"><br><br>
+            </form>
+        </div>
+
+        <script defer>
+            const messages = {{ get_flashed_messages()|tojson }};
+            if (messages.length > 0) {
+                alert(messages.join('\n'));
+            }
+        </script>
+
+        <!-- Custom JS -->
+        <script src="../static/scripts.js" async defer></script>
+
+        <!-- Bootstrap JS Bundle with Popper -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+        
+    </body>
+</html>

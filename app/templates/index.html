@@ -11,7 +11,7 @@
                     <div class="hero-content">
                         <h1 class="hero-title">Tracking your meal</h1>
                         <p class="hero-text">Eat healthier and achieve your goal</p>
-                        <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Join Us</a>
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Sign Up</a>
                     </div>
                 </div>
             </div>
@@ -71,4 +71,10 @@
             </div>
         </div>
     </section>
+    <script defer>
+        const messages = {{ get_flashed_messages()|tojson }};
+        if (messages.length > 0) {
+            alert(messages.join('\n'));
+        }
+    </script>
 {% endblock %}
