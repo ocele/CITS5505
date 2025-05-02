@@ -39,12 +39,7 @@ class AddMealForm(FlaskForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        defaultChoices = [
-            ('Breakfast', 'Breakfast'),
-            ('Lunch', 'Lunch'),
-            ('Dinner', 'Dinner'),
-            ('Snacks', 'Snacks')
-        ]
+        defaultChoices = []
         if current_user.is_authenticated:
             userMealtype = [(meal.type_name, meal.type_name) for meal in current_user.meal_types.all()]
         else:

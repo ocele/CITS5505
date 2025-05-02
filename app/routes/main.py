@@ -2,7 +2,7 @@ from flask import redirect, render_template, request, url_for, Blueprint,current
 from app.forms import AddMealForm, AddMealTypeForm, SetGoalForm, AddNewProductForm
 from flask_login import current_user, login_required
 from app import db
-from sqlalchemy import select, or_
+from sqlalchemy import select, or_, and_    
 from app.models import User
 from app.models import FoodLog, FoodItem, MealType
 from datetime import date
@@ -114,11 +114,27 @@ def addMeal():
 
     foodSearched = request.args.get("food")
     if foodSearched:
-        foodFound = db.session.execute(select(FoodItem).where(FoodItem.name.ilike(f"%{foodSearched}%"))).scalars().all()
+        foodFound = FoodItem.query.filter(
+            and_(
+                FoodItem.name.ilike(f"%{foodSearched}%"),
+                or_(
+                    FoodItem.user_id == current_user.id, #admin and user added food
+                    FoodItem.user_id == admin.id
+                )
+            )
+        ).order_by(FoodItem.id).all()
     else:
         foodFound = []
         
-    form.mealType.data= request.args.get('mealType')
+    #form.mealType.data= request.args.get('mealType')
+    mealtypes = MealType.query.filter(
+        or_(
+            MealType.user_id == current_user.id,
+            MealType.user_id == admin.id
+        )
+    ).order_by(MealType.id).all()
+    form.mealType.choices = [(m.id, m.type_name) for m in mealtypes]
+
 
     historyItemName = request.args.get('item')
     if historyItemName:
@@ -152,6 +168,7 @@ def addMealPost():
         db.session.commit() 
         return redirect(url_for('main.dashboard'))
     else:
+        print(form.errors)  # 临时调试用
         flash("The form validation failed", "error")
         return redirect(url_for('main.addMeal'))
 
