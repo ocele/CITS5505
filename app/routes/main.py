@@ -3,10 +3,14 @@ from app.forms import AddMealForm, AddMealTypeForm, SetGoalForm, AddNewProductFo
 from flask_login import current_user, login_required
 from app import db
 from sqlalchemy import select, or_, and_    
-from app.models import User
-from app.models import FoodLog, FoodItem, MealType
+from app.models import User, FoodLog, FoodItem, MealType
 from datetime import date
-
+from app.routes.meal_utils import (
+    load_mealtype_choices,
+    get_food_suggestions,
+    search_foods,
+    load_history_items_and_prefill,
+)
 bp = Blueprint('main', __name__)
 
 @bp.route('/')
@@ -29,6 +33,7 @@ def dashboard():
 @login_required
 def profile():
     user = current_user
+    
     form = AddMealForm()
     if form.validate_on_submit():
         foodName = form.food.data
@@ -80,77 +85,30 @@ def profile():
 @login_required
 def addMeal():
     form = AddMealForm()
-    # 查询所有 MealType 选项
     admin = User.query.filter_by(email='admin@DailyBite.com').first()
-    # 用户只能选自己或者admin加的类型，不能选别人的。
-    mealtypes = MealType.query.filter(
-        (MealType.user_id == current_user.id) | (MealType.user_id == admin.id)
-    ).all()
 
-      
-    form.mealType.choices = [(m.id, m.type_name) for m in mealtypes]
-    # DONE: customised choices of mealType
+    # 设置 mealType 下拉框选项
+    load_mealtype_choices(form, current_user) 
 
-    historyItemsID = db.session.execute(select(FoodLog.food_item_id).where(FoodLog.user_id == current_user.id)).scalars().all()
-    historyItemsNames = []
-    if historyItemsID:
-        historyItemsNames = db.session.execute(select(FoodItem.name).where(FoodItem.id.in_(historyItemsID))).scalars().all()
+    # 搜索功能
+    food_searched = request.args.get("food")# 获取搜索框的值
+    food_found = search_foods(food_searched, current_user) if food_searched else []
+
+    # 获取历史食物并预填（返回名字列表用于前端按钮）
+    item_name = request.args.get("item")
+    history_item_names = load_history_items_and_prefill(form, current_user, item_name)
     
-    suggestions = FoodItem.query.filter(
-        or_(
-            FoodItem.user_id == current_user.id,
-            FoodItem.user_id == admin.id
-        )
-    ).order_by(FoodItem.id).all()# 按id升序排序
-
-    if not suggestions:
-        suggestionsTopTen = []
-    elif len(suggestions) > 10:
-        suggestionsTopTen = suggestions[:10]
-    else:
-        suggestionsTopTen = suggestions
-    # I picked only ten suggestions to avoid the list being too long
-    # DONE: Some sort of priority might come handy here. V: sort by id.
-
-    foodSearched = request.args.get("food")
-    if foodSearched:
-        foodFound = FoodItem.query.filter(
-            and_(
-                FoodItem.name.ilike(f"%{foodSearched}%"),
-                or_(
-                    FoodItem.user_id == current_user.id, #admin and user added food
-                    FoodItem.user_id == admin.id
-                )
-            )
-        ).order_by(FoodItem.id).all()
-    else:
-        foodFound = []
-        
-    #form.mealType.data= request.args.get('mealType')
-    mealtypes = MealType.query.filter(
-        or_(
-            MealType.user_id == current_user.id,
-            MealType.user_id == admin.id
-        )
-    ).order_by(MealType.id).all()
-    form.mealType.choices = [(m.id, m.type_name) for m in mealtypes]
-
-
-    historyItemName = request.args.get('item')
-    if historyItemName:
-        historyItem = db.session.execute(select(FoodItem).where(FoodItem.name == historyItemName)).scalars().one()
-        form.food.data = historyItem.name
-        form.quantity.data = historyItem.serving_size
-        form.unit.data = historyItem.serving_unit
-    else:
-        form.unit.data = "gram"
+    # 推荐食物（只取前10个）
+    suggestionsTopTen = get_food_suggestions(current_user)
     
-    return render_template('addMeal.html', form=form, foodFound=foodFound, historyItems=historyItemsNames, suggestions=suggestionsTopTen)
+    return render_template('addMeal.html', form=form, foodFound=food_found, historyItems=history_item_names, suggestions=suggestionsTopTen)
 
 @bp.post('/addMeal')
 @login_required
 def addMealPost():
     form = AddMealForm()
+    admin = User.query.filter_by(email='admin@DailyBite.com').first()
+
     if form.validate_on_submit():
         foodName = form.food.data
         inputFood = db.session.execute(select(FoodItem).where(FoodItem.name == foodName)).scalars().one_or_none()
