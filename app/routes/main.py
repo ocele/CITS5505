@@ -107,27 +107,35 @@ def addMeal():
 @login_required
 def addMealPost():
     form = AddMealForm()
-    admin = User.query.filter_by(email='admin@DailyBite.com').first()
+
+    # 设置 choices 才能通过表单验证
+    load_mealtype_choices(form, current_user)
 
     if form.validate_on_submit():
-        foodName = form.food.data
-        inputFood = db.session.execute(select(FoodItem).where(FoodItem.name == foodName)).scalars().one_or_none()
-        if not inputFood:
-            # foodItem = FoodItem(name = foodName, serving_size = form.quantity.data, serving_unit = form.unit.data, calories = 0 ) 
-            # db.session.add(foodItem)
-            # db.session.commit()
-            flash("The food you chose is not yet in the database. Please add a new product in the settings", "error")
-            return redirect(url_for('main.settings')) 
-            
-        # Create and add new food log entry
-        inputFoodID = inputFood.id
-        foodLog = FoodLog(user_id = current_user.id, food_item_id = inputFoodID, meal_type = form.mealType.data, quantity_consumed = form.quantity.data, unit_consumed = form.unit.data)
-        db.session.add(foodLog)
-        db.session.commit() 
+        food_name = form.food.data
+
+        # 查询食物（admin 或用户添加的）
+        input_food = FoodItem.query.filter_by(name=food_name).first()
+        if not input_food:
+            flash("The food you chose is not yet in the database. Please add it in the settings.", "error")
+            return redirect(url_for('main.settings'))
+
+        # 创建新的日志记录
+        food_log = FoodLog(
+            user_id=current_user.id,
+            food_item_id=input_food.id,
+            meal_type=form.mealType.data,
+            quantity_consumed=form.quantity.data,
+            unit_consumed=form.unit.data
+        )
+        db.session.add(food_log)
+        db.session.commit()
+        flash("Meal log added successfully.", "success")
         return redirect(url_for('main.dashboard'))
+
     else:
-        print(form.errors)  # 临时调试用
-        flash("The form validation failed", "error")
+        print(form.errors)  # 调试时使用
+        flash("The form validation failed. Please check your input.", "error")
         return redirect(url_for('main.addMeal'))
 
 # @bp.route('/searchFood')

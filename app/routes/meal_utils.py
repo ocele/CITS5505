@@ -29,6 +29,7 @@ def search_foods(keyword, current_user):
 
 
 # ✅ 获取历史食物并尝试表单预填充
+# TODO: 这里出现了页面刷新导致会丢失mealtype的选择 需要处理。
 def load_history_items_and_prefill(form, user, item_name=None):
     history_items = FoodItem.query.join(FoodLog).filter(
         FoodLog.user_id == user.id
