@@ -1,29 +1,185 @@
-from flask import redirect, render_template, request, url_for, Blueprint,current_app, flash
+from flask import redirect, render_template, request, url_for, Blueprint,current_app, flash, jsonify
 from app.forms import AddMealForm, AddMealTypeForm, SetGoalForm, AddNewProductForm
 from flask_login import current_user, login_required
 from app import db
-from sqlalchemy import select, or_
+from sqlalchemy import select, func, cast, Date, extract, or_
 from app.models import User
-from app.models import FoodLog, FoodItem, MealType
-from datetime import date
+from app.models import FoodLog, FoodItem, MealType, User
+from datetime import date, timedelta, datetime
+from collections import defaultdict
+from pyecharts import options as opts
+from pyecharts.charts import Line, Bar
+import json
+
 
 bp = Blueprint('main', __name__)
 
 @bp.route('/')
 @bp.route('/index')
 def index():
-    # 打印 Flask 应用查找模板的路径列表
-    print(f"DEBUG: Jinja Loader Searchpath: {current_app.jinja_loader.searchpath}")
-    try:
-        return render_template('index.html', title='Home')
-    except Exception as e:
-        print(f"ERROR rendering template: {e}")
-        raise
+    return render_template('index.html', title='Home')
 
 @bp.get('/dashboard_home.html')
 @login_required
 def dashboard():
     return render_template('dashboard_home.html')
+
+def get_week_of_year(dt):
+    iso_calendar = dt.isocalendar()
+    return iso_calendar[0], iso_calendar[1]
+
+def get_year_month(dt):
+    return dt.year, dt.month
+
+@bp.route('/api/get_calorie_chart_options')
+@login_required
+def get_calorie_chart_options():
+    time_range = request.args.get('range', 'week')
+
+    today = date.today()
+    labels = []
+    consumed_data = []
+
+    calories_per_log = (
+        func.coalesce(FoodLog.quantity_consumed, 0) /
+        func.coalesce(FoodItem.serving_size, 1)
+    ) * func.coalesce(FoodItem.calories, 0)
+
+    base_query = (
+        select(
+            FoodLog.log_date,
+            calories_per_log.label('calories')
+        )
+        .join(FoodItem, FoodLog.food_item_id == FoodItem.id)
+        .where(FoodLog.user_id == current_user.id)
+    )
+
+    query_start_date = None
+    if time_range == 'day':
+        query_start_date = today
+    elif time_range == 'week':
+        query_start_date = today - timedelta(days=6)
+    elif time_range == 'month':
+        query_start_date = today.replace(day=1)
+
+    try:
+        if query_start_date:
+            start_dt = datetime.combine(query_start_date, datetime.min.time())
+            end_dt = datetime.combine(today, datetime.max.time())
+            query = base_query.where(FoodLog.log_date.between(start_dt, end_dt)).order_by(FoodLog.log_date)
+        else:
+             return jsonify({"error": "Invalid time range logic"}), 400
+
+        print(f"Executing query for range '{time_range}' between {start_dt} and {end_dt}")
+        results = db.session.execute(query).all()
+        print(f"Query Result (raw): {results}")
+
+        daily_calories = defaultdict(float)
+        for r in results:
+            if r.log_date:
+                log_day = r.log_date.date()
+                daily_calories[log_day] += r.calories or 0
+
+        print(f"Aggregated daily calories: {dict(daily_calories)}")
+
+        if time_range == 'day':
+            labels = [today.strftime('%Y-%m-%d')]
+            consumed_data = [round(daily_calories.get(today, 0), 1)]
+
+        elif time_range == 'week':
+            start_date_week = today - timedelta(days=6)
+            for i in range(7):
+                current_day = start_date_week + timedelta(days=i)
+                labels.append(current_day.strftime('%m-%d'))
+                consumed_data.append(round(daily_calories.get(current_day, 0), 1))
+
+        elif time_range == 'month':
+            start_date_month = today.replace(day=1)
+            days_in_month_so_far = (today - start_date_month).days + 1
+            for i in range(days_in_month_so_far):
+                current_day = start_date_month + timedelta(days=i)
+                labels.append(str(current_day.day))
+                consumed_data.append(round(daily_calories.get(current_day, 0), 1))
+
+        print(f"Final labels: {labels}")
+        print(f"Final consumed_data: {consumed_data}")
+
+    except Exception as e:
+        print(f"Error querying or processing data: {e}")
+        db.session.rollback()
+        return jsonify({"error": "Could not retrieve or process data"}), 500
+
+    daily_calorie_goal = round(current_user.target_calories or 0, 1)
+    try:
+        chart_title = f"Calorie Intake Trend ({time_range.capitalize()})"
+        chart_object = None
+
+        if time_range == 'day':
+            if labels:
+                chart_title = f"Calorie Intake ({labels[0]})"
+            chart_object = Bar(init_opts=opts.InitOpts(width="100%", height="250px", bg_color="#FFFFFF"))
+            chart_object.add_xaxis(xaxis_data=labels)
+            chart_object.add_yaxis(
+                series_name="Consumed",
+                y_axis=consumed_data,
+                label_opts=opts.LabelOpts(is_show=False),
+                color="#5470C6",
+                tooltip_opts=opts.TooltipOpts(formatter="{b}<br/>{a}: {c} kcal")
+            )
+
+        else:
+            chart_object = Line(init_opts=opts.InitOpts(width="100%", height="250px", bg_color="#FFFFFF"))
+            chart_object.add_xaxis(xaxis_data=labels)
+            chart_object.add_yaxis(
+                series_name="Consumed",
+                y_axis=consumed_data,
+                is_smooth=True,
+                label_opts=opts.LabelOpts(is_show=False),
+                linestyle_opts=opts.LineStyleOpts(width=2),
+                color="#5470C6",
+                tooltip_opts=opts.TooltipOpts(formatter="{b}<br/>{a}: {c} kcal")
+            )
+
+            chart_object.add_yaxis(
+                series_name="Daily Goal",
+                y_axis=[daily_calorie_goal] * len(labels),
+                is_smooth=False,
+                label_opts=opts.LabelOpts(is_show=False),
+                linestyle_opts=opts.LineStyleOpts(type_="dashed", width=1),
+                symbol="none",
+                color="#EE6666",
+                tooltip_opts=opts.TooltipOpts(formatter="{a}: {c} kcal")
+            )
+
+        if chart_object is None:
+             raise ValueError("Chart object was not created for the given time range.")
+
+        chart_object.set_global_opts(
+            title_opts=opts.TitleOpts(title=chart_title, pos_left="center", title_textstyle_opts=opts.TextStyleOpts(font_size=14)),
+            tooltip_opts=opts.TooltipOpts(trigger="axis" if time_range != 'day' else "item", axis_pointer_type="cross"),
+            xaxis_opts=opts.AxisOpts(type_="category", name="Time"),
+            yaxis_opts=opts.AxisOpts(
+                type_="value",
+                name="Calories (kcal)",
+                axislabel_opts=opts.LabelOpts(formatter="{value}"),
+                splitline_opts=opts.SplitLineOpts(is_show=True),
+            ),
+            legend_opts=opts.LegendOpts(pos_left="center", pos_top="bottom"),
+            datazoom_opts=[
+                opts.DataZoomOpts(range_start=0, range_end=100) if time_range != 'day' else None,
+                opts.DataZoomOpts(type_="inside", range_start=0, range_end=100) if time_range != 'day' else None,
+            ],
+            toolbox_opts=opts.ToolboxOpts(is_show=True, feature=opts.ToolBoxFeatureOpts(save_as_image=opts.ToolBoxFeatureSaveAsImageOpts(is_show=True)))
+        )
+
+        options_dict = json.loads(chart_object.dump_options())
+        return jsonify(options_dict)
+
+    except Exception as e:
+        import traceback
+        print(f"Error generating chart options with pyecharts: {e}")
+        print(traceback.format_exc())
+        return jsonify({"error": "Could not generate chart options"}), 500
 
 @bp.route('/profile', methods=['GET', 'POST'])
 @login_required
@@ -63,7 +219,6 @@ def profile():
                       .order_by(FoodLog.log_date.desc())
                       .limit(5)
     ).all()
-
 
     return render_template(
         'profile.html', 

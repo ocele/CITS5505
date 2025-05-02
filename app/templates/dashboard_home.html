@@ -18,17 +18,16 @@
     <!-- Calorie Intake Chart -->
     <div class="col-md-6 mb-4">
         <div class="card">
-            <div class="card-header">
-                <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-sm btn-outline-secondary">D</button>
-                    <button type="button" class="btn btn-sm btn-primary active">W</button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary">M</button>
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Calorie Intake Trend</h5>
+                <div class="btn-group btn-group-sm calorie-trend-toggle" role="group">
+                    <button type="button" class="btn btn-outline-primary time-range-btn" data-chart-target="calorieTrendChart" data-api-endpoint="/api/get_calorie_chart_options" data-range="day">Today</button>
+                    <button type="button" class="btn btn-primary active time-range-btn" data-chart-target="calorieTrendChart" data-api-endpoint="/api/get_calorie_chart_options" data-range="week">Last 7 Days</button>
+                    <button type="button" class="btn btn-outline-primary time-range-btn" data-chart-target="calorieTrendChart" data-api-endpoint="/api/get_calorie_chart_options" data-range="month">This Month</button>
                 </div>
             </div>
             <div class="card-body">
-                <div class="chart-placeholder">
-                    <i class="fas fa-chart-line fa-3x"></i>
-                </div>
+                <div id="calorieTrendChart" style="height: 250px; width: 100%;"></div>
             </div>
         </div>
     </div>
@@ -105,4 +104,87 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const chartDom = document.getElementById('calorieTrendChart');
+            let calorieChart = chartDom ? echarts.init(chart, Domnull, { locale: 'EN' }) : null;
+            const calorieButtons = document.querySelectorAll('.calorie-trend-toggle .time-range-btn');
+        
+            function updateCalorieChart(timeRange = 'week') {
+                console.log('Fetching ECharts options for range:', timeRange);
+                const currentChartDom = document.getElementById('calorieTrendChart');
+                if (!currentChartDom || !calorieChart) {
+                    console.error("Calorie chart instance or DOM element missing!");
+                    return;
+                }
+                calorieChart.showLoading();
+        
+                fetch(`/api/get_calorie_chart_options?range=${timeRange}`)
+                    .then(response => {
+                        if (!response.ok) throw new Error(`Network response was not ok for chart options (status: ${response.status})`);
+                        try {
+                            return response.json();
+                        } catch (e) {
+                            throw new Error("Failed to parse JSON response");
+                        }
+                    })
+                    .then(chartOptions => {
+                        console.log('ECharts options received:', chartOptions);
+                        if (!chartOptions || typeof chartOptions !== 'object') {
+                            throw new Error("Received invalid chart options data");
+                        }
+                        calorieChart.hideLoading();
+                        calorieChart.setOption(chartOptions, true);
+                        console.log('ECharts option set.');
+                    })
+                    .catch(error => {
+                        console.error('Error loading ECharts options:', error);
+                        if(calorieChart) calorieChart.hideLoading();
+                        currentChartDom.innerHTML = `<p class="text-danger text-center small mt-3">Could not load chart data. Please check console.</p>`;
+                    });
+            }
+        
+            calorieButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    this.closest('.btn-group').querySelectorAll('.time-range-btn').forEach(btn => {
+                        btn.classList.remove('active', 'btn-primary');
+                        btn.classList.add('btn-outline-primary');
+                    });
+                    this.classList.add('active', 'btn-primary');
+                    this.classList.remove('btn-outline-primary');
+        
+                    const selectedRange = this.dataset.range;
+                    updateCalorieChart(selectedRange);
+                });
+            });
+        
+            if (calorieChart) {
+                updateCalorieChart('week');
+            } else {
+                 console.warn('DIV element with ID "calorieTrendChart" not found.');
+            }
+        
+            window.addEventListener('resize', function() {
+                if (calorieChart) {
+                     setTimeout(() => {
+                         calorieChart.resize();
+                      }, 250);
+                }
+            });
+        
+            const nutritionCompDom = document.querySelector('.card-body .fa-chart-bar')?.closest('.card-body');
+            if (nutritionCompDom && !document.getElementById('nutritionChart')) { // 检查是否还没替换
+                nutritionCompDom.innerHTML = '<p class="text-muted text-center small mt-3">Nutrition Breakdown Chart Coming Soon</p>';
+            }
+            const categoryDom = document.querySelector('.card-body .fa-chart-pie')?.closest('.card-body');
+             if (categoryDom && !document.getElementById('categoryChart')) {
+                 categoryDom.innerHTML = '<p class="text-muted text-center small mt-3">Food Categories Chart Coming Soon</p>';
+             }
+        
+        });
+        </script>
 {% endblock %}
