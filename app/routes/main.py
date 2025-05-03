@@ -246,12 +246,24 @@ def share():
     form = ShareForm()
     friends = []
     # ---------------- GET 搜索处理 ----------------
-    search_term = request.args.get('search')
+    #匹配所有用户（排除自己）
+    search_term = request.args.get('search','').strip()
     if search_term:
-        friends = User.query.filter(User.username.ilike(f"%{search_term}%")).all()
+        friends = User.query \
+        .filter(User.id != current_user.id) \
+        .filter(
+            or_(
+                User.first_name.ilike(f"%{search_term}%"),
+                User.last_name.ilike(f"%{search_term}%"),
+                User.email.ilike(f"%{search_term}%")
+            )
+        ) \
+        .limit(10) \
+        .all()  # TODO：暂时只取前 10 个匹配；考虑分页或滚轮
     else:
-        # 默认不展示全部好友，避免数据量大
+        # 默认不展示，避免数据量大
         friends = []
+
 
     # ---------------- POST 提交分享 ----------------
     if request.method == 'POST':
