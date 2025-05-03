@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "home_base.html" %}
 
 {% block title %}DailyBite - Share with Friends{% endblock %}
 
@@ -46,26 +46,25 @@
         </div>
         
         <!-- Friend Search -->
-        <div class="friend-search">
-            <input type="text" name="search" placeholder="Find your friend">
-            <span class="search-icon">
-                <i class="fas fa-search"></i>
-            </span>
-        </div>
-        
+        <form method="GET" action="{{ url_for('main.share') }}" class="friend-search">
+            <input type="text" name="search" placeholder="Find your friend" value="{{ request.args.get('search', '') }}">
+            <button type="submit" class="search-icon"><i class="fas fa-search"></i></button>
+        </form>
+
         <!-- Friend List -->
         <div class="friend-list">
             {% if friends %}
                 {% for friend in friends %}
                 <label class="option-label">
-                    <input type="checkbox" name="friend_ids" value="{{ friend.id }}">
-                    <span class="ms-2">{{ friend.username }} (ID: {{ friend.id }})</span>
+                    <input type="radio" name="selected_friend_id" value="{{ friend.id }}" required>
+                    <span class="ms-2">{{ friend.username }} ({{ friend.email }})</span>
                 </label>
                 {% endfor %}
             {% else %}
-                <p class="text-muted">No friends found.</p>
+                <p class="text-muted">No matching friends found.</p>
             {% endif %}
         </div>
+
         
         <!-- Action Buttons -->
         <div class="action-buttons">

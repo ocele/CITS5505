@@ -13,6 +13,8 @@
 <div class="sharing-list-container">
     {% if shares %}
         {% for share in shares %}
+        <!-- V：让整个 .sharing-item 可点击 查看详情 -->
+        <a href="{{ url_for('main.view_share', share_id=share.id) }}" class="sharing-item-link"> 
             <div class="sharing-item">
                 <div class="sharing-avatar">
                     <i class="fa-solid fa-user fa-lg"></i>
@@ -30,6 +32,7 @@
                 </div>
                 <div class="sharing-time">{{ share.elapsed_time }}</div>
             </div>
+        </a>
         {% endfor %}
     {% else %}
         <div class="no-shares">

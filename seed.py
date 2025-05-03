@@ -13,7 +13,7 @@ with app.app_context():
             email='admin@DailyBite.com',
             target_calories=2000
         )
-        admin.set_password('admin_DailyBite')  # 换成你想要的初始密码
+        admin.set_password('admin_DailyBite')  # 初始密码
         db.session.add(admin)
         db.session.commit()
         print("Admin user created.")
