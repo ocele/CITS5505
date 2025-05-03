@@ -4,6 +4,7 @@ from flask_login import UserMixin
 from app import db, login_manager
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String, Integer, Float, DateTime, Boolean, ForeignKey
+from datetime import datetime, timezone
 
 # Loads a user object based on the user ID stored in the session.
 @login_manager.user_loader
@@ -117,3 +118,16 @@ class MealType(db.Model):
 
     user_id: Mapped[int] = mapped_column(db.ForeignKey('user.id'), nullable=False, index=True)
     type_name: Mapped[str] = mapped_column(String(128), unique=False, nullable=False)
+
+class ShareRecord(db.Model):
+    __tablename__ = 'share_records'
+
+    id = db.Column(db.Integer, primary_key=True)
+    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    content_type = db.Column(db.String(20), nullable=False)   # 'ranking' or 'calorie'
+    date_range = db.Column(db.String(20), nullable=False)     # 'daily', 'weekly', 'monthly'
+    timestamp = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    is_read = db.Column(db.Boolean, default=False) # 用于消息提醒系统
+    sender = db.relationship('User', foreign_keys=[sender_id], backref='sent_shares')
+    receiver = db.relationship('User', foreign_keys=[receiver_id], backref='received_shares')

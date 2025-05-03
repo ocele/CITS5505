@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms.validators import DataRequired, ValidationError, Email, EqualTo, Length, NumberRange, Optional
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, EmailField, SelectField, SearchField, DecimalField, FloatField, DateField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, EmailField, SelectField, SearchField, DecimalField, FloatField, DateField,RadioField
 from wtforms_sqlalchemy.fields import QuerySelectField
 from app.models import User, FoodItem, MealType
 from datetime import date
@@ -83,3 +83,18 @@ class AddNewProductForm(FlaskForm):
         existing_food = FoodItem.query.filter(FoodItem.name.ilike(name_field.data)).first() # Check for case-insensitive match
         if existing_food:
             raise ValidationError(f"Product name '{name_field.data}' already exists.")
+
+class ShareForm(FlaskForm):
+    search = StringField('Search Friend')
+    content_type = RadioField('Content Type', choices=[
+        ('ranking', 'My Current Ranking'),
+        ('calorie', 'My Calorie Intake')
+    ], validators=[DataRequired()])
+
+    date_range = RadioField('Date Range', choices=[
+        ('daily', 'Daily'),
+        ('weekly', 'Weekly'),
+        ('monthly', 'Monthly')
+    ], validators=[DataRequired()])
+
+    submit = SubmitField('Search')
