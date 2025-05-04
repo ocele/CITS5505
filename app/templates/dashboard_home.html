@@ -35,15 +35,13 @@
     <!-- Nutrition Breakdown Chart -->
     <div class="col-md-6 mb-4">
         <div class="card">
-            <div class="card-header">
-                <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-sm btn-outline-secondary">D</button>
-                    <button type="button" class="btn btn-sm btn-primary active">W</button>
+            <div class="card-header d-flex justify-content-between align-items-center">
+             <h5 class="mb-0">Nutrition Ratio (Today, kcal %)</h5>
                 </div>
             </div>
             <div class="card-body">
                 <div class="chart-placeholder">
-                    <i class="fas fa-chart-bar fa-3x"></i>
+                    <div id="nutritionRatioChart" style="height: 250px; width: 100%;"></div>
                 </div>
             </div>
         </div>
@@ -184,7 +182,57 @@
              if (categoryDom && !document.getElementById('categoryChart')) {
                  categoryDom.innerHTML = '<p class="text-muted text-center small mt-3">Food Categories Chart Coming Soon</p>';
              }
-        
+            
+            const nutritionRatioDom = document.getElementById('nutritionRatioChart');
+            let nutritionRatioChart = nutritionRatioDom ? echarts.init(nutritionRatioDom, null, { locale: 'EN' }) : null;
+
+            function updateNutritionRatioChart(targetDate = null) {
+                console.log('Fetching nutrition ratio options for date:', targetDate || 'today');
+                const currentChartDom = document.getElementById('nutritionRatioChart');
+                if (!currentChartDom || !nutritionRatioChart) { /* ... */ return; }
+                nutritionRatioChart.showLoading();
+
+                let apiUrl = '/api/nutrition_ratio';
+                if (targetDate) {
+                    apiUrl += `?date=${targetDate}`;
+                }
+
+                fetch(apiUrl)
+                    .then(response => {
+                        if (!response.ok) throw new Error(`Network response was not ok for ratio options (status: ${response.status})`);
+                        try { return response.json(); } catch (e) { throw new Error("Failed to parse JSON for ratio"); }
+                    })
+                    .then(chartOptions => {
+                        console.log('Nutrition ratio options received:', chartOptions);
+                        if (!chartOptions || typeof chartOptions !== 'object') {
+                            throw new Error("Received invalid ratio chart options data");
+                        }
+                        nutritionRatioChart.hideLoading();
+                        nutritionRatioChart.setOption(chartOptions, true);
+                        console.log('Nutrition ratio chart updated.');
+                    })
+                    .catch(error => {
+                        console.error('Error loading nutrition ratio chart:', error);
+                        if(nutritionRatioChart) nutritionRatioChart.hideLoading();
+                        currentChartDom.innerHTML = `<p class="text-danger text-center small mt-3">Could not load ratio data.</p>`;
+                    });
+            }
+
+            if (nutritionRatioChart) {
+                updateNutritionRatioChart();
+            } else {
+                console.warn('DIV element with ID "nutritionRatioChart" not found.');
+            }
+
+            window.addEventListener('resize', function() {
+                setTimeout(() => {
+                    if (calorieChart) calorieChart.resize();
+                    if (nutritionCompChart) nutritionCompChart.resize();
+                    if (nutritionRatioChart) nutritionRatioChart.resize(); // 添加饼图的 resize
+                }, 250);
+            }); 
+             
         });
+        
         </script>
 {% endblock %}
