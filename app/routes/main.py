@@ -13,7 +13,6 @@ from pyecharts import options as opts
 from pyecharts.charts import Line, Bar, Pie, Pie
 import json
 
-
 bp = Blueprint('main', __name__)
 
 @bp.route('/')
