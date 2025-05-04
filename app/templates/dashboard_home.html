@@ -47,19 +47,24 @@
         </div>
     </div>
 
-    <!-- Food Categories Chart -->
-    <div class="col-md-6 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-sm btn-outline-secondary">D</button>
-                    <button type="button" class="btn btn-sm btn-primary active">W</button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary">M</button>
+    <!-- Leaderboard -->
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Goal Achievement Leaderboard</h5>
+                    <div class="btn-group btn-group-sm leaderboard-toggle" role="group">
+                        <button type="button" class="btn btn-primary active leaderboard-period-btn" data-period="7d">Last 7 Days</button>
+                        <button type="button" class="btn btn-outline-primary leaderboard-period-btn" data-period="30d">Last 30 Days</button>
+                    </div>
                 </div>
-            </div>
-            <div class="card-body">
-                <div class="chart-placeholder">
-                    <i class="fas fa-chart-pie fa-3x"></i>
+                <div class="card-body" id="leaderboardBody">
+                    <p class="text-center text-muted" id="leaderboardLoading">Loading leaderboard...</p>
+                    <ol class="list-group list-group-numbered" id="leaderboardList"style="display: none; max-height: 300px; overflow-y: auto;"></ol>
+                    <p class="text-center text-danger" id="leaderboardError" style="display: none;">Could not load leaderboard data.</p>
+                </div>
+                <div class="card-footer text-muted small" id="leaderboardFooter" style="display: none;">
+                    Ranking based on days meeting calorie goal (±10%).
                 </div>
             </div>
         </div>
@@ -70,34 +75,25 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Recent Activity</h5>
-                <span class="text-muted small">Today</span>
+                <span class="text-muted small">Last 5 Entries</span>
             </div>
-            <div class="card-body">
-                <div class="activity-item">
-                    <div class="activity-indicator bg-success"></div>
-                    <div class="activity-time">32 min</div>
-                    <div>Quia quae rerum explicabo officis</div>
-                </div>
-                <div class="activity-item">
-                    <div class="activity-indicator bg-danger"></div>
-                    <div class="activity-time">56 min</div>
-                    <div>Voluptatem blanditiis blanditiis eveniet</div>
-                </div>
-                <div class="activity-item">
-                    <div class="activity-indicator bg-primary"></div>
-                    <div class="activity-time">2 hrs</div>
-                    <div>Voluptates corrupti molestias voluptatem</div>
-                </div>
-                <div class="activity-item">
-                    <div class="activity-indicator bg-info"></div>
-                    <div class="activity-time">1 day</div>
-                    <div>Tempore autem saepe occaecati voluptatem</div>
-                </div>
-                <div class="activity-item">
-                    <div class="activity-indicator bg-warning"></div>
-                    <div class="activity-time">2 days</div>
-                    <div>Est sit eum reiciendis exercitationem</div>
-                </div>
+            <div class="card-body" id="recentActivityList">
+                {% if recent_logs %}
+                    {% for log in recent_logs %}
+                    <div class="activity-item d-flex align-items-center mb-2">
+                        <div class="activity-indicator bg-primary me-2"></div>
+                        <div class="activity-details flex-grow-1">
+                            <span>{{ log.quantity_consumed }} {{ log.unit_consumed }} of {{ log.food_details.name if log.food_details else 'Unknown Food' }}</span>
+                            <span class="text-muted small ms-1">({{ log.meal_type }})</span>
+                        </div>
+                        <div class="activity-time text-muted small">
+                            {{ log.log_date.strftime('%H:%M') if log.log_date else '' }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center">No recent activity logged.</p>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -228,10 +224,117 @@
                 setTimeout(() => {
                     if (calorieChart) calorieChart.resize();
                     if (nutritionCompChart) nutritionCompChart.resize();
-                    if (nutritionRatioChart) nutritionRatioChart.resize(); // 添加饼图的 resize
+                    if (nutritionRatioChart) nutritionRatioChart.resize();
                 }, 250);
             }); 
-             
+            
+            const leaderboardList = document.getElementById('leaderboardList');
+            const leaderboardLoading = document.getElementById('leaderboardLoading');
+            const leaderboardError = document.getElementById('leaderboardError');
+            const leaderboardFooter = document.getElementById('leaderboardFooter');
+            const leaderboardButtons = document.querySelectorAll('.leaderboard-toggle .leaderboard-period-btn');
+
+            function updateLeaderboard(period = '7d') {
+                console.log('Fetching leaderboard data for period:', period);
+                if (!leaderboardList || !leaderboardLoading || !leaderboardError || !leaderboardFooter) {
+                    console.error("Leaderboard DOM elements missing!");
+                    return;
+                }
+
+                leaderboardLoading.style.display = 'block';
+                leaderboardList.style.display = 'none';
+                leaderboardError.style.display = 'none';
+                leaderboardFooter.style.display = 'none';
+                leaderboardList.innerHTML = '';
+
+                fetch(`/api/goal_leaderboard?period=${period}`)
+                    .then(response => {
+                        if (!response.ok) throw new Error(`Network response was not ok for leaderboard (status: ${response.status})`);
+                        try { return response.json(); } catch (e) { throw new Error("Failed to parse JSON for leaderboard"); }
+                    })
+                    .then(leaderboardData => {
+                        console.log('Leaderboard data received:', leaderboardData);
+                        leaderboardLoading.style.display = 'none';
+
+                        if (!Array.isArray(leaderboardData)) {
+                            throw new Error("Received invalid leaderboard data format");
+                        }
+
+                        if (leaderboardData.length === 0) {
+                            leaderboardList.innerHTML = '<li class="list-group-item text-muted text-center">No data available for this period.</li>';
+                        } else {
+                            leaderboardData.forEach(entry => {
+                                const listItem = document.createElement('li');
+                                listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
+                                const nameDiv = document.createElement('div');
+                                nameDiv.className = 'ms-2 me-auto';
+                                const rankSpan = document.createElement('span');
+                                rankSpan.className = 'me-2';
+
+                                let rankDisplay = '';
+                                if (entry.rank === 1) {
+                                    rankDisplay = '🥇 ';
+                                } else if (entry.rank === 2) {
+                                    rankDisplay = '🥈 ';
+                                } else if (entry.rank === 3) {
+                                    rankDisplay = '🥉 ';
+                                } else {
+                                    rankDisplay = `${entry.rank}. `;
+                                }
+                                rankSpan.textContent = rankDisplay;
+
+                                nameDiv.appendChild(rankSpan);
+                                nameDiv.appendChild(document.createTextNode(entry.last_name || 'Unknown'));
+
+                                const badge = document.createElement('span');
+                                let badgeClass = 'bg-secondary';
+                                if (entry.rank === 1) badgeClass = 'bg-warning text-dark';
+                                else if (entry.rank === 2) badgeClass = 'bg-info text-dark';
+                                else if (entry.rank === 3) badgeClass = 'bg-success';
+
+                                badge.className = `badge ${badgeClass} rounded-pill`;
+                                badge.textContent = `${entry.days_achieved} ${entry.days_achieved === 1 ? 'day' : 'days'}`;
+
+                                listItem.appendChild(nameDiv);
+                                listItem.appendChild(badge);
+                                leaderboardList.appendChild(listItem);
+                            });
+                        }
+
+                        leaderboardList.style.display = 'block';
+                        leaderboardFooter.style.display = 'block';
+                        console.log('Leaderboard updated.');
+
+                    })
+                    .catch(error => {
+                        console.error('Error loading leaderboard:', error);
+                        leaderboardLoading.style.display = 'none';
+                        leaderboardError.style.display = 'block';
+                        leaderboardList.style.display = 'none';
+                        leaderboardFooter.style.display = 'none';
+                    });
+            }
+
+            leaderboardButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    this.closest('.btn-group').querySelectorAll('.leaderboard-period-btn').forEach(btn => {
+                        btn.classList.remove('active', 'btn-primary');
+                        btn.classList.add('btn-outline-primary');
+                    });
+                    this.classList.add('active', 'btn-primary');
+                    this.classList.remove('btn-outline-primary');
+
+                    const selectedPeriod = this.dataset.period;
+                    updateLeaderboard(selectedPeriod);
+                });
+            });
+
+            if (leaderboardList) {
+                updateLeaderboard('7d');
+            } else {
+                console.warn('Element with ID "leaderboardList" not found.');
+            }
+
         });
         
         </script>
