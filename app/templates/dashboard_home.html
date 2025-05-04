@@ -111,7 +111,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const chartDom = document.getElementById('calorieTrendChart');
-            let calorieChart = chartDom ? echarts.init(chart, Domnull, { locale: 'EN' }) : null;
+            let calorieChart = chartDom ? echarts.init(chartDom, null, { locale: 'EN' }) : null;
             const calorieButtons = document.querySelectorAll('.calorie-trend-toggle .time-range-btn');
         
             function updateCalorieChart(timeRange = 'week') {
@@ -177,7 +177,7 @@
             });
         
             const nutritionCompDom = document.querySelector('.card-body .fa-chart-bar')?.closest('.card-body');
-            if (nutritionCompDom && !document.getElementById('nutritionChart')) { // 检查是否还没替换
+            if (nutritionCompDom && !document.getElementById('nutritionChart')) {
                 nutritionCompDom.innerHTML = '<p class="text-muted text-center small mt-3">Nutrition Breakdown Chart Coming Soon</p>';
             }
             const categoryDom = document.querySelector('.card-body .fa-chart-pie')?.closest('.card-body');

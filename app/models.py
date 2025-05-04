@@ -57,15 +57,14 @@ class FoodItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), index=True, unique=True, nullable=False)
 
-    # Standard serving information for nutrient reference.
-    serving_size = db.Column(db.Float, nullable=False, default=100.0)
-    serving_unit = db.Column(db.String(20), nullable=False, default='g')
+    calories_per_100 = db.Column(db.Float, nullable=False, server_default='0.0')
+    protein_per_100 = db.Column(db.Float, nullable=False, server_default='0.0')
+    fat_per_100 = db.Column(db.Float, nullable=False, server_default='0.0')
+    carbs_per_100 = db.Column(db.Float, nullable=False, server_default='0.0')
 
-    # Nutritional values per standard serving.
-    calories = db.Column(db.Float, nullable=False)
-    protein = db.Column(db.Float, nullable=True)
-    fat = db.Column(db.Float, nullable=True)
-    carbs = db.Column(db.Float, nullable=True)
+    # Standard serving information for nutrient reference.
+    serving_size = db.Column(db.Float, nullable=True)
+    serving_unit = db.Column(db.String(20), nullable=True)
 
     # Optional metadata.
     category = db.Column(db.String(50), index=True, nullable=True)
@@ -80,6 +79,15 @@ class FoodItem(db.Model):
     # String representation for debugging.
     def __repr__(self):
         return f'<FoodItem {self.name}>'
+    
+    @property
+    def nutrients_per_100(self):
+        return {
+            'calories': self.calories_per_100,
+            'protein': self.protein_per_100,
+            'fat': self.fat_per_100,
+            'carbs': self.carbs_per_100
+        }
 
 # Represents a single food consumption entry logged by a user.
 class FoodLog(db.Model):

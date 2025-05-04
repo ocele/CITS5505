@@ -41,9 +41,8 @@ def get_calorie_chart_options():
     consumed_data = []
 
     calories_per_log = (
-        func.coalesce(FoodLog.quantity_consumed, 0) /
-        func.coalesce(FoodItem.serving_size, 1)
-    ) * func.coalesce(FoodItem.calories, 0)
+        func.coalesce(FoodLog.quantity_consumed, 0) / 100
+    ) * func.coalesce(FoodItem.calories_per_100, 0)
 
     base_query = (
         select(
@@ -181,115 +180,173 @@ def get_calorie_chart_options():
         print(traceback.format_exc())
         return jsonify({"error": "Could not generate chart options"}), 500
 
-@bp.route('/profile', methods=['GET', 'POST'])
-@login_required
-def profile():
-    user = current_user
-    form = AddMealForm()
-    if form.validate_on_submit():
-        foodName = form.food.data
-        inputFoodItem = db.session.scalar(
-            select(FoodItem).filter_by(name=foodName)
-            ).one_or_none()
+# @bp.route('/profile', methods=['GET', 'POST'])
+# @login_required
+# def profile():
+#     user = current_user
+#     form = AddMealForm()
+#     if form.validate_on_submit():
+#         foodName = form.food.data
+#         inputFoodItem = db.session.scalar(
+#             select(FoodItem).filter_by(name=foodName)
+#             ).one_or_none()
 
-        if not inputFoodItem:
-            flash(f"'{foodName}' Food not found, please add it", 'warning')
-            return redirect(url_for('main.dashboard'))
-        else:
-            try:
-                foodLog = FoodLog(
-                    user_id=current_user.id,
-                    food_item_id=inputFoodItem.id,
-                    meal_type=form.mealType.data,
-                    quantity_consumed=float(form.quantity.data),
-                )
-                db.session.add(foodLog)
-                db.session.commit()
-                flash('Food loged!', 'success')
-            except Exception as e:
-                db.session.rollback() 
-                flash(f'Adding error: {e}', 'danger')
+#         if not inputFoodItem:
+#             flash(f"'{foodName}' Food not found, please add it", 'warning')
+#             return redirect(url_for('main.dashboard'))
+#         else:
+#             try:
+#                 foodLog = FoodLog(
+#                     user_id=current_user.id,
+#                     food_item_id=inputFoodItem.id,
+#                     meal_type=form.mealType.data,
+#                     quantity_consumed=float(form.quantity.data),
+#                 )
+#                 db.session.add(foodLog)
+#                 db.session.commit()
+#                 flash('Food loged!', 'success')
+#             except Exception as e:
+#                 db.session.rollback() 
+#                 flash(f'Adding error: {e}', 'danger')
 
-            return redirect(url_for('main.dashboard'))
+#             return redirect(url_for('main.dashboard'))
 
-    # form.mealType.choices = ["Breakfast", "Lunch", "Dinner", "Snacks"] 
+#     # form.mealType.choices = ["Breakfast", "Lunch", "Dinner", "Snacks"] 
 
-    recent_logs = db.session.scalars(
-        select(FoodLog).filter_by(user_id=current_user.id)
-                      .order_by(FoodLog.log_date.desc())
-                      .limit(5)
-    ).all()
+#     recent_logs = db.session.scalars(
+#         select(FoodLog).filter_by(user_id=current_user.id)
+#                       .order_by(FoodLog.log_date.desc())
+#                       .limit(5)
+#     ).all()
 
-    return render_template(
-        'profile.html', 
-        title='My profile',
-        user=user,
-        form=form,
-        recent_logs=recent_logs 
-    )
+#     return render_template(
+#         'profile.html', 
+#         title='My profile',
+#         user=user,
+#         form=form,
+#         recent_logs=recent_logs 
+#     )
 
     # return render_template('home_base.html', user=user)
     # return f"<h1>Welcome, {user.first_name} {user.last_name}!</h1>" 
+
+# @bp.get('/addMeal')
+# @login_required
+# def addMeal():
+#     form = AddMealForm()
+#     # 查询所有 MealType 选项
+#     admin = User.query.filter_by(email='admin@DailyBite.com').first()
+#     # 用户只能选自己或者admin加的类型，不能选别人的。
+#     mealtypes = MealType.query.filter(
+#         (MealType.user_id == current_user.id) | (MealType.user_id == admin.id)
+#     ).all()
+
+      
+#     form.mealType.choices = [(m.id, m.type_name) for m in mealtypes]
+#     # DONE: customised choices of mealType
+
+#     historyItemsID = db.session.execute(select(FoodLog.food_item_id).where(FoodLog.user_id == current_user.id)).scalars().all()
+#     historyItemsNames = []
+#     if historyItemsID:
+#         historyItemsNames = db.session.execute(select(FoodItem.name).where(FoodItem.id.in_(historyItemsID))).scalars().all()
+    
+#     suggestions = FoodItem.query.filter(
+#         or_(
+#             FoodItem.user_id == current_user.id,
+#             FoodItem.user_id == admin.id
+#         )
+#     ).order_by(FoodItem.id).all()# 按id升序排序
+
+#     if not suggestions:
+#         suggestionsTopTen = []
+#     elif len(suggestions) > 10:
+#         suggestionsTopTen = suggestions[:10]
+#     else:
+#         suggestionsTopTen = suggestions
+#     # I picked only ten suggestions to avoid the list being too long
+#     # DONE: Some sort of priority might come handy here. V: sort by id.
+
+#     foodSearched = request.args.get("food")
+#     if foodSearched:
+#         foodFound = db.session.execute(select(FoodItem).where(FoodItem.name.ilike(f"%{foodSearched}%"))).scalars().all()
+#     else:
+#         foodFound = []
+        
+#     form.mealType.data= request.args.get('mealType')
+
+#     historyItemName = request.args.get('item')
+#     if historyItemName:
+#         historyItem = db.session.execute(select(FoodItem).where(FoodItem.name == historyItemName)).scalars().one()
+#         form.food.data = historyItem.name
+#         form.quantity.data = historyItem.serving_size
+#         form.unit.data = historyItem.serving_unit
+#     else:
+#         form.unit.data = "gram"
+    
+#     return render_template('addMeal.html', form=form, foodFound=foodFound, historyItems=historyItemsNames, suggestions=suggestionsTopTen)
 
 @bp.get('/addMeal')
 @login_required
 def addMeal():
     form = AddMealForm()
-    # 查询所有 MealType 选项
-    admin = User.query.filter_by(email='admin@DailyBite.com').first()
-    # 用户只能选自己或者admin加的类型，不能选别人的。
-    mealtypes = MealType.query.filter(
-        (MealType.user_id == current_user.id) | (MealType.user_id == admin.id)
-    ).all()
+    print(f"Choices after form init: {form.mealType.choices}")
 
-      
-    form.mealType.choices = [(m.id, m.type_name) for m in mealtypes]
-    # DONE: customised choices of mealType
-
+    # --- History Items ---
     historyItemsID = db.session.execute(select(FoodLog.food_item_id).where(FoodLog.user_id == current_user.id)).scalars().all()
     historyItemsNames = []
     if historyItemsID:
         historyItemsNames = db.session.execute(select(FoodItem.name).where(FoodItem.id.in_(historyItemsID))).scalars().all()
-    
-    suggestions = FoodItem.query.filter(
-        or_(
-            FoodItem.user_id == current_user.id,
-            FoodItem.user_id == admin.id
-        )
-    ).order_by(FoodItem.id).all()# 按id升序排序
 
-    if not suggestions:
-        suggestionsTopTen = []
-    elif len(suggestions) > 10:
-        suggestionsTopTen = suggestions[:10]
+    # --- Suggestions ---
+    admin = User.query.filter_by(email='admin@DailyBite.com').first()
+    suggestion_filter = None
+    if hasattr(FoodItem, 'user_id'):
+         suggestion_filter_user = (FoodItem.user_id == current_user.id)
+         if admin:
+             suggestion_filter = or_(suggestion_filter_user, FoodItem.user_id == admin.id)
+         else:
+             suggestion_filter = suggestion_filter_user
+
+    if suggestion_filter is not None:
+         suggestions_query_result = FoodItem.query.filter(suggestion_filter).order_by(FoodItem.id).all()
     else:
-        suggestionsTopTen = suggestions
-    # I picked only ten suggestions to avoid the list being too long
-    # DONE: Some sort of priority might come handy here. V: sort by id.
+         suggestions_query_result = FoodItem.query.order_by(FoodItem.id).limit(20).all()
+
+    suggestions_for_template = suggestions_query_result[:10]
 
     foodSearched = request.args.get("food")
+    foodFound = []
     if foodSearched:
-        foodFound = db.session.execute(select(FoodItem).where(FoodItem.name.ilike(f"%{foodSearched}%"))).scalars().all()
-    else:
-        foodFound = []
-        
-    form.mealType.data= request.args.get('mealType')
+        foodFound = db.session.execute(
+            select(FoodItem).where(FoodItem.name.ilike(f"%{foodSearched}%"))
+        ).scalars().all()
+
+    mealTypeParam = request.args.get('mealType')
+    if mealTypeParam:
+        form.mealType.data = mealTypeParam
 
     historyItemName = request.args.get('item')
     if historyItemName:
-        historyItem = db.session.execute(select(FoodItem).where(FoodItem.name == historyItemName)).scalars().one()
-        form.food.data = historyItem.name
-        form.quantity.data = historyItem.serving_size
-        form.unit.data = historyItem.serving_unit
+        historyItem = db.session.execute(
+            select(FoodItem).where(FoodItem.name == historyItemName)
+        ).scalars().one_or_none()
+        if historyItem:
+            form.food.data = historyItem.name
+            form.quantity.data = historyItem.serving_size if historyItem.serving_size else 100
+            form.unit.data = historyItem.serving_unit if historyItem.serving_unit else "g"
+        else:
+             form.unit.data = "g"
     else:
-        form.unit.data = "gram"
-    
-    return render_template('addMeal.html', form=form, foodFound=foodFound, historyItems=historyItemsNames, suggestions=suggestionsTopTen)
+        form.unit.data = "g"
+
+    print(f"Choices before render: {form.mealType.choices}")
+    return render_template('addMeal.html', form=form, foodFound=foodFound, historyItems=historyItemsNames, suggestions=suggestions_for_template)
 
 @bp.post('/addMeal')
 @login_required
 def addMealPost():
     form = AddMealForm()
+    print(f"Inside /addMeal GET route, choices are: {form.mealType.choices}")
     if form.validate_on_submit():
         foodName = form.food.data
         inputFood = db.session.execute(select(FoodItem).where(FoodItem.name == foodName)).scalars().one_or_none()
@@ -363,20 +420,58 @@ def setGoal():
     else:
         return redirect(url_for('main.settings'))
 
+# @bp.post('/addNewProduct')
+# @login_required
+# def addNewProduct():
+#     form3 = AddNewProductForm()
+#     if form3.validate_on_submit():
+#         if db.session.execute(select(FoodItem).where(FoodItem.name == form3.productName.data)).one_or_none():
+#             flash("Error: The food with the same name already exist!", "error")
+#             return redirect(url_for('main.settings'))
+#         else:
+#             foodItem = FoodItem(name=form3.productName.data, serving_size=form3.quantity.data, serving_unit=form3.unit.data, calories=form3.kilojoules.data)
+#             db.session.add(foodItem)
+#             db.session.commit()
+#             return redirect(url_for('main.dashboard'))
+#     else:
+#         return redirect(url_for('main.settings'))
 @bp.post('/addNewProduct')
 @login_required
 def addNewProduct():
-    form3 = AddNewProductForm()
-    if form3.validate_on_submit():
-        if db.session.execute(select(FoodItem).where(FoodItem.name == form3.productName.data)).one_or_none():
-            flash("Error: The food with the same name already exist!", "error")
+    form = AddNewProductForm()
+    if form.validate_on_submit():
+        existing_food = db.session.scalar(
+            select(FoodItem).where(FoodItem.name.ilike(form.name.data))
+        )
+        if existing_food:
+            flash(f"Error: Food item '{form.name.data}' already exists!", "danger")
             return redirect(url_for('main.settings'))
         else:
-            foodItem = FoodItem(name=form3.productName.data, serving_size=form3.quantity.data, serving_unit=form3.unit.data, calories=form3.kilojoules.data)
-            db.session.add(foodItem)
-            db.session.commit()
-            return redirect(url_for('main.dashboard'))
+            try:
+                new_food = FoodItem(
+                    name=form.name.data,
+                    calories_per_100=form.calories_per_100.data, 
+                    protein_per_100=form.protein_per_100.data,
+                    fat_per_100=form.fat_per_100.data or 0.0,
+                    carbs_per_100=form.carbs_per_100.data or 0.0,
+                    serving_size=form.serving_size.data,
+                    serving_unit=form.serving_unit.data,
+                    category=form.category.data,
+                    user_id=current_user.id
+                )
+                db.session.add(new_food)
+                db.session.commit()
+                flash(f"Food item '{new_food.name}' added successfully!", 'success')
+                return redirect(url_for('main.settings'))
+            except Exception as e:
+                db.session.rollback()
+                flash(f"Error saving food item: {e}", 'danger')
+                return redirect(url_for('main.settings'))
+
     else:
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(f"Error in {getattr(form, field).label.text}: {error}", 'warning')
         return redirect(url_for('main.settings'))
     
 @bp.route('/friends')

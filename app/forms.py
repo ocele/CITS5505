@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms.validators import DataRequired, ValidationError, Email, EqualTo, Length, NumberRange
+from wtforms.validators import DataRequired, ValidationError, Email, EqualTo, Length, NumberRange, Optional
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, EmailField, SelectField, SearchField, DecimalField, FloatField, DateField
 from wtforms_sqlalchemy.fields import QuerySelectField
 from app.models import User, FoodItem, MealType
@@ -45,6 +45,7 @@ class AddMealForm(FlaskForm):
             ('Dinner', 'Dinner'),
             ('Snacks', 'Snacks')
         ]
+        userMealtype = []
         if current_user.is_authenticated:
             userMealtype = [(meal.type_name, meal.type_name) for meal in current_user.meal_types.all()]
         else:
@@ -57,8 +58,28 @@ class AddMealTypeForm(FlaskForm):
 class SetGoalForm(FlaskForm):
     goal = DecimalField('kilojoules/ Day', validators=[DataRequired(), NumberRange(min=0)])
 
+# class AddNewProductForm(FlaskForm):
+#     productName = StringField('Product Name', validators=[DataRequired(), Length(min=1, max = 128)])
+#     quantity = DecimalField('Quantity', validators=[DataRequired(), NumberRange(min=0)])
+#     unit = SelectField('Unit', choices=['gram', 'medium', 'cup', 'ml', 'serving'], validators=[DataRequired()])
+#     kilojoules = DecimalField('Kilojoules', validators=[DataRequired(), NumberRange(min=0)])
+
 class AddNewProductForm(FlaskForm):
-    productName = StringField('Product Name', validators=[DataRequired(), Length(min=1, max = 128)])
-    quantity = DecimalField('Quantity', validators=[DataRequired(), NumberRange(min=0)])
-    unit = SelectField('Unit', choices=['gram', 'medium', 'cup', 'ml', 'serving'], validators=[DataRequired()])
-    kilojoules = DecimalField('Kilojoules', validators=[DataRequired(), NumberRange(min=0)])
+    name = StringField('Product Name', validators=[DataRequired(), Length(max=100)])
+
+    calories_per_100 = FloatField('Calories (kcal per 100g/ml)', validators=[DataRequired(message="Calories field cannot be empty."), NumberRange(min=0, message="Calories must be non-negative.")])
+    protein_per_100 = FloatField('Protein (g per 100g/ml)', validators=[DataRequired(message="Protein field cannot be empty."), NumberRange(min=0, message="Protein must be non-negative.")])
+
+    fat_per_100 = FloatField('Fat (g per 100g/ml)', validators=[Optional(), NumberRange(min=0, message="Fat must be non-negative.")])
+    carbs_per_100 = FloatField('Carbohydrates (g per 100g/ml)', validators=[Optional(), NumberRange(min=0, message="Carbs must be non-negative.")]) 
+
+    serving_size = FloatField('Common Serving Size (Optional)', validators=[Optional(), NumberRange(min=0.01, message="Serving size must be positive if provided.")])
+    serving_unit = StringField('Common Serving Unit (Optional)', validators=[Optional(), Length(max=20)])
+    category = StringField('Category (Optional)', validators=[Optional(), Length(max=50)])
+    submit = SubmitField('Save New Product')
+
+    # check if the food name already exists in the database
+    def validate_name(self, name_field):
+        existing_food = FoodItem.query.filter(FoodItem.name.ilike(name_field.data)).first() # Check for case-insensitive match
+        if existing_food:
+            raise ValidationError(f"Product name '{name_field.data}' already exists.")
