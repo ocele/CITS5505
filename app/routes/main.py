@@ -9,7 +9,7 @@ from app.models import FoodLog, FoodItem, MealType, User, ShareRecord
 from datetime import datetime, timezone, timedelta, date
 from collections import defaultdict
 from pyecharts import options as opts
-from pyecharts.charts import Line, Bar, Pie
+from pyecharts.charts import Line, Bar, Pie, Pie
 import json
 
 
@@ -553,6 +553,96 @@ def api_goal_leaderboard():
         print(traceback.format_exc())
         db.session.rollback()
         return jsonify({"error": "Could not generate leaderboard"}), 500
+
+@bp.route('/api/nutrition_ratio')
+@login_required
+def api_nutrition_ratio():
+    target_date_str = request.args.get('date', date.today().isoformat())
+    try:
+        target_date = date.fromisoformat(target_date_str)
+    except ValueError:
+        target_date = date.today()
+
+    try:
+        protein_per_log = (func.coalesce(FoodLog.quantity_consumed, 0) / 100.0) * func.coalesce(FoodItem.protein_per_100, 0)
+        fat_per_log = (func.coalesce(FoodLog.quantity_consumed, 0) / 100.0) * func.coalesce(FoodItem.fat_per_100, 0)
+        carbs_per_log = (func.coalesce(FoodLog.quantity_consumed, 0) / 100.0) * func.coalesce(FoodItem.carbs_per_100, 0)
+
+        start_dt = datetime.combine(target_date, datetime.min.time())
+        end_dt = datetime.combine(target_date, datetime.max.time())
+
+        query = (
+            select(
+                func.sum(protein_per_log).label('total_protein'),
+                func.sum(fat_per_log).label('total_fat'),
+                func.sum(carbs_per_log).label('total_carbs')
+            )
+            .select_from(FoodLog) # 明确 select_from
+            .join(FoodItem, FoodLog.food_item_id == FoodItem.id)
+            .where(
+                FoodLog.user_id == current_user.id,
+                FoodLog.log_date.between(start_dt, end_dt)
+            )
+        )
+        result = db.session.execute(query).first()
+
+        protein_g = result.total_protein or 0
+        fat_g = result.total_fat or 0
+        carbs_g = result.total_carbs or 0
+
+    except Exception as e:
+        print(f"Error querying nutrition data for ratio: {e}")
+        db.session.rollback()
+        return jsonify({"error": "Could not retrieve nutrition data for ratio"}), 500
+
+    protein_kcal = round(protein_g * 4, 1)
+    fat_kcal = round(fat_g * 9, 1)
+    carbs_kcal = round(carbs_g * 4, 1)
+    total_kcal = protein_kcal + fat_kcal + carbs_kcal
+
+    pie_data = [
+        ('Protein', protein_kcal),
+        ('Fat', fat_kcal),
+        ('Carbs', carbs_kcal)
+    ]
+    pie_data = [item for item in pie_data if item[1] > 0]
+
+    try:
+        pie_chart = (
+            Pie(init_opts=opts.InitOpts(width="100%", height="250px", bg_color="#FFFFFF"))
+            .add(
+                series_name="Nutrient Calories",
+                data_pair=pie_data,
+                radius=["40%", "70%"],
+                label_opts=opts.LabelOpts(is_show=False, position="center"),
+            )
+            .set_global_opts(
+                legend_opts=opts.LegendOpts(orient="vertical", pos_left="left", pos_top="center"),
+                tooltip_opts=opts.TooltipOpts(
+                    trigger="item", formatter="{a} <br/>{b}: {c} kcal ({d}%)"
+                ),
+            )
+             .set_series_opts(
+                 tooltip_opts=opts.TooltipOpts(
+                    trigger="item", formatter="{a} <br/>{b}: {c} kcal ({d}%)"
+                 ),
+                 itemstyle_opts=opts.ItemStyleOpts(
+                     border_color="#fff",
+                     border_width=1,
+                     border_radius=10
+                 ),
+                 label_opts=opts.LabelOpts(formatter="{b}: {d}%")
+             )
+        )
+
+        options_dict = json.loads(pie_chart.dump_options())
+        return jsonify(options_dict)
+
+    except Exception as e:
+        import traceback
+        print(f"Error generating pie chart options with pyecharts: {e}")
+        print(traceback.format_exc())
+        return jsonify({"error": "Could not generate pie chart options"}), 500
 
 # @bp.route('/profile', methods=['GET', 'POST'])
 # @login_required
