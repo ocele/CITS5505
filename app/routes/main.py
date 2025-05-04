@@ -4,6 +4,7 @@ from flask_login import current_user, login_required
 from app import db
 from sqlalchemy import select, func, cast, Date, extract, func, cast, Date, extract, or_
 from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload
 from app.models import User
 from app.models import FoodLog, FoodItem, MealType, User, ShareRecord
 from datetime import datetime, timezone, timedelta, date
@@ -42,9 +43,6 @@ def dashboard():
                            recent_logs=recent_logs,
                            user=current_user,
                            form=AddMealForm())
-
-def get_year_month(dt):
-    return dt.year, dt.month
 
 def get_week_of_year(dt):
     iso_calendar = dt.isocalendar()
@@ -643,6 +641,119 @@ def api_nutrition_ratio():
         print(f"Error generating pie chart options with pyecharts: {e}")
         print(traceback.format_exc())
         return jsonify({"error": "Could not generate pie chart options"}), 500
+
+@bp.route('/api/goal_leaderboard')
+@login_required
+def api_goal_leaderboard():
+    """计算并返回达成卡路里目标天数的排行榜"""
+
+    period = request.args.get('period', '7d')
+    today = date.today()
+    if period == '30d':
+        start_date = today - timedelta(days=29)
+    else:
+        start_date = today - timedelta(days=6)
+    end_date = today
+
+    LOWER_BOUND_FACTOR = 0.90
+    UPPER_BOUND_FACTOR = 1.10
+
+    try:
+        calories_per_log = (
+            func.coalesce(FoodLog.quantity_consumed, 0) / 100.0
+        ) * func.coalesce(FoodItem.calories_per_100, 0)
+
+        start_dt = datetime.combine(start_date, datetime.min.time())
+        end_dt = datetime.combine(end_date, datetime.max.time())
+
+        daily_calories_query = (
+            select(
+                FoodLog.user_id,
+                func.strftime('%Y-%m-%d', FoodLog.log_date).label('log_day_str'),
+                func.sum(calories_per_log).label('daily_calories')
+            )
+            .select_from(FoodLog)
+            .join(FoodItem, FoodLog.food_item_id == FoodItem.id)
+            .where(
+                FoodLog.log_date.between(start_dt, end_dt)
+            )
+            .group_by(FoodLog.user_id, func.strftime('%Y-%m-%d', FoodLog.log_date))
+        )
+
+        print(f"Executing leaderboard query between {start_dt} and {end_dt}")
+        results = db.session.execute(daily_calories_query).all()
+        print(f"Leaderboard raw results count: {len(results)}")
+
+        user_ids_in_logs = {row.user_id for row in results}
+        if not user_ids_in_logs:
+            return jsonify([])
+
+        users_info_query = select(User.id, User.last_name, User.target_calories).where(User.id.in_(user_ids_in_logs))
+        users_info = db.session.execute(users_info_query).all()
+        user_data_map = {
+            user.id: {'last_name': user.last_name, 'target': user.target_calories or 2000.0}
+            for user in users_info
+        }
+        print(f"User data map fetched: {user_data_map}")
+
+        achieved_days_count = defaultdict(int)
+        daily_calories_per_user_day = defaultdict(lambda: defaultdict(float))
+
+        for row in results:
+            daily_calories_per_user_day[row.user_id][row.log_day_str] += row.daily_calories or 0
+
+        print(f"Aggregated daily calories per user/day: { {k: dict(v) for k, v in daily_calories_per_user_day.items()} }")
+
+        current_check_date = start_date
+        while current_check_date <= end_date:
+            current_check_date_str = current_check_date.isoformat()
+            for user_id in user_data_map:
+                 daily_cals = daily_calories_per_user_day[user_id].get(current_check_date_str, 0)
+                 user_info = user_data_map[user_id]
+                 target = user_info['target']
+                 if target > 0:
+                     lower_bound = target * LOWER_BOUND_FACTOR
+                     upper_bound = target * UPPER_BOUND_FACTOR
+                     if lower_bound <= daily_cals <= upper_bound:
+                         achieved_days_count[user_id] += 1
+            current_check_date += timedelta(days=1)
+
+
+        print(f"Achieved days count: {dict(achieved_days_count)}")
+
+        leaderboard = []
+        for user_id, user_info in user_data_map.items():
+            days_achieved = achieved_days_count.get(user_id, 0)
+            leaderboard.append({
+                'user_id': user_id,
+                'last_name': user_info['last_name'],
+                'days_achieved': days_achieved
+            })
+
+        leaderboard.sort(key=lambda x: x['days_achieved'], reverse=True)
+
+        ranked_leaderboard = []
+        rank = 0
+        last_score = -1
+        count = 0
+        for i, entry in enumerate(leaderboard):
+            count += 1
+            if entry['days_achieved'] != last_score:
+                rank = count
+                last_score = entry['days_achieved']
+            entry['rank'] = rank
+            ranked_leaderboard.append(entry)
+
+
+        print(f"Final leaderboard: {ranked_leaderboard}")
+        return jsonify(ranked_leaderboard)
+
+    except Exception as e:
+        import traceback
+        print(f"Error generating leaderboard: {e}")
+        print(traceback.format_exc())
+        db.session.rollback()
+        return jsonify({"error": "Could not generate leaderboard"}), 500
 
 # @bp.route('/profile', methods=['GET', 'POST'])
 # @login_required
