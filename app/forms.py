@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms.validators import DataRequired, ValidationError, Email, EqualTo, Length, NumberRange
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, EmailField, SelectField, SearchField, DecimalField, FloatField, DateField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, EmailField, SelectField, SearchField, DecimalField, FloatField, DateField,RadioField
 from wtforms_sqlalchemy.fields import QuerySelectField
 from app.models import User, FoodItem, MealType
 from datetime import date
@@ -62,3 +62,18 @@ class AddNewProductForm(FlaskForm):
     quantity = DecimalField('Quantity', validators=[DataRequired(), NumberRange(min=0)])
     unit = SelectField('Unit', choices=['gram', 'medium', 'cup', 'ml', 'serving'], validators=[DataRequired()])
     kilojoules = DecimalField('Kilojoules', validators=[DataRequired(), NumberRange(min=0)])
+
+class ShareForm(FlaskForm):
+    search = StringField('Search Friend')
+    content_type = RadioField('Content Type', choices=[
+        ('ranking', 'My Current Ranking'),
+        ('calorie', 'My Calorie Intake')
+    ], validators=[DataRequired()])
+
+    date_range = RadioField('Date Range', choices=[
+        ('daily', 'Daily'),
+        ('weekly', 'Weekly'),
+        ('monthly', 'Monthly')
+    ], validators=[DataRequired()])
+
+    submit = SubmitField('Search')

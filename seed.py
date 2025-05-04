@@ -4,6 +4,10 @@ from app.models import FoodItem
 
 app = create_app()
 with app.app_context():
+    # 清空旧数据
+    db.drop_all()
+    db.create_all()
+
     # 1. 检查并创建 admin 用户
     admin = User.query.filter_by(email='admin@DailyBite.com').first()
     if not admin:
@@ -13,12 +17,33 @@ with app.app_context():
             email='admin@DailyBite.com',
             target_calories=2000
         )
-        admin.set_password('admin_DailyBite')  # 换成你想要的初始密码
+        admin.set_password('admin_DailyBite')  # 初始密码
         db.session.add(admin)
         db.session.commit()
         print("Admin user created.")
     else:
         print("Admin user already exists.")
+
+    # 添加用户
+    users = [
+        {'first_name': 'Veronica',   'last_name': 'DailyBite',    'email': 'Veronica@DailyBite.com',   'password': 'DailyBite'},
+        {'first_name': 'Zoe',     'last_name': 'DailyBite',  'email': 'zoe@DailyBite.com',     'password': 'DailyBite'},
+        {'first_name': 'Haoran', 'last_name': 'DailyBite',  'email': 'haoran@DailyBite.com', 'password': 'DailyBite'},
+        {'first_name': 'William', 'last_name': 'DailyBite',  'email': 'william@DailyBite.com', 'password': 'DailyBite'},
+
+    ]
+    for u in users:
+        if not User.query.filter_by(email=u['email']).first():
+            user = User(
+                first_name=u['first_name'],
+                last_name=u['last_name'],
+                email=u['email'],
+            )
+            user.set_password(u['password'])
+            db.session.add(user)
+    db.session.commit()
+
+    print("Seeded initial users.")
 
     # 2. 创建默认餐次类型，绑定给 admin 用户
     mealtypes = ["breakfast", "lunch", "dinner", "supper", "snacks"]

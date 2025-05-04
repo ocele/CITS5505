@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "home_base.html" %}
 
 {% block title %}DailyBite - Share with Friends{% endblock %}
 
@@ -9,10 +9,8 @@
 {% block content %}
 <div class="share-modal">
     <h2 class="share-modal-title">Share to Friends</h2>
-    
     <form method="POST" action="{{ url_for('main.share') }}">
-        {{ form.hidden_tag() }}
-        
+
         <!-- Content Selection Section -->
         <div class="share-section">
             <h5 class="share-section-title">Select content to share</h5>
@@ -25,7 +23,7 @@
                 <span class="ms-2">My Calorie Intake</span>
             </label>
         </div>
-        
+
         <!-- Date Range Selection -->
         <div class="share-section">
             <h5 class="share-section-title">Select Data Range</h5>
@@ -44,29 +42,31 @@
                 </label>
             </div>
         </div>
-        
+
         <!-- Friend Search -->
-        <div class="friend-search">
-            <input type="text" name="search" placeholder="Find your friend">
-            <span class="search-icon">
-                <i class="fas fa-search"></i>
-            </span>
-        </div>
-        
+        <form method="GET" action="{{ url_for('main.share') }}" class="friend-search">
+            <input type="text" name="search" placeholder="Find your friend"
+                value="{{ request.args.get('search', '') }}">
+            <button type="submit" class="search-icon"><i class="fas fa-search"></i></button>
+        </form>
+
+
+
+        {{ form.hidden_tag() }}
         <!-- Friend List -->
         <div class="friend-list">
             {% if friends %}
-                {% for friend in friends %}
-                <label class="option-label">
-                    <input type="checkbox" name="friend_ids" value="{{ friend.id }}">
-                    <span class="ms-2">{{ friend.username }} (ID: {{ friend.id }})</span>
-                </label>
-                {% endfor %}
+            {% for friend in friends %}
+            <label class="option-label">
+                <input type="radio" name="selected_friend_id" value="{{ friend.id }}" required>
+                <span class="ms-2">{{ friend.first_name }} {{ friend.last_name }} ({{ friend.email }})</span>
+            </label>
+            {% endfor %}
             {% else %}
-                <p class="text-muted">No friends found.</p>
+            <p class="text-muted">No matching friends found.</p>
             {% endif %}
         </div>
-        
+
         <!-- Action Buttons -->
         <div class="action-buttons">
             <button type="submit" class="btn-confirm">Confirm</button>
