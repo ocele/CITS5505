@@ -1,4 +1,4 @@
-from flask import redirect, render_template, request, url_for, Blueprint,current_app, flash, jsonify, jsonify
+from flask import redirect, render_template, request, url_for, Blueprint,current_app, flash, jsonify, session
 from app.forms import AddMealForm, AddMealTypeForm, SetGoalForm, AddNewProductForm, ShareForm
 from flask_login import current_user, login_required
 from app import db
@@ -6,7 +6,7 @@ from sqlalchemy import select, func, cast, Date, extract, func, cast, Date, extr
 from sqlalchemy.orm import selectinload
 from app.models import User
 from app.models import FoodLog, FoodItem, MealType, User, ShareRecord
-from datetime import datetime, timezone, timedelta, datetime
+from datetime import datetime, timezone, timedelta, date
 from collections import defaultdict
 from pyecharts import options as opts
 from pyecharts.charts import Line, Bar, Pie
@@ -43,15 +43,8 @@ def dashboard():
                            user=current_user,
                            form=AddMealForm())
 
-def get_week_of_year(dt):
-    iso_calendar = dt.isocalendar()
-    return iso_calendar[0], iso_calendar[1]
-
 def get_year_month(dt):
     return dt.year, dt.month
-
-@bp.route('/api/get_calorie_chart_options')
-    return render_template('dashboard_home.html')
 
 def get_week_of_year(dt):
     iso_calendar = dt.isocalendar()
@@ -70,9 +63,8 @@ def get_calorie_chart_options():
     consumed_data = []
 
     calories_per_log = (
-        func.coalesce(FoodLog.quantity_consumed, 0) /
-        func.coalesce(FoodItem.serving_size, 1)
-    ) * func.coalesce(FoodItem.calories, 0)
+        func.coalesce(FoodLog.quantity_consumed, 0) / 100
+    ) * func.coalesce(FoodItem.calories_per_100, 0)
 
     base_query = (
         select(
