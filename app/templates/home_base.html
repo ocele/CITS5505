@@ -67,12 +67,12 @@
                         </a>
                     </div>
                     <div class="nav-icon-row">
-                        <a href="{{ url_for('main.share') }}"
-                            class="nav-icon {% if request.endpoint == 'main.friends' %}active{% endif %}">
+                        <a href="#" id="openShareBtn" class="nav-icon" data-bs-toggle="modal"
+                            data-bs-target="#shareModal">
                             <i class="fa-solid fa-users"></i>
                         </a>
                         <a href="{{ url_for('main.sharing_list') }}"
-                            class="nav-icon {% if request.endpoint == 'main.sharing_list' %}active{% endif %}">
+                            class="nav-icon {% if request.endpoint == 'main.sharin_list' %}active{% endif %}">
                             <i class="fa-solid fa-list"></i>
                         </a>
                     </div>
@@ -89,6 +89,78 @@
             <div class="main-content">
                 {% block content %}{% endblock %}
             </div>
+            <!-- —— 全局 Share Modal —— -->
+
+            <!-- Share Modal -->
+            <div class="modal fade" id="shareModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 id="shareModalLabel" class="modal-title">Share to Friends</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="shareFormGlobal" method="POST" action="{{ url_for('main.share') }}">
+                                {{ form.hidden_tag() }}
+
+                                <!-- 1. 图表类型（内容类型） -->
+                                <fieldset class="mb-3">
+                                    <legend class="form-label">Select content to share</legend>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="content_type" value="ranking"
+                                            id="ctRanking" checked>
+                                        <label class="form-check-label" for="ctRanking">My Current Ranking</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="content_type" value="calorie"
+                                            id="ctCalorie">
+                                        <label class="form-check-label" for="ctCalorie">My Calorie Intake</label>
+                                    </div>
+                                </fieldset>
+
+                                <!-- 2. 周期选择 -->
+                                <fieldset class="mb-3">
+                                    <legend class="form-label">Select Data Range</legend>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="date_range" id="drDaily"
+                                            value="daily">
+                                        <label class="form-check-label" for="drDaily">Daily</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="date_range" id="drWeekly"
+                                            value="weekly" checked>
+                                        <label class="form-check-label" for="drWeekly">Weekly</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="date_range" id="drMonthly"
+                                            value="monthly">
+                                        <label class="form-check-label" for="drMonthly">Monthly</label>
+                                    </div>
+                                </fieldset>
+
+                                <!-- 3. 好友搜索 -->
+                                <div class="input-group mb-3">
+                                    <input id="friendSearchInput" type="text" class="form-control"
+                                        placeholder="Find your friend">
+                                    <button id="friendSearchBtn" type="button" class="btn btn-outline-secondary">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+
+                                <!-- 4. 好友列表 -->
+                                <div id="friendListContainerGlobal" class="list-group mb-3">
+                                    <!-- AJAX 渲染结果放这里 -->
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button form="shareFormGlobal" type="submit" class="btn btn-primary">Confirm</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -97,7 +169,17 @@
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Custom JS -->
+    <!-- Search friend -->
+    <script>
+        window.SHARE_MODAL_BASE_URL = "{{ url_for('main.share') }}";
+    </script>
+
+    <script src="{{ url_for('static', filename='share_modal.js') }}" defer></script>
+  
     {% block extra_js %}{% endblock %}
+
+
+
     <script defer>
         const messages = {{ get_flashed_messages() | tojson }};
         if (messages.length > 0) {

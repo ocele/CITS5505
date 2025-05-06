@@ -641,8 +641,8 @@ def share():
         selected_id  = request.form.get('selected_friend_id')
 
         if not selected_id:
-            flash("Please select a friend to share with.")
-            return render_template('share.html', form=form, friends=friends)
+            flash("Please select a friend to share with.", "warning")
+            return redirect(request.referrer or url_for('main.dashboard'))
 
         new_share = ShareRecord(
             sender_id=current_user.id,
@@ -653,11 +653,10 @@ def share():
         )
         db.session.add(new_share)
         db.session.commit()
-        flash("Content shared successfully.")
+        flash("Content shared successfully.", "success")
         return redirect(url_for('main.dashboard'))
 
-    # 普通 GET 渲染页面 —— 注意这里 friends 要用上面查询出来的
-    return render_template('share.html', form=form, friends=friends)
+    return redirect(request.referrer or url_for('main.dashboard'))
 
 @bp.route('/sharin_list')
 def sharing_list():
@@ -668,9 +667,7 @@ def sharing_list():
     unread_count = sum(1 for s in all_shares if not s.is_read)
     for share in all_shares:
         share.elapsed_time = time_ago(share.timestamp)
-    return render_template('sharing_list.html',
-                           shares=all_shares,
-                           unread_count=unread_count)
+    return render_template('sharing_list.html', shares=all_shares, unread_count=unread_count)
 
 @bp.route('/share/<int:share_id>')
 @login_required
@@ -681,7 +678,26 @@ def view_share(share_id):
     if not share.is_read:
         share.is_read = True
         db.session.commit()
-    return render_template('share_detail.html', share=share)
+    # 根据 share.date_range 计算周期起止
+    ts = share.timestamp  # datetime
+    # 默认 start/end 同一天
+    start = end = ts.date()
+
+    if share.date_range == 'weekly':
+        # 本周：找到周一，再加 6 天到周日
+        start = ts.date() - timedelta(days=ts.weekday())
+        end   = start + timedelta(days=6)
+    elif share.date_range == 'monthly':
+        # 本月：当月第一天到最后一天
+        start = ts.date().replace(day=1)
+        # 下个月一号减一天
+        if start.month == 12:
+            nxt = date(start.year+1, 1, 1)
+        else:
+            nxt = date(start.year, start.month+1, 1)
+        end = nxt - timedelta(days=1)
+
+    return render_template('share_detail.html', share=share, period_start=start, period_end=end)
 
 
 
