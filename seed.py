@@ -56,27 +56,28 @@ with app.app_context():
 
     # 3.预制20种食物
     sample_foods = [
-        {'name': 'Apple',      'serving_size': 100, 'serving_unit': 'g', 'calories': 52,  'protein': 0.3, 'fat': 0.2, 'carbs': 14, 'category': 'Fruit', 'user_id': admin.id},
-        {'name': 'Banana',     'serving_size': 100, 'serving_unit': 'g', 'calories': 89,  'protein': 1.1, 'fat': 0.3, 'carbs': 23, 'category': 'Fruit', 'user_id': admin.id},
-        {'name': 'Egg',        'serving_size': 50,  'serving_unit': 'g', 'calories': 68,  'protein': 6.3, 'fat': 4.8, 'carbs': 0.6, 'category': 'Protein', 'user_id': admin.id},
-        {'name': 'Milk',       'serving_size': 100, 'serving_unit': 'ml','calories': 42,  'protein': 3.4, 'fat': 1.0, 'carbs': 5,   'category': 'Dairy', 'user_id': admin.id},
-        {'name': 'Chicken Breast','serving_size': 100,'serving_unit': 'g','calories': 165,'protein': 31,   'fat': 3.6, 'carbs': 0,  'category': 'Protein', 'user_id': admin.id},
-        {'name': 'Broccoli',   'serving_size': 100, 'serving_unit': 'g', 'calories': 34,  'protein': 2.8, 'fat': 0.4, 'carbs': 7,  'category': 'Vegetable', 'user_id': admin.id},
-        {'name': 'White Rice', 'serving_size': 100, 'serving_unit': 'g', 'calories': 130, 'protein': 2.7, 'fat': 0.3, 'carbs': 28, 'category': 'Grain', 'user_id': admin.id},
-        {'name': 'Beef Steak', 'serving_size': 100, 'serving_unit': 'g', 'calories': 271, 'protein': 25,  'fat': 19,  'carbs': 0,  'category': 'Protein', 'user_id': admin.id},
-        {'name': 'Carrot',     'serving_size': 100, 'serving_unit': 'g', 'calories': 41,  'protein': 0.9, 'fat': 0.2, 'carbs': 10, 'category': 'Vegetable', 'user_id': admin.id},
-        {'name': 'Potato',     'serving_size': 100, 'serving_unit': 'g', 'calories': 77,  'protein': 2.0, 'fat': 0.1, 'carbs': 17, 'category': 'Vegetable', 'user_id': admin.id},
-        {'name': 'Almond',     'serving_size': 28,  'serving_unit': 'g', 'calories': 161, 'protein': 6,   'fat': 14,  'carbs': 6,  'category': 'Nut', 'user_id': admin.id},
-        {'name': 'Orange',     'serving_size': 100, 'serving_unit': 'g', 'calories': 47,  'protein': 0.9, 'fat': 0.1, 'carbs': 12, 'category': 'Fruit', 'user_id': admin.id},
-        {'name': 'Cheese',     'serving_size': 28,  'serving_unit': 'g', 'calories': 113, 'protein': 7,   'fat': 9,   'carbs': 0.4,'category': 'Dairy', 'user_id': admin.id},
-        {'name': 'Salmon',     'serving_size': 100, 'serving_unit': 'g', 'calories': 208, 'protein': 20,  'fat': 13,  'carbs': 0,  'category': 'Protein', 'user_id': admin.id},
-        {'name': 'Tofu',       'serving_size': 100, 'serving_unit': 'g', 'calories': 76,  'protein': 8,   'fat': 4.8, 'carbs': 1.9,'category': 'Protein', 'user_id': admin.id},
-        {'name': 'Bread',      'serving_size': 30,  'serving_unit': 'g', 'calories': 80,  'protein': 2.6, 'fat': 1,   'carbs': 15, 'category': 'Grain', 'user_id': admin.id},
-        {'name': 'Yogurt',     'serving_size': 100, 'serving_unit': 'g', 'calories': 59,  'protein': 10,  'fat': 0.4, 'carbs': 3.6,'category': 'Dairy', 'user_id': admin.id},
-        {'name': 'Shrimp',     'serving_size': 100, 'serving_unit': 'g', 'calories': 99,  'protein': 24,  'fat': 0.3, 'carbs': 0.2,'category': 'Protein', 'user_id': admin.id},
-        {'name': 'Tomato',     'serving_size': 100, 'serving_unit': 'g', 'calories': 18,  'protein': 0.9, 'fat': 0.2, 'carbs': 3.9,'category': 'Vegetable', 'user_id': admin.id},
-        {'name': 'Oats',       'serving_size': 40,  'serving_unit': 'g', 'calories': 150, 'protein': 5,   'fat': 2.5, 'carbs': 27, 'category': 'Grain', 'user_id': admin.id},
+        {'name': 'Apple',      'serving_size': 100, 'serving_unit': 'g', 'calories_per_100': 52,  'protein_per_100': 0.3, 'fat_per_100': 0.2, 'carbs_per_100': 14, 'category': 'Fruit', 'user_id': admin.id},
+        {'name': 'Banana',     'serving_size': 100, 'serving_unit': 'g', 'calories_per_100': 89,  'protein_per_100': 1.1, 'fat_per_100': 0.3, 'carbs_per_100': 23, 'category': 'Fruit', 'user_id': admin.id},
+        {'name': 'Egg',        'serving_size': 50,  'serving_unit': 'g', 'calories_per_100': 68,  'protein_per_100': 6.3, 'fat_per_100': 4.8, 'carbs_per_100': 0.6, 'category': 'Protein', 'user_id': admin.id},
+        {'name': 'Milk',       'serving_size': 100, 'serving_unit': 'ml','calories_per_100': 42,  'protein_per_100': 3.4, 'fat_per_100': 1.0, 'carbs_per_100': 5,   'category': 'Dairy', 'user_id': admin.id},
+        {'name': 'Chicken Breast','serving_size': 100,'serving_unit': 'g','calories_per_100': 165,'protein_per_100': 31,  'fat_per_100': 3.6, 'carbs_per_100': 0,  'category': 'Protein', 'user_id': admin.id},
+        {'name': 'Broccoli',   'serving_size': 100, 'serving_unit': 'g', 'calories_per_100': 34,  'protein_per_100': 2.8, 'fat_per_100': 0.4, 'carbs_per_100': 7,  'category': 'Vegetable', 'user_id': admin.id},
+        {'name': 'White Rice', 'serving_size': 100, 'serving_unit': 'g', 'calories_per_100': 130, 'protein_per_100': 2.7, 'fat_per_100': 0.3, 'carbs_per_100': 28, 'category': 'Grain', 'user_id': admin.id},
+        {'name': 'Beef Steak', 'serving_size': 100, 'serving_unit': 'g', 'calories_per_100': 271, 'protein_per_100': 25,  'fat_per_100': 19,  'carbs_per_100': 0,  'category': 'Protein', 'user_id': admin.id},
+        {'name': 'Carrot',     'serving_size': 100, 'serving_unit': 'g', 'calories_per_100': 41,  'protein_per_100': 0.9, 'fat_per_100': 0.2, 'carbs_per_100': 10, 'category': 'Vegetable', 'user_id': admin.id},
+        {'name': 'Potato',     'serving_size': 100, 'serving_unit': 'g', 'calories_per_100': 77,  'protein_per_100': 2.0, 'fat_per_100': 0.1, 'carbs_per_100': 17, 'category': 'Vegetable', 'user_id': admin.id},
+        {'name': 'Almond',     'serving_size': 28,  'serving_unit': 'g', 'calories_per_100': 161, 'protein_per_100': 6,   'fat_per_100': 14,  'carbs_per_100': 6,  'category': 'Nut', 'user_id': admin.id},
+        {'name': 'Orange',     'serving_size': 100, 'serving_unit': 'g', 'calories_per_100': 47,  'protein_per_100': 0.9, 'fat_per_100': 0.1, 'carbs_per_100': 12, 'category': 'Fruit', 'user_id': admin.id},
+        {'name': 'Cheese',     'serving_size': 28,  'serving_unit': 'g', 'calories_per_100': 113, 'protein_per_100': 7,   'fat_per_100': 9,   'carbs_per_100': 0.4,'category': 'Dairy', 'user_id': admin.id},
+        {'name': 'Salmon',     'serving_size': 100, 'serving_unit': 'g', 'calories_per_100': 208, 'protein_per_100': 20,  'fat_per_100': 13,  'carbs_per_100': 0,  'category': 'Protein', 'user_id': admin.id},
+        {'name': 'Tofu',       'serving_size': 100, 'serving_unit': 'g', 'calories_per_100': 76,  'protein_per_100': 8,   'fat_per_100': 4.8, 'carbs_per_100': 1.9,'category': 'Protein', 'user_id': admin.id},
+        {'name': 'Bread',      'serving_size': 30,  'serving_unit': 'g', 'calories_per_100': 80,  'protein_per_100': 2.6, 'fat_per_100': 1,   'carbs_per_100': 15, 'category': 'Grain', 'user_id': admin.id},
+        {'name': 'Yogurt',     'serving_size': 100, 'serving_unit': 'g', 'calories_per_100': 59,  'protein_per_100': 10,  'fat_per_100': 0.4, 'carbs_per_100': 3.6,'category': 'Dairy', 'user_id': admin.id},
+        {'name': 'Shrimp',     'serving_size': 100, 'serving_unit': 'g', 'calories_per_100': 99,  'protein_per_100': 24,  'fat_per_100': 0.3, 'carbs_per_100': 0.2,'category': 'Protein', 'user_id': admin.id},
+        {'name': 'Tomato',     'serving_size': 100, 'serving_unit': 'g', 'calories_per_100': 18,  'protein_per_100': 0.9, 'fat_per_100': 0.2, 'carbs_per_100': 3.9,'category': 'Vegetable', 'user_id': admin.id},
+        {'name': 'Oats',       'serving_size': 40,  'serving_unit': 'g', 'calories_per_100': 150, 'protein_per_100': 5,   'fat_per_100': 2.5, 'carbs_per_100': 27, 'category': 'Grain', 'user_id': admin.id},
     ]
+
 
     for item in sample_foods:
         if not FoodItem.query.filter_by(name=item['name']).first():
