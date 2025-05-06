@@ -9,7 +9,9 @@
 {% block content %}
 <div class="share-modal">
     <h2 class="share-modal-title">Share to Friends</h2>
-    <form method="POST" action="{{ url_for('main.share') }}">
+    <form id="shareForm" method="POST"
+        action="{{ url_for('main.share') }}{% if request.args.get('search') %}?search={{ request.args.get('search') }}{% endif %}">
+        {{ form.hidden_tag() }}
 
         <!-- Content Selection Section -->
         <div class="share-section">
@@ -43,35 +45,72 @@
             </div>
         </div>
 
-        <!-- Friend Search -->
-        <form method="GET" action="{{ url_for('main.share') }}" class="friend-search">
-            <input type="text" name="search" placeholder="Find your friend"
-                value="{{ request.args.get('search', '') }}">
-            <button type="submit" class="search-icon"><i class="fas fa-search"></i></button>
-        </form>
-
-
-
-        {{ form.hidden_tag() }}
-        <!-- Friend List -->
-        <div class="friend-list">
-            {% if friends %}
-            {% for friend in friends %}
-            <label class="option-label">
-                <input type="radio" name="selected_friend_id" value="{{ friend.id }}" required>
-                <span class="ms-2">{{ friend.first_name }} {{ friend.last_name }} ({{ friend.email }})</span>
-            </label>
-            {% endfor %}
-            {% else %}
-            <p class="text-muted">No matching friends found.</p>
-            {% endif %}
+        <!-- 3. 好友搜索 -->
+        <div class="friend-search mb-3">
+            <div class="input-group">
+                <input id="friendSearchInput" type="text" placeholder="Find your friend" class="form-control"
+                    value="{{ request.args.get('search','') }}">
+                <span class="input-group-text">
+                    <a id="friendSearchLink"
+                        href="{{ url_for('main.share') }}?search={{ request.args.get('search','') }}">
+                        <i class="fas fa-search"></i>
+                    </a>
+                </span>
+            </div>
         </div>
 
-        <!-- Action Buttons -->
-        <div class="action-buttons">
+
+        <!-- 4. 好友列表（JS 渲染进这里） -->
+        <!-- 4. 好友列表 -->
+<div id="friendListContainer" class="friend-list">
+    {% if friends %}
+      {% for friend in friends %}
+        <label class="option-label d-block">
+          <input
+            type="radio"
+            name="selected_friend_id"
+            value="{{ friend.id }}"
+            required
+          >
+          <span class="ms-2">
+            {{ friend.first_name }} {{ friend.last_name }} ({{ friend.email }})
+          </span>
+        </label>
+      {% endfor %}
+    {% elif request.args.get('search') %}
+      <p class="text-muted">No matching friends for “{{ request.args.get('search') }}”</p>
+    {% endif %}
+  </div>
+  
+        <!-- 5. 提交按钮（唯一的 submit） -->
+        <div class="action-buttons mt-3">
             <button type="submit" class="btn-confirm">Confirm</button>
             <a href="{{ url_for('main.dashboard') }}" class="btn-cancel">Cancel</a>
         </div>
     </form>
 </div>
+{% endblock %}
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // 1. 拿到元素
+        const searchInput = document.getElementById('friendSearchInput');
+        const searchLink = document.getElementById('friendSearchLink');
+        const baseUrl = "{{ url_for('main.share') }}";
+
+        // 2. 更新 <a> 的 href
+        function updateSearchLink() {
+            const q = encodeURIComponent(searchInput.value.trim());
+            // 如果输入为空，就只跳转到 /share，否则带上 ?search=xxx
+            searchLink.href = q ? `${baseUrl}?search=${q}` : baseUrl;
+        }
+
+        // 3. 监听输入框变化
+        if (searchInput) {
+            searchInput.addEventListener('input', updateSearchLink);
+            // 初始化一次，防止页面初次有 search 参数时链接不对
+            updateSearchLink();
+        }
+    });
+</script>
 {% endblock %}

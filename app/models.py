@@ -75,7 +75,7 @@ class FoodItem(db.Model):
     logs = db.relationship('FoodLog', backref='food_details', lazy='dynamic')
 
     # Sets the user who created the food item.
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id', name='fk_fooditem_user_id'), nullable=True, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', name='fk_fooditem_user_id'), nullable=False, index=True)
 
     # String representation for debugging.
     def __repr__(self):

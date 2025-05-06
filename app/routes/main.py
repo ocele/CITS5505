@@ -608,45 +608,45 @@ def time_ago(dt):
     else:
         return f"{int(seconds // 86400)} days ago"
     
-@bp.route('/share', methods=['GET', 'POST'])
+@bp.route('/share', methods=['GET','POST'])
 @login_required
 def share():
     form = ShareForm()
-    friends = []
-    # ---------------- GET 搜索处理 ----------------
-    #匹配所有用户（排除自己）
     search_term = request.args.get('search','').strip()
+    friends = []
+
     if search_term:
         friends = User.query \
-        .filter(User.id != current_user.id) \
-        .filter(
-            or_(
+            .filter(User.id != current_user.id) \
+            .filter(or_(
                 User.first_name.ilike(f"%{search_term}%"),
                 User.last_name.ilike(f"%{search_term}%"),
                 User.email.ilike(f"%{search_term}%")
-            )
-        ) \
-        .limit(10) \
-        .all()  # TODO：暂时只取前 10 个匹配；考虑分页或滚轮
-    else:
-        # 默认不展示，避免数据量大
-        friends = []
+            )).limit(10).all()
 
+    # JSON 请求
+    if request.method == 'GET' and request.headers.get('Accept') == 'application/json':
+        return jsonify([
+            {'id': u.id,
+             'first_name': u.first_name,
+             'last_name': u.last_name,
+             'email': u.email}
+            for u in friends
+        ])
 
-    # ---------------- POST 提交分享 ----------------
+    # POST 提交分享
     if request.method == 'POST':
         content_type = request.form.get('content_type')
-        date_range = request.form.get('date_range')
-        selected_friend_id = request.form.get('selected_friend_id')
+        date_range   = request.form.get('date_range')
+        selected_id  = request.form.get('selected_friend_id')
 
-        if not selected_friend_id:
+        if not selected_id:
             flash("Please select a friend to share with.")
-            return render_template('share.html',form=form, friends=friends)
+            return render_template('share.html', form=form, friends=friends)
 
-        # 写入 ShareRecord 表
         new_share = ShareRecord(
             sender_id=current_user.id,
-            receiver_id=int(selected_friend_id),
+            receiver_id=int(selected_id),
             content_type=content_type,
             date_range=date_range,
             timestamp=datetime.now(timezone.utc)
@@ -656,8 +656,8 @@ def share():
         flash("Content shared successfully.")
         return redirect(url_for('main.dashboard'))
 
-    return render_template('share.html',form=form , friends=friends)
-
+    # 普通 GET 渲染页面 —— 注意这里 friends 要用上面查询出来的
+    return render_template('share.html', form=form, friends=friends)
 
 @bp.route('/sharin_list')
 def sharing_list():

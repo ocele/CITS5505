@@ -14,7 +14,7 @@
     {% if shares %}
         {% for share in shares %}
         <!-- V：让整个 .sharing-item 可点击 查看详情 -->
-        <a href="{{ url_for('main.view_share', share_id=share.id) }}" class="sharing-item-link"> 
+        <a href="{{ url_for('main.sharin_list', share_id=share.id) }}" class="sharing-item-link"> 
             <div class="sharing-item">
                 <div class="sharing-avatar">
                     <i class="fa-solid fa-user fa-lg"></i>
