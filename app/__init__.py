@@ -33,6 +33,12 @@ def create_app(config_class=Config):
             cnt = 0
         return {'unread_share_count': cnt}
 
+    # Inject the global ShareForm instance
+    @app.context_processor
+    def inject_share_form():
+        from app.forms import ShareForm
+        return {'form': ShareForm()}
+    
     from app.routes.auth import bp as auth_bp
     app.register_blueprint(auth_bp, url_prefix='/auth')
 
