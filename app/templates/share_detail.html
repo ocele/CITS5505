@@ -1,0 +1,13 @@
+{% extends "home_base.html" %}
+
+{% block title %}Shared Detail{% endblock %}
+{% block content %}
+<div class="share-detail">
+  <h2>Shared by {{ share.sender.first_name }} {{ share.sender.last_name }}</h2>
+  <p><strong>Content:</strong>
+    {% if share.content_type=='ranking' %}Ranking{% else %}{{ share.date_range|capitalize }}'s Calorie Intake{% endif %}
+  </p>
+  <p><strong>Shared at:</strong> {{ share.timestamp.strftime('%Y-%m-%d %H:%M') }}</p>
+  <a href="{{ url_for('main.sharing_list') }}">← Back to list</a>
+</div>
+{% endblock %}

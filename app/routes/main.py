@@ -661,11 +661,27 @@ def share():
 
 @bp.route('/sharin_list')
 def sharing_list():
-    shares = ShareRecord.query.filter_by(receiver_id=current_user.id).order_by(ShareRecord.timestamp.desc()).all()
-    for share in shares:
+    all_shares = ShareRecord.query \
+        .filter_by(receiver_id=current_user.id) \
+        .order_by(ShareRecord.timestamp.desc()) \
+        .all()
+    unread_count = sum(1 for s in all_shares if not s.is_read)
+    for share in all_shares:
         share.elapsed_time = time_ago(share.timestamp)
-    return render_template('sharing_list.html', shares=shares)
+    return render_template('sharing_list.html',
+                           shares=all_shares,
+                           unread_count=unread_count)
 
+@bp.route('/share/<int:share_id>')
+@login_required
+def view_share(share_id):
+    share = ShareRecord.query.get_or_404(share_id)
+    if share.receiver_id != current_user.id:
+        abort(403)
+    if not share.is_read:
+        share.is_read = True
+        db.session.commit()
+    return render_template('share_detail.html', share=share)
 
 
 
