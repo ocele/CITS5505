@@ -1,0 +1,62 @@
+{% extends "home_base.html" %}
+
+{% block title %}DailyBite - Shared Detail{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='style_sharing_list.css') }}">
+<style>
+  .share-detail {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 1rem;
+  }
+
+  .share-detail h2 {
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .share-detail p {
+    margin-bottom: 0.75rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="share-detail">
+  <h2>Shared By {{ share.sender.first_name }} {{ share.sender.last_name }}</h2>
+
+  <p>
+    <strong>Content:</strong>
+    {% if share.content_type == 'ranking' %}
+    {{ share.sender.first_name }}' current ranking
+    {% else %}
+    {{ share.date_range|capitalize }}'s Calorie Intake
+    {% endif %}
+  </p>
+
+  <p>
+    <strong>Period:</strong>
+    {% if share.date_range == 'daily' %}
+    {{ period_start.strftime('%Y-%m-%d') }}
+    {% else %}
+    {{ period_start.strftime('%Y-%m-%d') }}
+    &ndash;
+    {{ period_end.strftime('%Y-%m-%d') }}
+    {% endif %}
+  </p>
+
+  {% if share.content_type == 'calorie' %}
+  <div class="calorie-details">
+    <!-- TODO: 渲染实际的数据 -->
+    <em>Calorie data for {{ share.date_range }} would appear here.</em>
+  </div>
+  {% endif %}
+
+  <div class="mt-4">
+    <a href="{{ url_for('main.sharing_list') }}" class="btn btn-secondary">
+      ← Back to Sharing List
+    </a>
+  </div>
+</div>
+{% endblock %}
