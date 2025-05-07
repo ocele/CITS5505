@@ -72,7 +72,7 @@
                             <i class="fa-solid fa-users"></i>
                         </a>
                         <a href="{{ url_for('main.sharing_list') }}"
-                            class="nav-icon {% if request.endpoint == 'main.sharin_list' %}active{% endif %}">
+                            class="nav-icon {% if request.endpoint == 'main.sharing_list' %}active{% endif %}">
                             <i class="fa-solid fa-list"></i>
                         </a>
                     </div>
@@ -105,38 +105,43 @@
 
                                 <!-- 1. 图表类型（内容类型） -->
                                 <fieldset class="mb-3">
-                                    <legend class="form-label">Select content to share</legend>
+                                    <legend class="form-label">Select Chart Type</legend>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="content_type" value="ranking"
-                                            id="ctRanking" checked>
-                                        <label class="form-check-label" for="ctRanking">My Current Ranking</label>
+                                        <input class="form-check-input" type="radio" name="content_type"
+                                            id="ctCalorieLine" value="calorie" checked>
+                                        <label class="form-check-label" for="ctCalorieLine">My Calorie Intake</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="content_type" value="calorie"
-                                            id="ctCalorie">
-                                        <label class="form-check-label" for="ctCalorie">My Calorie Intake</label>
+                                        <input class="form-check-input" type="radio" name="content_type"
+                                            id="ctNutritionPie" value="nutrition">
+                                        <label class="form-check-label" for="ctNutritionPie">My Nutrition Intake</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="content_type"
+                                            id="ctLeaderboard" value="ranking">
+                                        <label class="form-check-label" for="ctLeaderboard">My Current Ranking</label>
                                     </div>
                                 </fieldset>
 
-                                <!-- 2. 周期选择 -->
                                 <fieldset class="mb-3">
                                     <legend class="form-label">Select Data Range</legend>
-                                    <div class="form-check form-check-inline">
+                                    <div class="form-check form-check-inline" data-range="day">
                                         <input class="form-check-input" type="radio" name="date_range" id="drDaily"
-                                            value="daily">
+                                            value="day">
                                         <label class="form-check-label" for="drDaily">Daily</label>
                                     </div>
-                                    <div class="form-check form-check-inline">
+                                    <div class="form-check form-check-inline" data-range="week">
                                         <input class="form-check-input" type="radio" name="date_range" id="drWeekly"
-                                            value="weekly" checked>
+                                            value="week" checked>
                                         <label class="form-check-label" for="drWeekly">Weekly</label>
                                     </div>
-                                    <div class="form-check form-check-inline">
+                                    <div class="form-check form-check-inline" data-range="month">
                                         <input class="form-check-input" type="radio" name="date_range" id="drMonthly"
-                                            value="monthly">
+                                            value="month">
                                         <label class="form-check-label" for="drMonthly">Monthly</label>
                                     </div>
                                 </fieldset>
+
 
                                 <!-- 3. 好友搜索 -->
                                 <div class="input-group mb-3">
@@ -154,8 +159,8 @@
                             </form>
                         </div>
                         <div class="modal-footer">
-                            <button form="shareFormGlobal" type="submit" class="btn btn-primary">Confirm</button>
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button form="shareFormGlobal" type="submit" class="btn btn-primary">Share</button>
                         </div>
                     </div>
                 </div>
@@ -175,7 +180,7 @@
     </script>
 
     <script src="{{ url_for('static', filename='share_modal.js') }}" defer></script>
-  
+
     {% block extra_js %}{% endblock %}
 
 

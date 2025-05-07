@@ -82,8 +82,9 @@ class AddNewProductForm(FlaskForm):
 class ShareForm(FlaskForm):
     search = StringField('Search Friend')
     content_type = RadioField('Content Type', choices=[
-        ('ranking', 'My Current Ranking'),
-        ('calorie', 'My Calorie Intake')
+       ('ranking', 'My Current Ranking'),
+        ('calorie', 'My Calorie Intake'),
+        ('nutrition',  'My Nutrition Intake'),
     ], validators=[DataRequired()])
 
     date_range = RadioField('Date Range', choices=[
