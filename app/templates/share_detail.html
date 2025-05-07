@@ -1,62 +1,78 @@
+{# share_detail.html #}
 {% extends "home_base.html" %}
-
-{% block title %}DailyBite - Shared Detail{% endblock %}
-
 {% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='style_sharing_list.css') }}">
-<style>
-  .share-detail {
-    max-width: 600px;
-    margin: 2rem auto;
-    padding: 1rem;
-  }
-
-  .share-detail h2 {
-    font-size: 1.75rem;
-    margin-bottom: 1rem;
-  }
-
-  .share-detail p {
-    margin-bottom: 0.75rem;
-  }
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='style_sharing_detail.css') }}">
 {% endblock %}
 
 {% block content %}
-<div class="share-detail">
-  <h2>Shared By {{ share.sender.first_name }} {{ share.sender.last_name }}</h2>
-
-  <p>
-    <strong>Content:</strong>
-    {% if share.content_type == 'ranking' %}
-    {{ share.sender.first_name }}' current ranking
-    {% else %}
-    {{ share.date_range|capitalize }}'s Calorie Intake
-    {% endif %}
+<div class="p-4">
+  <h3>Shared by {{ share.sender.first_name }} {{ share.sender.last_name }}</h3>
+  <p><strong>Period:</strong>
+     {{ period_start }}{% if share.date_range!='daily' %} – {{ period_end }}{% endif %}
   </p>
 
-  <p>
-    <strong>Period:</strong>
-    {% if share.date_range == 'daily' %}
-    {{ period_start.strftime('%Y-%m-%d') }}
-    {% else %}
-    {{ period_start.strftime('%Y-%m-%d') }}
-    &ndash;
-    {{ period_end.strftime('%Y-%m-%d') }}
-    {% endif %}
-  </p>
 
-  {% if share.content_type == 'calorie' %}
-  <div class="calorie-details">
-    <!-- TODO: 渲染实际的数据 -->
-    <em>Calorie data for {{ share.date_range }} would appear here.</em>
-  </div>
-  {% endif %}
+  {# 2. 渲染图表容器 #}
+  <div id="chartContainer" style="height:350px;"></div>
 
-  <div class="mt-4">
-    <a href="{{ url_for('main.sharing_list') }}" class="btn btn-secondary">
-      ← Back to Sharing List
-    </a>
-  </div>
+  <a href="{{ url_for('main.sharing_list') }}" class="btn btn-secondary mt-3">
+    ← Back to Sharing List
+  </a>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+
+<script>
+  console.log(' share_detail.js loaded');
+
+  document.addEventListener('DOMContentLoaded', function(){
+    console.log('DOMContentLoaded in share_detail');
+
+    const type  = "{{ share.content_type }}";   // 'calorie','nutrition' 或 'ranking'
+    const range = "{{ share.date_range }}";     // 'daily','weekly','monthly'
+    const start = "{{ period_start.isoformat() }}";
+    const dom   = document.getElementById('chartContainer');
+    console.log('share.content_type=', type, ' share.date_range=', range, ' chartContainer=', dom);
+
+    if (!dom) {
+      console.error('chartContainer not found!');
+      return;
+    }
+
+    const chart = echarts.init(dom);
+    console.log('✔ echarts.init done');
+
+  
+    if (type === 'calorie') {
+      console.log('→ will fetch calorie chart with range', range);
+      fetch(`/api/get_calorie_chart_options?range=${range}`, {headers:{Accept:'application/json'}})
+        .then(r=> { console.log('calorie response status', r.status); return r.json() })
+        .then(opts=> { console.log('calorie opts', opts); chart.setOption(opts) })
+        .catch(e=> console.error('❌ calorie error', e));
+    }
+    else if (type === 'nutrition') {
+      fetch(`/api/nutrition_ratio?date=${start}&range=${range}`, {headers:{Accept:'application/json'}})
+        .then(r => r.json()).then(opts => chart.setOption(opts))
+        .catch(() => dom.innerHTML = '<p class="text-danger text-center">Cannot load this chart.</p>');
+    }
+    else if (type === 'ranking') {
+      fetch(`/api/goal_leaderboard/${range}`, {headers:{Accept:'application/json'}})
+        .then(r => r.json())
+        .then(data => {
+          let html = `<table class="table"><thead><tr><th>Ranking</th><th>Name</th><th>Days</th></tr></thead><tbody>${
+            data.map(u=>`<tr>
+              <td>${u.rank}</td>
+              <td>${u.last_name}</td>
+              <td>${u.days_achieved}</td>
+            </tr>`).join('')
+          }</tbody></table>`;
+          dom.innerHTML = html;
+        })
+        .catch(() => dom.innerHTML = '<p class="text-danger text-center">Cannot load this chart.</p>');
+    }
+  });
+  </script>
+
 {% endblock %}

@@ -125,7 +125,7 @@ class ShareRecord(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     sender_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    content_type = db.Column(db.String(20), nullable=False)   # 'ranking' or 'calorie'
+    content_type = db.Column(db.String(20), nullable=False)   # 'ranking' or 'calorie' or 'nutrition'
     date_range = db.Column(db.String(20), nullable=False)     # 'daily', 'weekly', 'monthly'
     timestamp = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     is_read = db.Column(db.Boolean, default=False) # 用于消息提醒系统
