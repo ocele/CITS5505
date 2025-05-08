@@ -30,3 +30,31 @@ h2 {
     margin-top: 3rem;
     width: 50vw;
 }
+
+/* Tabs not selected */
+.nav-tabs .nav-link {
+    background-color: #fff;
+    color: #FFB84D;
+    border: 1px solid #FFB84D;
+    margin-bottom: -1px; 
+  }
+  
+  /* Tabs selected */
+  .nav-tabs .nav-link.active,
+  .nav-tabs .nav-link:focus,
+  .nav-tabs .show > .nav-link {
+    background-color: #FFB84D;
+    color: #fff;
+    border-top:    1px solid #FFB84D;
+    border-left:   1px solid #FFB84D;
+    border-right:  1px solid #FFB84D;
+    border-bottom: none;
+    margin-bottom: -1px;
+  }
+  
+  /* Hover 态也保持同样样式 */
+  .nav-tabs .nav-link:hover {
+    background-color: #FFB84D;
+    color: #fff;
+  }
+  

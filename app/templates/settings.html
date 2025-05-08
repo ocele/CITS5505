@@ -9,101 +9,117 @@
 <div class="whole mx-auto">
     <ul class="nav nav-tabs" id="formTabs" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="mealType-tab" data-bs-toggle="tab" data-bs-target="#mealType" type="button" role="tab" aria-controls="mealType" aria-selected="false">Meal Type</button>
+            <button class="nav-link active" id="addProduct-tab" data-bs-toggle="tab" data-bs-target="#addProduct"
+                type="button" role="tab" aria-controls="addProduct" aria-selected="true">New Product</button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="setGoal-tab" data-bs-toggle="tab" data-bs-target="#setGoal" type="button" role="tab" aria-controls="setGoal" aria-selected="false">Set Goal</button>
+            <button class="nav-link" id="mealType-tab" data-bs-toggle="tab" data-bs-target="#mealType" type="button"
+                role="tab" aria-controls="mealType" aria-selected="false">New Meal Type</button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="addProduct-tab" data-bs-toggle="tab" data-bs-target="#addProduct" type="button" role="tab" aria-controls="addProduct" aria-selected="true">Add New Product</button>
+            <button class="nav-link" id="setGoal-tab" data-bs-toggle="tab" data-bs-target="#setGoal" type="button"
+                role="tab" aria-controls="setGoal" aria-selected="false">Set Goal</button>
         </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="setGoal-tab" data-bs-toggle="tab" data-bs-target="#setProfile" type="button"
+                role="tab" aria-controls="setProfile" aria-selected="false">Your Profile</button>
+        </li>
+        
     </ul>
+    <div class="tab-content mt-3">
+        <!-- Add New Product Form -->
+        <div class="tab-pane fade show active" id="addProduct" role="tabpanel" aria-labelledby="addProduct-tab">
+            <form action="{{ url_for('main.addNewProduct') }}" method="POST" novalidate>
+                {{ form3.hidden_tag() }}
+                <h2>Add New Product</h2>
 
-    <!-- Add New Product Form -->
-    <div class="tab-pane fade show active" id="addProduct" role="tabpanel" aria-labelledby="addProduct-tab">
-        <form action="{{ url_for('main.addNewProduct') }}" method="POST" novalidate>
-            {{ form3.hidden_tag() }}
-            <h2>Add New Product</h2>
-
-            {# --- Product Name --- #}
-            <div class="mb-3">
-                {{ form3.name.label(class="form-label") }}
-                {{ form3.name(class="form-control", placeholder="e.g., Apple, Whole Wheat Bread") }}
-                {% for error in form3.name.errors %} <span class="text-danger">{{ error }}</span> {% endfor %}
-            </div>
-
-            <hr>
-            <p class="text-muted small">Enter nutritional information per 100g (or 100ml):</p>
-
-            <div class="row mb-3">
-                <div class="col">
-                    {{ form3.calories_per_100.label(class="form-label") }}
-                    {{ form3.calories_per_100(class="form-control", type="number", step="any") }}
-                    {% for error in form3.calories_per_100.errors %} <span class="text-danger">{{ error }}</span> {% endfor %}
+                {# --- Product Name --- #}
+                <div class="mb-3">
+                    {{ form3.name.label(class="form-label") }}
+                    {{ form3.name(class="form-control", placeholder="e.g., Apple, Whole Wheat Bread") }}
+                    {% for error in form3.name.errors %} <span class="text-danger">{{ error }}</span> {% endfor %}
                 </div>
-                <div class="col">
-                    {{ form3.protein_per_100.label(class="form-label") }}
-                    {{ form3.protein_per_100(class="form-control", type="number", step="any") }}
-                    {% for error in form3.protein_per_100.errors %} <span class="text-danger">{{ error }}</span> {% endfor %}
-                </div>
-            </div>
-            <div class="row mb-3">
-                <div class="col">
-                    {{ form3.fat_per_100.label(class="form-label") }}
-                    {{ form3.fat_per_100(class="form-control", type="number", step="any") }}
-                    {% for error in form3.fat_per_100.errors %} <span class="text-danger">{{ error }}</span> {% endfor %}
-                </div>
-                <div class="col">
-                    {{ form3.carbs_per_100.label(class="form-label") }}
-                    {{ form3.carbs_per_100(class="form-control", type="number", step="any") }}
-                    {% for error in form3.carbs_per_100.errors %} <span class="text-danger">{{ error }}</span> {% endfor %}
-                </div>
-            </div>
 
-            <hr>
-            <p class="text-muted small">Optional: Define a common serving size for reference:</p>
+                <hr>
+                <p class="text-muted small">Enter nutritional information per 100g (or 100ml):</p>
 
-            {# --- Optional Serving Size --- #}
-            <div class="row mb-3">
-                <div class="col">
-                    {{ form3.serving_size.label(class="form-label") }}
-                    {{ form3.serving_size(class="form-control", type="number", step="any", placeholder="e.g., 150") }}
-                    {% for error in form3.serving_size.errors %} <span class="text-danger">{{ error }}</span> {% endfor %}
+                <div class="row mb-3">
+                    <div class="col">
+                        {{ form3.calories_per_100.label(class="form-label") }}
+                        {{ form3.calories_per_100(class="form-control", type="number", step="any") }}
+                        {% for error in form3.calories_per_100.errors %} <span class="text-danger">{{ error }}</span> {%
+                        endfor %}
+                    </div>
+                    <div class="col">
+                        {{ form3.protein_per_100.label(class="form-label") }}
+                        {{ form3.protein_per_100(class="form-control", type="number", step="any") }}
+                        {% for error in form3.protein_per_100.errors %} <span class="text-danger">{{ error }}</span> {%
+                        endfor %}
+                    </div>
                 </div>
-                <div class="col">
-                    {{ form3.serving_unit.label(class="form-label") }}
-                    {{ form3.serving_unit(class="form-control", placeholder="e.g., g, ml, piece, cup") }}
-                    {% for error in form3.serving_unit.errors %} <span class="text-danger">{{ error }}</span> {% endfor %}
+                <div class="row mb-3">
+                    <div class="col">
+                        {{ form3.fat_per_100.label(class="form-label") }}
+                        {{ form3.fat_per_100(class="form-control", type="number", step="any") }}
+                        {% for error in form3.fat_per_100.errors %} <span class="text-danger">{{ error }}</span> {%
+                        endfor %}
+                    </div>
+                    <div class="col">
+                        {{ form3.carbs_per_100.label(class="form-label") }}
+                        {{ form3.carbs_per_100(class="form-control", type="number", step="any") }}
+                        {% for error in form3.carbs_per_100.errors %} <span class="text-danger">{{ error }}</span> {%
+                        endfor %}
+                    </div>
                 </div>
-            </div>
 
-            {# --- Optional Category --- #}
-            <div class="mb-3">
-                {{ form3.category.label(class="form-label") }}
-                {{ form3.category(class="form-control", placeholder="e.g., Fruit, Dairy, Snack") }}
-                {% for error in form3.category.errors %} <span class="text-danger">{{ error }}</span> {% endfor %}
-            </div>
+                <hr>
+                <p class="text-muted small">Optional: Define a common serving size for reference:</p>
 
-            {# --- Submit and Cancel Buttons --- #}
-            <div class="d-flex justify-content-between mt-4"> 
-                <a href="{{ url_for('main.addMeal') }}" class="btn btn-secondary">Cancel</a>
-                {{ form3.submit(class="btn btn-primary") }}
-            </div>
-        </form>
-    </div>
+                {# --- Optional Serving Size --- #}
+                <div class="row mb-3">
+                    <div class="col">
+                        {{ form3.serving_size.label(class="form-label") }}
+                        {{ form3.serving_size(class="form-control", type="number", step="any", placeholder="e.g., 150")
+                        }}
+                        {% for error in form3.serving_size.errors %} <span class="text-danger">{{ error }}</span> {%
+                        endfor %}
+                    </div>
+                    <div class="col">
+                        {{ form3.serving_unit.label(class="form-label") }}
+                        {{ form3.serving_unit(class="form-control", placeholder="e.g., g, ml, piece, cup") }}
+                        {% for error in form3.serving_unit.errors %} <span class="text-danger">{{ error }}</span> {%
+                        endfor %}
+                    </div>
+                </div>
+
+                {# --- Optional Category --- #}
+                <div class="mb-3">
+                    {{ form3.category.label(class="form-label") }}
+                    {{ form3.category(class="form-control", placeholder="e.g., Fruit, Dairy, Snack") }}
+                    {% for error in form3.category.errors %} <span class="text-danger">{{ error }}</span> {% endfor %}
+                </div>
+
+                {# --- Submit and Cancel Buttons --- #}
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="{{ url_for('main.addMeal') }}" class="btn btn-secondary">Cancel</a>
+                    {{ form3.submit(class="btn btn-primary") }}
+                </div>
+            </form>
+        </div>
 
         <!-- Meal Type Form -->
         <div class="tab-pane fade" id="mealType" role="tabpanel" aria-labelledby="mealType-tab">
-            <form action="{{ url_for('main.addMealType') }}" method="POST" >
+            <form action="{{ url_for('main.addMealType') }}" method="POST">
                 {{ form1.hidden_tag() }}
-                <h2>Meal Type</h2>
+                <h2>Add Meal Type</h2>
                 <label for="typeName" class="form-label">Type Name</label><br>
                 {{ form1.typeName(class="form-control") }}
                 <br><br>
                 <div class="d-flex justify-content-between">
-                    <input type="submit" class="btn btn-secondary" value="Save">
-                    <a href="{{ url_for('main.dashboard') }}" class="btn btn-danger">Cancel</a>
+                    <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">Cancel</a>
+                    <input type="submit" class="btn btn-primary" value="Save">
                 </div>
+                  
             </form>
         </div>
 
@@ -111,17 +127,18 @@
         <div class="tab-pane fade" id="setGoal" role="tabpanel" aria-labelledby="setGoal-tab">
             <form action="{{ url_for('main.setGoal') }}" method="POST">
                 {{ form2.hidden_tag() }}
-                <h2>Set Goal</h2>
-                <label for="goal" class="form-label">Set Goal</label><br>
-                {{ form2.goal(class="form-control") }}
+                <h2>Set Your Goal</h2>
+                <label for="goal" class="form-label">Set Goal (Calories/Day)</label><br>
+                {{ form2.goal(class="form-control", value=2000) }}
                 <br><br>
                 <div class="d-flex justify-content-between">
-                    <input type="submit" class="btn btn-secondary" value="Save">
-                    <a href="{{ url_for('main.dashboard') }}" class="btn btn-danger">Cancel</a>
+                    <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">Cancel</a>
+                    <input type="submit" class="btn btn-primary" value="Save">
                 </div>
             </form>
         </div>
     </div>
+</div>
 </div>
 {% endblock %}
 
