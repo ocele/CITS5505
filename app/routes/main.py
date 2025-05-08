@@ -11,14 +11,15 @@ from datetime import datetime, timezone, timedelta, date
 from collections import defaultdict
 from pyecharts import options as opts
 from pyecharts.charts import Line, Bar, Pie, Pie
-import json
+import json, os, uuid
+from app.forms import EditProfileForm
+from werkzeug.utils import secure_filename
 
 bp = Blueprint('main', __name__)
 
 @bp.route('/')
 @bp.route('/index')
 def index():
-    return render_template('index.html', title='Home')
     return render_template('index.html', title='Home')
 
 @bp.get('/dashboard_home.html')
@@ -36,12 +37,17 @@ def dashboard():
     except Exception as e:
         print(f"Error fetching recent logs for dashboard: {e}")
         recent_logs = [] 
+
+    edit_profile_form = EditProfileForm()
+    edit_profile_form.first_name.data = current_user.first_name
+    edit_profile_form.last_name.data = current_user.last_name    
       
     return render_template('dashboard_home.html',
                            title='Dashboard',
                            recent_logs=recent_logs,
                            user=current_user,
-                           form=AddMealForm())
+                           form=AddMealForm(),
+                           edit_profile_form=edit_profile_form)
 
 def get_week_of_year(dt):
     iso_calendar = dt.isocalendar()
@@ -407,6 +413,7 @@ def api_goal_leaderboard():
 @login_required
 def addMeal():
     form = AddMealForm()
+    edit_profile_form = EditProfileForm()
     print(f"Choices after form init: {form.mealType.choices}")
 
     # --- History Items ---
@@ -458,7 +465,7 @@ def addMeal():
         form.unit.data = "g"
 
     print(f"Choices before render: {form.mealType.choices}")
-    return render_template('addMeal.html', form=form, foodFound=foodFound, historyItems=historyItemsNames, suggestions=suggestions_for_template)
+    return render_template('addMeal.html', form=form, foodFound=foodFound, historyItems=historyItemsNames, suggestions=suggestions_for_template, edit_profile_form=edit_profile_form)
 
 @bp.post('/addMeal')
 @login_required
@@ -513,6 +520,7 @@ def settings():
     form1 = AddMealTypeForm()
     form2 = SetGoalForm()
     form3 = AddNewProductForm()
+    edit_profile_form = EditProfileForm()
     
     admin = User.query.filter_by(email='admin@DailyBite.com').first()
 
@@ -526,7 +534,7 @@ def settings():
                 .all()
     )
     
-    return render_template('settings.html', form1=form1, form2=form2, form3=form3, meal_types=meal_types)
+    return render_template('settings.html', form1=form1, form2=form2, form3=form3, meal_types=meal_types, edit_profile_form=edit_profile_form)
 
 @bp.post('/addMealType')
 @login_required
@@ -682,6 +690,7 @@ def share():
 
 @bp.route('/sharin_list')
 def sharing_list():
+    edit_profile_form = EditProfileForm()
     all_shares = ShareRecord.query \
         .filter_by(receiver_id=current_user.id) \
         .order_by(ShareRecord.timestamp.desc()) \
@@ -689,7 +698,7 @@ def sharing_list():
     unread_count = sum(1 for s in all_shares if not s.is_read)
     for share in all_shares:
         share.elapsed_time = time_ago(share.timestamp)
-    return render_template('sharing_list.html', shares=all_shares, unread_count=unread_count)
+    return render_template('sharing_list.html', shares=all_shares, unread_count=unread_count, edit_profile_form=edit_profile_form)
 
 @bp.route('/share/<int:share_id>')
 @login_required
@@ -718,6 +727,57 @@ def view_share(share_id):
 
     return render_template('share_detail.html', share=share, period_start=start, period_end=end)
 
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@bp.route('/update_profile', methods=['POST'])
+@login_required
+def update_profile():
+
+    form = EditProfileForm()
+
+    if form.validate_on_submit():
+        current_user.first_name = form.first_name.data
+        current_user.last_name = form.last_name.data
+
+        f = form.avatar.data
+
+        if f and allowed_file(f.filename):
+            ext = f.filename.rsplit('.', 1)[1].lower()
+            random_filename = str(uuid.uuid4()) + '.' + ext
+            filename = secure_filename(random_filename)
+            upload_folder = os.path.join(current_app.root_path, 'static', 'avatars')
+            os.makedirs(upload_folder, exist_ok=True)
+            filepath = os.path.join(upload_folder, filename)
+            if current_user.avatar_filename:
+                old_filepath = os.path.join(upload_folder, current_user.avatar_filename)
+                if os.path.exists(old_filepath):
+                    try:
+                        os.remove(old_filepath)
+                    except OSError as e:
+                        print(f"Error removing old avatar {old_filepath}: {e}")
+            try:
+                f.save(filepath)
+                current_user.avatar_filename = filename
+            except Exception as e:
+                 flash(f'Error saving avatar file: {e}', 'danger')
+        try:
+            db.session.commit()
+            flash('Profile updated successfully!', 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error updating profile: {e}', 'danger')
+
+        return redirect(url_for('main.dashboard'))
+
+    else:
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(f"Error in {getattr(form, field).label.text}: {error}", 'warning')
+        return redirect(url_for('main.dashboard'))
 
 
 # def index():
