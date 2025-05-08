@@ -479,7 +479,8 @@ def addMealPost():
         inputFoodID = inputFood.id
         foodLog = FoodLog(user_id = current_user.id, food_item_id = inputFoodID, meal_type = form.mealType.data, quantity_consumed = form.quantity.data, unit_consumed = form.unit.data)
         db.session.add(foodLog)
-        db.session.commit() 
+        db.session.commit()
+        flash(f"Your meal added successfully!", 'success')
         return redirect(url_for('main.dashboard'))
     else:
         flash("The form validation failed", "error")
@@ -513,7 +514,19 @@ def settings():
     form2 = SetGoalForm()
     form3 = AddNewProductForm()
     
-    return render_template('settings.html', form1=form1, form2=form2, form3=form3)
+    admin = User.query.filter_by(email='admin@DailyBite.com').first()
+
+    meal_types = (
+        MealType.query
+                .filter(or_(
+                    MealType.user_id == admin.id,             # Admin added
+                    MealType.user_id == current_user.id   # user added
+                ))
+                .order_by(MealType.id.desc())
+                .all()
+    )
+    
+    return render_template('settings.html', form1=form1, form2=form2, form3=form3, meal_types=meal_types)
 
 @bp.post('/addMealType')
 @login_required
@@ -523,9 +536,20 @@ def addMealType():
         mealType = MealType(user_id=current_user.id, type_name=form1.typeName.data)
         db.session.add(mealType)
         db.session.commit()
-        return redirect(url_for('main.dashboard'))
+        flash('Meal type added.', 'success')
     else:
-        return redirect(url_for('main.settings'))
+        flash('Failed to add meal type.', 'danger')
+    return redirect(url_for('main.settings', _anchor='mealType'))
+
+@bp.delete('/meal-types/<int:mt_id>')
+@login_required
+def delete_meal_type(mt_id):
+    mt = MealType.query.get_or_404(mt_id)
+    if mt.user_id != current_user.id:
+        abort(403)
+    db.session.delete(mt)
+    db.session.commit()
+    return jsonify(success=True)
 
 @bp.post('/setGoal')
 @login_required
@@ -534,10 +558,10 @@ def setGoal():
     if form2.validate_on_submit(): 
         current_user.target_calories = form2.goal.data
         db.session.commit()
-        return redirect(url_for('main.dashboard'))
+        flash('Goal set successfully.', 'success')
     else:
-        return redirect(url_for('main.settings'))
-
+        flash('Failed to set your goal.', 'danger')
+    return redirect(url_for('main.settings', _anchor='mealType'))
 # @bp.post('/addNewProduct')
 # @login_required
 # def addNewProduct():
@@ -593,9 +617,9 @@ def addNewProduct():
         return redirect(url_for('main.settings'))
 
 def time_ago(dt):
-    now = datetime.now(timezone.utc)  # 替代 datetime.utcnow()
+    now = datetime.now(timezone.utc)
     if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=timezone.utc)  # 补上时区信息
+        dt = dt.replace(tzinfo=timezone.utc)
     diff = now - dt
     seconds = diff.total_seconds()
 
@@ -624,7 +648,6 @@ def share():
                 User.email.ilike(f"%{search_term}%")
             )).limit(10).all()
 
-    # JSON 请求
     if request.method == 'GET' and request.headers.get('Accept') == 'application/json':
         return jsonify([
             {'id': u.id,
@@ -634,7 +657,6 @@ def share():
             for u in friends
         ])
 
-    # POST 提交分享
     if request.method == 'POST':
         content_type = request.form.get('content_type')
         date_range   = request.form.get('date_range')
@@ -678,19 +700,16 @@ def view_share(share_id):
     if not share.is_read:
         share.is_read = True
         db.session.commit()
-    # 根据 share.date_range 计算周期起止
     ts = share.timestamp  # datetime
-    # 默认 start/end 同一天
     start = end = ts.date()
 
     if share.date_range == 'weekly':
-        # 本周：找到周一，再加 6 天到周日
+        # this 7 days
         start = ts.date() - timedelta(days=ts.weekday())
         end   = start + timedelta(days=6)
     elif share.date_range == 'monthly':
-        # 本月：当月第一天到最后一天
+        # this month
         start = ts.date().replace(day=1)
-        # 下个月一号减一天
         if start.month == 12:
             nxt = date(start.year+1, 1, 1)
         else:
