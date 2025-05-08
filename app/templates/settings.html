@@ -20,11 +20,6 @@
             <button class="nav-link" id="setGoal-tab" data-bs-toggle="tab" data-bs-target="#setGoal" type="button"
                 role="tab" aria-controls="setGoal" aria-selected="false">Set Goal</button>
         </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="setGoal-tab" data-bs-toggle="tab" data-bs-target="#setProfile" type="button"
-                role="tab" aria-controls="setProfile" aria-selected="false">Your Profile</button>
-        </li>
-        
     </ul>
     <div class="tab-content mt-3">
         <!-- Add New Product Form -->
@@ -119,8 +114,31 @@
                     <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">Cancel</a>
                     <input type="submit" class="btn btn-primary" value="Save">
                 </div>
-                  
+
             </form>
+            <hr>
+
+            <!--  Meal Types list -->
+            <h3>Your Meal Types</h3>
+            {% if meal_types %}
+            <ul class="list-group">
+                {% for mt in meal_types %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ mt.type_name }}
+                    {% if mt.user_id == current_user.id %}
+                    <button class="btn btn-sm btn-primary delete-meal-type"
+                        data-url="{{ url_for('main.delete_meal_type', mt_id=mt.id) }}">
+                        &times;
+                    </button>
+                    {% else %}
+                    <span class="badge bg-secondary">System</span>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="text-muted">You don't have any meal types yet.</p>
+            {% endif %}
         </div>
 
         <!-- Set Goal Form -->
@@ -143,4 +161,24 @@
 {% endblock %}
 
 {% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.delete-meal-type').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (!confirm('Are you sure you want to delete this meal type?')) return;
+                fetch(btn.dataset.url, { method: 'DELETE' })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            btn.closest('li').remove();
+                        } else {
+                            alert('Delete failed.');
+                        }
+                    })
+                    .catch(() => alert('An error occurred.'));
+            });
+        });
+    });
+</script>
+
 {% endblock %}
