@@ -13,7 +13,7 @@
 <div class="sharing-list-container">
     {% if shares %}
     {% for share in shares %}
-    <!-- V：让整个 .sharing-item 可点击 查看详情 -->
+    <!-- let whole .sharing-item can click -->
     <a href="{{ url_for('main.view_share', share_id=share.id) }}"
         class="sharing-item-link {% if not share.is_read %}unread{% endif %}">
         <div class="sharing-item">

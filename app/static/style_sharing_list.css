@@ -1,88 +1,95 @@
-/* Sharing List styles */
-.main-content {
-    padding: 20px;
-}
+/* style_sharing_list.css */
 
-.sharing-list-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 25px;
-}
-
+/* 整体容器 */
 .sharing-list-container {
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-    padding: 25px;
-    margin-bottom: 20px;
+    max-width: auto;
+    margin: 0 auto;
+    padding: 0;
 }
 
+/* 链接整体可点 */
+.sharing-item-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+}
+
+/* 每一行 */
 .sharing-item {
     display: flex;
     align-items: center;
-    padding: 20px 0;
-    border-bottom: 1px solid #eee;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #e9ecef;
+    background-color: #fff;
+    transition: background-color 0.15s;
 }
 
-.sharing-item:last-child {
-    border-bottom: none;
+.sharing-item-link:hover .sharing-item {
+    background-color: #f8f9fa;
 }
 
+/* 未读高亮 */
+.sharing-item-link.unread .sharing-item {
+    background-color: #fff3cd;;
+}
+
+/* 已读项文字色调更浅 */
+.sharing-item-link:not(.unread) .sharing-user {
+    /* 用户名从深色 #343a40 调整为中灰 */
+    color: #6c757d;
+}
+
+.sharing-item-link:not(.unread) .sharing-text,
+.sharing-item-link:not(.unread) .sharing-time {
+    /* 文本和时间从 #6c757d 调整为更浅的灰色 */
+    color: #adb5bd;
+}
+
+/* 头像区域 */
 .sharing-avatar {
-    width: 50px;
-    height: 50px;
-    background-color: #f5f5f5;
+    flex: 0 0 48px;
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
-    margin-right: 15px;
+    background-color: #6c757d;
+    color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
+    font-weight: bold;
+    font-size: 1.25rem;
+    margin-right: 1rem;
 }
 
-.sharing-avatar i {
-    color: #666;
-}
-
+/* 内容区域 */
 .sharing-content {
     flex: 1;
+    min-width: 0;
+    /* 防止文字溢出 */
 }
 
 .sharing-user {
     font-weight: 600;
-    font-size: 1.1rem;
-    margin-bottom: 4px;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+    color: #343a40;
 }
 
 .sharing-text {
-    color: #555;
+    font-size: 0.875rem;
+    color: #6c757d;
 }
 
+/* 时间戳 */
 .sharing-time {
-    color: #777;
-    font-size: 0.9rem;
-    text-align: right;
+    flex: 0 0 auto;
+    font-size: 0.75rem;
+    color: #6c757d;
+    margin-left: 1rem;
+    white-space: nowrap;
 }
 
+/* 空状态 */
 .no-shares {
-    min-height: 150px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .sharing-list-container {
-        padding: 15px;
-    }
-    
-    .sharing-user {
-        font-size: 1rem;
-    }
-    
-    .sharing-time {
-        font-size: 0.8rem;
-    }
+    padding: 2rem 1rem;
 }
