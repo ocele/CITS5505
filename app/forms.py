@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms.validators import DataRequired, ValidationError, Email, EqualTo, Length, NumberRange, Optional
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, EmailField, SelectField, SearchField, DecimalField, FloatField, DateField,RadioField
 from wtforms_sqlalchemy.fields import QuerySelectField
+from flask_wtf.file import FileField, FileAllowed
 from app.models import User, FoodItem, MealType
 from datetime import date
 from flask_login import current_user
@@ -94,3 +95,11 @@ class ShareForm(FlaskForm):
     ], validators=[DataRequired()])
 
     submit = SubmitField('Search')
+
+class EditProfileForm(FlaskForm):
+    first_name = StringField('First Name', validators=[DataRequired(), Length(max=64)])
+    last_name = StringField('Last Name', validators=[DataRequired(), Length(max=64)])
+    avatar = FileField('Upload New Avatar', validators=[
+        FileAllowed(['jpg', 'png', 'jpeg', 'gif'], 'Images only!')
+    ])
+    submit = SubmitField('Save Changes')

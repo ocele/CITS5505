@@ -5,6 +5,7 @@ from app import db, login_manager
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String, Integer, Float, DateTime, Boolean, ForeignKey
 from datetime import datetime, timezone
+from flask import url_for
 
 # Loads a user object based on the user ID stored in the session.
 @login_manager.user_loader
@@ -38,6 +39,8 @@ class User(UserMixin, db.Model):
     # Defines the one-to-many relationship between User and MealType.
     meal_types = db.relationship('MealType', backref='inputter', lazy='dynamic', cascade='all, delete-orphan')
 
+    avatar_filename = db.Column(db.String(128), nullable=True, default=None)
+
     # Sets the user's password with proper hashing.
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -49,6 +52,17 @@ class User(UserMixin, db.Model):
     # String representation for debugging.
     def __repr__(self):
         return f'<User {self.email}>'
+    
+    @property
+    def avatar_url(self):
+        try:
+            if self.avatar_filename:
+                return url_for('static', filename=f'avatars/{self.avatar_filename}')
+            else:
+                return url_for('static', filename='avatars/default_avatar.png')
+        except Exception as e:
+            print(f"Error generating avatar URL: {e}")
+            return None
 
 # Represents a food item with its standard nutritional information.
 class FoodItem(db.Model):
