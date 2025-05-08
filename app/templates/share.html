@@ -87,22 +87,17 @@
 {% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // 1. 拿到元素
         const searchInput = document.getElementById('friendSearchInput');
         const searchLink = document.getElementById('friendSearchLink');
         const baseUrl = "{{ url_for('main.share') }}";
 
-        // 2. 更新 <a> 的 href
         function updateSearchLink() {
             const q = encodeURIComponent(searchInput.value.trim());
-            // 如果输入为空，就只跳转到 /share，否则带上 ?search=xxx
             searchLink.href = q ? `${baseUrl}?search=${q}` : baseUrl;
         }
 
-        // 3. 监听输入框变化
         if (searchInput) {
             searchInput.addEventListener('input', updateSearchLink);
-            // 初始化一次，防止页面初次有 search 参数时链接不对
             updateSearchLink();
         }
     });
