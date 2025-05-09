@@ -14,9 +14,9 @@
 
 {% block content %}
 
-<div class="row">
+<div class="row row-cols-1 row-cols-md-2 g-4">
     <!-- Calorie Intake Chart -->
-    <div class="col-md-6 mb-4">
+    <div class="col">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Calorie Intake Trend</h5>
@@ -38,76 +38,71 @@
         </div>
     </div>
 
+    <!-- Goal Achievement Ranking -->
+    <div class="col">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Goal Achievement Ranking</h5>
+                    <div class="btn-group btn-group-sm leaderboard-toggle" role="group">
+                        <button type="button" class="btn btn-warning active leaderboard-period-btn" data-period="7d">Last 7 Days</button>
+                        <button type="button" class="btn btn-outline-warning leaderboard-period-btn" data-period="30d">Last 30 Days</button>
+                    </div>
+                </div>
+                <div class="card-body" id="leaderboardBody">
+                    <p class="text-center text-muted" id="leaderboardLoading">Loading leaderboard...</p>
+                    <ol class="list-group list-group-numbered" id="leaderboardList"style="display: none; max-height: 300px; overflow-y: auto;"></ol>
+                    <p class="text-center text-danger" id="leaderboardError" style="display: none;">Could not load leaderboard data.</p>
+                </div>
+                <div class="card-footer text-muted small" id="leaderboardFooter" style="display: none;">
+                    Ranking based on days meeting calorie goal (±10%).
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Nutrition Breakdown Chart -->
-    <div class="col-md-6 mb-4">
+    <div class="col">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Nutrition Ratio (Today, kcal %)</h5>
+             <h5 class="mb-0">Nutrition Ratio (Today, kcal %)</h5>
+                
             </div>
-        </div>
-        <div class="card-body">
-            <div class="chart-placeholder">
-                <div id="nutritionRatioChart" style="height: 250px; width: 100%;"></div>
+            <div class="card-body">
+                <div class="chart-placeholder">
+                    <div id="nutritionRatioChart" style="height: 250px; width: 100%;"></div>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Leaderboard -->
-<div class="row">
-    <div class="col-md-6 mb-4">
+    <!-- Recent Activity -->
+    <div class="col">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Goal Achievement Leaderboard</h5>
-                <div class="btn-group btn-group-sm leaderboard-toggle" role="group">
-                    <button type="button" class="btn btn-warning active leaderboard-period-btn" data-period="7d">Last 7
-                        Days</button>
-                    <button type="button" class="btn btn-outline-warning leaderboard-period-btn" data-period="30d">Last
-                        30 Days</button>
-                </div>
+                <h5 class="mb-0">Recent Activity</h5>
+                <span class="text-muted small">Last 5 Entries</span>
             </div>
-            <div class="card-body" id="leaderboardBody">
-                <p class="text-center text-muted" id="leaderboardLoading">Loading leaderboard...</p>
-                <ol class="list-group list-group-numbered" id="leaderboardList"
-                    style="display: none; max-height: 300px; overflow-y: auto;"></ol>
-                <p class="text-center text-danger" id="leaderboardError" style="display: none;">Could not load
-                    leaderboard data.</p>
-            </div>
-            <div class="card-footer text-muted small" id="leaderboardFooter" style="display: none;">
-                Ranking based on days meeting calorie goal (±10%).
+            <div class="card-body" id="recentActivityList">
+                {% if recent_logs %}
+                    {% for log in recent_logs %}
+                    <div class="activity-item d-flex align-items-center mb-2">
+                        <div class="activity-indicator bg-primary me-2"></div>
+                        <div class="activity-details flex-grow-1">
+                            <span>{{ log.quantity_consumed }} {{ log.unit_consumed }} of {{ log.food_details.name if log.food_details else 'Unknown Food' }}</span>
+                            <span class="text-muted small ms-1">({{ log.meal_type }})</span>
+                        </div>
+                        <div class="activity-time text-muted small">
+                            {{ log.log_date.strftime('%m-%d %H:%M') if log.log_date else '' }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center">No recent activity logged.</p>
+                {% endif %}
             </div>
         </div>
     </div>
-</div>
-
-<!-- Recent Activity -->
-<div class="col-md-6 mb-4">
-    <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Recent Activity</h5>
-            <span class="text-muted small">Last 5 Entries</span>
-        </div>
-        <div class="card-body" id="recentActivityList">
-            {% if recent_logs %}
-            {% for log in recent_logs %}
-            <div class="activity-item d-flex align-items-center mb-2">
-                <div class="activity-indicator bg-primary me-2"></div>
-                <div class="activity-details flex-grow-1">
-                    <span>{{ log.quantity_consumed }} {{ log.unit_consumed }} of {{ log.food_details.name if
-                        log.food_details else 'Unknown Food' }}</span>
-                    <span class="text-muted small ms-1">({{ log.meal_type }})</span>
-                </div>
-                <div class="activity-time text-muted small">
-                    {{ log.log_date.strftime('%H:%M') if log.log_date else '' }}
-                </div>
-            </div>
-            {% endfor %}
-            {% else %}
-            <p class="text-muted text-center">No recent activity logged.</p>
-            {% endif %}
-        </div>
-    </div>
-</div>
 </div>
 {% endblock %}
 

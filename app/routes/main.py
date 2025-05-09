@@ -471,6 +471,7 @@ def addMeal():
 @login_required
 def addMealPost():
     form = AddMealForm()
+    
     print(f"Inside /addMeal GET route, choices are: {form.mealType.choices}")
     if form.validate_on_submit():
         foodName = form.food.data
@@ -484,9 +485,14 @@ def addMealPost():
             
         # Create and add new food log entry
         inputFoodID = inputFood.id
-        foodLog = FoodLog(user_id = current_user.id, food_item_id = inputFoodID, meal_type = form.mealType.data, quantity_consumed = form.quantity.data, unit_consumed = form.unit.data)
+        log_date = db.Column(
+            db.DateTime(timezone=True),
+            nullable=False,
+            default=lambda: datetime.now(timezone.utc)
+        )
+        foodLog = FoodLog(user_id = current_user.id, food_item_id = inputFoodID, log_date=datetime.now(timezone.utc), meal_type = form.mealType.data, quantity_consumed = form.quantity.data, unit_consumed = form.unit.data)
         db.session.add(foodLog)
-        db.session.commit()
+        db.session.commit() 
         flash(f"Your meal added successfully!", 'success')
         return redirect(url_for('main.dashboard'))
     else:
