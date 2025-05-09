@@ -252,34 +252,7 @@ body {
     box-shadow: 0 0 0 0.25rem rgba(var(--bs-warning-rgb), .25);
 }
 
-
-.leaderboard-podium .podium {
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    gap: 1rem;
-}
-
-.leaderboard-podium .platform {
-    width: 60px;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    border-radius: 4px 4px 0 0;
-}
-
-.leaderboard-podium .first {
-    height: 120px;
-    background: #bfbfbf;
-}
-
-.leaderboard-podium .second {
-    height: 100px;
-    background: #9f9f9f;
-}
-
-.leaderboard-podium .third {
-    height: 80px;
-    background: #7f7f7f;
+.card-body {
+    height: 300px;
+    
 }

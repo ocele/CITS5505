@@ -16,15 +16,24 @@
                 {% for error in form.mealType.errors %} <span class="text-danger">{{ error }}</span> {% endfor %}
             </div>
 
+            {# --- History Items --- #}
+            <div class="mb-3" id="historyContainer">
+                 <label class="form-label">History Items</label>
+                 <div class="history-items-list">
+                    {% for item_name in historyItems %}
+                     <button type="button" class="btn btn-warning btn-sm m-1 historyItem" data-name="{{ item_name }}">{{ item_name }}</button>
+                    {% endfor %}
+                 </div>
+            </div>
             {# --- Food Input & Search --- #}
             <div class="mb-3" id="foodinputcontainer">
                 <label for="foodInput" class="form-label">Food</label>
                 <div class="input-group">
                     {{ form.food(class="form-control", id="foodInput", placeholder="Search food...") }}
-                    <span class="input-group-text"><a href="#" id="searchFoodLink"><i class="fa-solid fa-magnifying-glass"></i></a></span>
+                    <span class="input-group-text"><a href="#" id="searchFoodLink" class="text-warning" ><i class="fa-solid fa-magnifying-glass"></i></a></span>
                 </div>
                 {% for error in form.food.errors %} <span class="text-danger">{{ error }}</span> {% endfor %}
-
+                
                 {# --- Search Results --- #}
                 {% if foodFound %}
                 <div class="alert alert-secondary alert-dismissible fade show mt-2 scrollable" id="foodFoundContainer" role="alert">
@@ -57,21 +66,10 @@
                 <label for="quantityInput" class="form-label">Quantity (in grams)</label>
                 <div class="input-group">
                     {{ form.quantity(class="form-control", id="quantityInput", type="number", step="any", placeholder="Enter grams") }}
-                    {{ form.unit(class="form-control", id="unitInput", value="g", readonly=True) }}
+                    {{ form.unit(class="form-control", id="unitInput", value="g", readonly="readonly") }}
                 </div>
                  {% for error in form.quantity.errors %} <span class="text-danger">{{ error }}</span> {% endfor %}
                  {% for error in form.unit.errors %} <span class="text-danger">{{ error }}</span> {% endfor %}
-            </div>
-
-
-            {# --- History Items --- #}
-            <div class="mb-3" id="historyContainer">
-                 <label class="form-label">History Items</label>
-                 <div class="history-items-list">
-                    {% for item_name in historyItems %}
-                     <button type="button" class="btn btn-outline-secondary btn-sm m-1 historyItem" data-name="{{ item_name }}">{{ item_name }}</button>
-                    {% endfor %}
-                 </div>
             </div>
 
             {# --- Suggestions --- #}
@@ -88,7 +86,7 @@
                                         <small class="text-muted"> (Common: {{ suggestion.serving_size }} {{ suggestion.serving_unit }})</small>
                                     {% endif %}
                                 </div>
-                                <button type="button" class="btn btn-sm btn-outline-primary add-suggestion"
+                                <button type="button" class="btn btn-sm btn-outline-warning add-suggestion"
                                         data-name="{{ suggestion.name }}"
                                         data-quantity="100"
                                         data-unit="g">
@@ -102,8 +100,8 @@
 
             {# --- Buttons --- #}
             <div class="d-flex justify-content-between mt-4">
-                {{ form.submit(class="btn btn-primary") }}
                 <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">Cancel</a>
+                {{ form.submit(class="btn btn-primary") }}
             </div>
         </form>
         <br><br>
