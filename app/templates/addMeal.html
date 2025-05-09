@@ -25,39 +25,51 @@
                     {% endfor %}
                  </div>
             </div>
+            
             {# --- Food Input & Search --- #}
             <div class="mb-3" id="foodinputcontainer">
                 <label for="foodInput" class="form-label">Food</label>
                 <div class="input-group">
                     {{ form.food(class="form-control", id="foodInput", placeholder="Search food...") }}
-                    <span class="input-group-text"><a href="#" id="searchFoodLink" class="text-warning" ><i class="fa-solid fa-magnifying-glass"></i></a></span>
+                    <span class="input-group-text">
+                        <a href="#" id="searchFoodLink" class="text-warning">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </a>
+                    </span>
                 </div>
-                {% for error in form.food.errors %} <span class="text-danger">{{ error }}</span> {% endfor %}
-                
+                {% for error in form.food.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+
                 {# --- Search Results --- #}
                 {% if foodFound %}
-                <div class="alert alert-secondary alert-dismissible fade show mt-2 scrollable" id="foodFoundContainer" role="alert">
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    <strong>Search Results:</strong><br>
-                    {% for food_item in foodFound %}
-                        <div class="form-check mt-1">
-                            <input type="radio" class="form-check-input searchResult"
-                                   id="search-{{ food_item.id }}"
-                                   name="selectedFood"
-                                   value="{{ food_item.name }}"
-                                   data-name="{{ food_item.name }}"
-                                   data-quantity="100"
-                                   data-unit="g">
-                            <label class="form-check-label" for="search-{{ food_item.id }}">
-                                <h5>{{ food_item.name }}</h5>
-                                <small class="text-muted">{{ food_item.calories_per_100 }} kcal / 100 g</small>
-                                {% if food_item.serving_size and food_item.serving_unit %}
-                                    <small class="text-muted"> (Common: {{ food_item.serving_size }} {{ food_item.serving_unit }})</small>
-                                {% endif %}
-                             </label>
-                        </div>
-                    {% endfor %}
-                </div>
+                    <div class="alert alert-secondary alert-dismissible fade show mt-2 scrollable" id="foodFoundContainer" role="alert">
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        <strong>Search Results:</strong><br>
+                        {% for food_item in foodFound %}
+                            <div class="form-check mt-1">
+                                <input type="radio" class="form-check-input searchResult"
+                                    id="search-{{ food_item.id }}"
+                                    name="selectedFood"
+                                    value="{{ food_item.name }}"
+                                    data-name="{{ food_item.name }}"
+                                    data-quantity="100"
+                                    data-unit="g">
+                                <label class="form-check-label" for="search-{{ food_item.id }}">
+                                    <h5>{{ food_item.name }}</h5>
+                                    <small class="text-muted">{{ food_item.calories_per_100 }} kcal / 100 g</small>
+                                    {% if food_item.serving_size and food_item.serving_unit %}
+                                        <small class="text-muted"> (Common: {{ food_item.serving_size }} {{ food_item.serving_unit }})</small>
+                                    {% endif %}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% elif request.args.get("food") %}
+                    <div class="alert alert-warning mt-2" id="noResultContainer">
+                        <strong>No results found.</strong> You can add this food manually in 
+                        <a href="{{ url_for('main.settings') }}" class="btn btn-sm btn-outline-primary ms-2">Settings</a>
+                    </div>
                 {% endif %}
             </div>
 

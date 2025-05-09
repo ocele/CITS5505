@@ -546,33 +546,44 @@ def addMeal():
 @bp.post('/addMeal')
 @login_required
 def addMealPost():
-    form = AddMealForm()
-    
-    print(f"Inside /addMeal GET route, choices are: {form.mealType.choices}")
+    form = AddMealForm() 
+
     if form.validate_on_submit():
         foodName = form.food.data
-        inputFood = db.session.execute(select(FoodItem).where(FoodItem.name == foodName)).scalars().one_or_none()
+        inputFood = db.session.scalar(select(FoodItem).where(FoodItem.name == foodName)) # 使用 scalar
+
         if not inputFood:
-            # foodItem = FoodItem(name = foodName, serving_size = form.quantity.data, serving_unit = form.unit.data, calories = 0 ) 
-            # db.session.add(foodItem)
-            # db.session.commit()
             flash("The food you chose is not yet in the database. Please add a new product in the settings", "error")
-            return redirect(url_for('main.settings')) 
-            
-        # Create and add new food log entry
+            return redirect(url_for('main.settings'))
+
         inputFoodID = inputFood.id
-        log_date = db.Column(
-            db.DateTime(timezone=True),
-            nullable=False,
-            default=lambda: datetime.now(timezone.utc)
-        )
-        foodLog = FoodLog(user_id = current_user.id, food_item_id = inputFoodID, log_date=datetime.now(timezone.utc), meal_type = form.mealType.data, quantity_consumed = form.quantity.data, unit_consumed = form.unit.data)
-        db.session.add(foodLog)
-        db.session.commit() 
-        flash(f"Your meal added successfully!", 'success')
-        return redirect(url_for('main.dashboard'))
+        try:
+            foodLog = FoodLog(
+                user_id=current_user.id,
+                food_item_id=inputFoodID,
+                meal_type=form.mealType.data,
+                quantity_consumed=form.quantity.data,
+                unit_consumed=form.unit.data
+            )
+            db.session.add(foodLog)
+            db.session.commit()
+            flash('Meal added successfully!', 'success')
+            return redirect(url_for('main.dashboard'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error saving meal: {e}', 'danger')
+            return redirect(url_for('main.addMeal'))
     else:
-        flash("The form validation failed", "error")
+        print("--- Form validation FAILED in addMealPost ---")
+        for field, errors in form.errors.items():
+            for error in errors:
+                field_label = field
+                try:
+                    field_label = getattr(form, field).label.text
+                except AttributeError:
+                    pass
+                flash(f"Error in {field_label}: {error}", 'warning')
+                print(f"Validation error in {field_label}: {error}")
         return redirect(url_for('main.addMeal'))
 
 # @bp.route('/searchFood')
