@@ -40,13 +40,25 @@ class AddMealForm(FlaskForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        defaultChoices = []
-        userMealtype = []
-        if current_user.is_authenticated:
-            userMealtype = [(meal.type_name, meal.type_name) for meal in current_user.meal_types.all()]
-        else:
-            userMealtype = []
-        self.mealType.choices = defaultChoices + userMealtype
+        defaultChoices = [
+            ('Breakfast', 'Breakfast'), ('Lunch', 'Lunch'),
+            ('Dinner', 'Dinner'), ('Snacks', 'Snacks')
+        ]
+        user_specific_choices = []
+        if current_user and current_user.is_authenticated and hasattr(current_user, 'meal_types'):
+            try:
+                user_specific_choices = [(meal.type_name, meal.type_name) for meal in current_user.meal_types.all()]
+            except Exception as e:
+                 print(f"Error in AddMealForm __init__ accessing meal_types: {e}")
+        
+        final_choices_dict = {val: lbl for val, lbl in defaultChoices}
+        for val, lbl in user_specific_choices:
+            if val not in final_choices_dict:
+                final_choices_dict[val] = lbl
+        self.mealType.choices = list(final_choices_dict.items())
+        if not self.mealType.choices:
+             self.mealType.choices = defaultChoices
+        print(f"AddMealForm __init__: mealType.choices = {self.mealType.choices}")    
 
 class AddMealTypeForm(FlaskForm):
     typeName = StringField('Type Name', validators=[DataRequired(), Length(min=1, max = 128)])
