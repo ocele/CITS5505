@@ -110,7 +110,8 @@ body {
     transition: all 0.3s ease;
 }
 
-.nav-icon:hover, .nav-icon.active {
+.nav-icon:hover,
+.nav-icon.active {
     background-color: #FFB84D;
     color: white;
     transform: translateY(-2px);
@@ -156,7 +157,10 @@ body {
 }
 
 /* Button group overrides */
-.btn-primary, .btn-primary:hover, .btn-primary:active, .btn-primary:focus {
+.btn-primary,
+.btn-primary:hover,
+.btn-primary:active,
+.btn-primary:focus {
     background-color: #FFB84D !important;
     border-color: #FFB84D !important;
 }
@@ -197,7 +201,7 @@ body {
 /* Card styles */
 .card {
     border: none;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     margin-bottom: 20px;
 }
 
@@ -218,22 +222,22 @@ body {
     .dashboard-content {
         flex-direction: column;
     }
-    
+
     .sidebar {
         width: 100%;
         flex-direction: row;
     }
-    
+
     .profile-section {
         width: 30%;
     }
-    
+
     .navigation-section {
         width: 70%;
         display: flex;
         align-items: center;
     }
-    
+
     .nav-icon-row {
         margin-bottom: 0;
     }
@@ -241,43 +245,41 @@ body {
 
 .form-check-input:checked {
     background-color: var(--bs-warning);
-    border-color:     var(--bs-warning);
-  }
-  
-  .form-check-input:focus {
-    box-shadow: 0 0 0 0.25rem rgba(var(--bs-warning-rgb), .25);
-  }
-  
+    border-color: var(--bs-warning);
+}
 
-  /* Podium 容器 */
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.25rem rgba(var(--bs-warning-rgb), .25);
+}
+
+
 .leaderboard-podium .podium {
     display: flex;
     align-items: flex-end;
     justify-content: center;
     gap: 1rem;
-  }
-  
-  /* 平台共通样式 */
-  .leaderboard-podium .platform {
+}
+
+.leaderboard-podium .platform {
     width: 60px;
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     border-radius: 4px 4px 0 0;
-  }
-  
-  .leaderboard-podium .first {
+}
+
+.leaderboard-podium .first {
     height: 120px;
-    background: #bfbfbf;  
-  }
-  .leaderboard-podium .second {
+    background: #bfbfbf;
+}
+
+.leaderboard-podium .second {
     height: 100px;
-    background: #9f9f9f;  
-  }
-  .leaderboard-podium .third {
+    background: #9f9f9f;
+}
+
+.leaderboard-podium .third {
     height: 80px;
-    background: #7f7f7f;  
-  }
-  
-  
+    background: #7f7f7f;
+}
