@@ -51,11 +51,9 @@
                     </div>
                 </div>
                 <div class="card-body d-flex flex-column" id="leaderboardBody">
-                    <p class="text-center text-muted" id="leaderboardLoading">Loading leaderboard...</p>
-                    <div id="leaderboardList"></div>
-                    <p class="text-center text-danger" id="leaderboardError" style="display: none;">Could not load
-                        leaderboard data.</p>
-                
+                    <p class="text-center text-muted" id="leaderboardLoading" style="display: none;">Loading leaderboard...</p>
+                    <ol class="list-group list-group-numbered flex-grow-1" id="leaderboardList" style="max-height: 200px; overflow-y: auto; display: none;"></ol>
+                    <p class="text-center text-danger" id="leaderboardError" style="display: none;">Could not load leaderboard data.</p>
                 <div class="card-footer text-muted small mt-auto" id="leaderboardFooter" style="display: none;">
                     Ranking based on days meeting calorie goal (±10%).
                 </div>
@@ -340,11 +338,14 @@
                     } else {
                         leaderboardData.forEach(entry => {
                             const listItem = document.createElement('li');
-                            listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
+                            listItem.className = 'list-group-item d-flex justify-content-between align-items-center py-3';
+                            
                             const nameDiv = document.createElement('div');
                             nameDiv.className = 'ms-2 me-auto';
+
                             const rankSpan = document.createElement('span');
-                            rankSpan.className = 'me-2';
+                            rankSpan.className = 'me-3';
+                            rankSpan.style.fontSize = '1.1em';
 
                             let rankDisplay = '';
                             if (entry.rank === 1) {
@@ -354,12 +355,14 @@
                             } else if (entry.rank === 3) {
                                 rankDisplay = '🥉 ';
                             } else {
+                                rankSpan.className += ' fw-bold text-muted';
                                 rankDisplay = `${entry.rank}. `;
                             }
                             rankSpan.textContent = rankDisplay;
 
                             nameDiv.appendChild(rankSpan);
-                            nameDiv.appendChild(document.createTextNode(entry.last_name || 'Unknown'));
+
+                            nameDiv.appendChild(document.createTextNode(entry.full_name || 'Unknown User'));
 
                             const badge = document.createElement('span');
                             let badgeClass = 'bg-secondary';
@@ -368,7 +371,7 @@
                             else if (entry.rank === 3) badgeClass = 'bg-success';
 
                             badge.className = `badge ${badgeClass} rounded-pill`;
-                            badge.textContent = `${entry.days_achieved} ${entry.days_achieved === 1 ? 'day' : 'days'}`;
+                            badge.textContent = `${entry.days_met} ${entry.days_met === 1 ? 'day met' : 'days met'}`;
 
                             listItem.appendChild(nameDiv);
                             listItem.appendChild(badge);
