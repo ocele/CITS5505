@@ -413,7 +413,7 @@ def api_goal_leaderboard():
 def api_ensure_food_item():
     data = request.get_json()
     if not data or not data.get('name'):
-        return jsonify({'error': 'Missing food name'}), 400
+        return jsonify({'error': 'Missing food name from API data'}), 400
 
     food_name_from_api = data.get('name')
     calories_100 = data.get('calories_per_100')
@@ -426,40 +426,49 @@ def api_ensure_food_item():
     )
 
     if existing_food:
+        print(f"Food '{existing_food.name}' found in local DB with ID {existing_food.id}")
         return jsonify({
             'id': existing_food.id,
-            'name': existing_food.name, 
+            'name': existing_food.name,
             'message': 'Food item already exists in local DB.'
-        }), 200 # 200 OK
+        }), 200
     else:
-        if calories_100 is not None and protein_100 is not None and \
-           fat_100 is not None and carbs_100 is not None:
+        print(f"Food '{food_name_from_api}' not found in local DB. Attempting to add from API data.")
+        if food_name_from_api and calories_100 is not None:
             try:
                 new_food = FoodItem(
                     name=food_name_from_api,
-                    calories_per_100=float(calories_100),
-                    protein_per_100=float(protein_100),
-                    fat_per_100=float(fat_100),
-                    carbs_per_100=float(carbs_100),
+                    calories_per_100 = float(calories_100),
+                    protein_per_100  = float(protein_100) if protein_100 is not None else 0.0,
+                    fat_per_100      = float(fat_100) if fat_100 is not None else 0.0,
+                    carbs_per_100    = float(carbs_100) if carbs_100 is not None else 0.0,
                     serving_size=100.0,
                     serving_unit='g',
-                    user_id=current_user.id if current_user.is_authenticated else None
+                    source='api_usda',
+                    user_id=None
                 )
                 db.session.add(new_food)
                 db.session.commit()
+                print(f"New food '{new_food.name}' added to local DB with ID {new_food.id}")
                 return jsonify({
                     'id': new_food.id,
                     'name': new_food.name,
                     'message': 'Food item added to local DB from API.'
                 }), 201 # 201 Created
+            except ValueError:
+                db.session.rollback()
+                print(f"ValueError adding food '{food_name_from_api}' from API: Invalid nutritional data format.")
+                return jsonify({'error': 'Invalid nutritional data format from API. Could not add to local DB.'}), 400
             except Exception as e:
                 db.session.rollback()
-                return jsonify({'error': f'Failed to add food item to local DB: {e}'}), 500
+                print(f"Exception adding food '{food_name_from_api}' from API: {e}")
+                return jsonify({'error': f'Failed to add food item to local DB: An internal error occurred.'}), 500
         else:
+            print(f"Insufficient data from API for '{food_name_from_api}'. Not adding to local DB.")
             return jsonify({
-                'error': 'Insufficient nutritional data from API to create new food item. Please add manually.',
-                'name_suggestion': food_name_from_api # 可以把名字传回去方便用户手动添加
-            }), 400 # Bad Request
+                'error': 'Insufficient nutritional data from API to create new food item. Please add manually or try a different search.',
+                'name_suggestion': food_name_from_api
+            }), 400
 
 @bp.get('/addMeal')
 @login_required
