@@ -746,7 +746,7 @@ def share():
 
     return redirect(request.referrer or url_for('main.dashboard'))
 
-@bp.route('/sharin_list')
+@bp.route('/sharing_list')
 def sharing_list():
     edit_profile_form = EditProfileForm()
     all_shares = ShareRecord.query \
@@ -761,29 +761,25 @@ def sharing_list():
 @bp.route('/share/<int:share_id>')
 @login_required
 def view_share(share_id):
+    edit_profile_form = EditProfileForm()           
+
     share = ShareRecord.query.get_or_404(share_id)
     if share.receiver_id != current_user.id:
         abort(403)
     if not share.is_read:
         share.is_read = True
         db.session.commit()
-    ts = share.timestamp  # datetime
-    start = end = ts.date()
 
-    if share.date_range == 'weekly':
-        # this 7 days
-        start = ts.date() - timedelta(days=ts.weekday())
-        end   = start + timedelta(days=6)
-    elif share.date_range == 'monthly':
-        # this month
-        start = ts.date().replace(day=1)
-        if start.month == 12:
-            nxt = date(start.year+1, 1, 1)
-        else:
-            nxt = date(start.year, start.month+1, 1)
-        end = nxt - timedelta(days=1)
+    if share.date_range == 'day':
+        period_label = "Today"
+    elif share.date_range == 'week':
+        period_label = "Last 7 days"
+    elif share.date_range == 'month':
+        period_label = "This month"
+    else:
+        period_label = "a custom period"
 
-    return render_template('share_detail.html', share=share, period_start=start, period_end=end)
+    return render_template('share_detail.html', share=share, period_label=period_label, edit_profile_form=edit_profile_form)
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
