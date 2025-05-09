@@ -65,73 +65,78 @@ def get_calorie_chart_options():
     labels = []
     consumed_data = []
 
-    calories_per_log = (
-        func.coalesce(FoodLog.quantity_consumed, 0) / 100
-    ) * func.coalesce(FoodItem.calories_per_100, 0)
-
-    base_query = (
-        select(
-            FoodLog.log_date,
-            calories_per_log.label('calories')
-        )
-        .join(FoodItem, FoodLog.food_item_id == FoodItem.id)
-        .where(FoodLog.user_id == current_user.id)
-    )
-
     query_start_date = None
+    query_end_date = today
+
     if time_range == 'day':
         query_start_date = today
     elif time_range == 'week':
         query_start_date = today - timedelta(days=6)
     elif time_range == 'month':
         query_start_date = today.replace(day=1)
+    else:
+        return jsonify({"error": "Invalid time range parameter"}), 400
 
     try:
-        if query_start_date:
-            start_dt = datetime.combine(query_start_date, datetime.min.time())
-            end_dt = datetime.combine(today, datetime.max.time())
-            query = base_query.where(FoodLog.log_date.between(start_dt, end_dt)).order_by(FoodLog.log_date)
-        else:
-             return jsonify({"error": "Invalid time range logic"}), 400
+        calories_per_log = (
+            func.coalesce(FoodLog.quantity_consumed, 0) / 100.0
+        ) * func.coalesce(FoodItem.calories_per_100, 0)
 
-        print(f"Executing query for range '{time_range}' between {start_dt} and {end_dt}")
-        results = db.session.execute(query).all()
-        print(f"Query Result (raw): {results}")
+        start_dt = datetime.combine(query_start_date, datetime.min.time())
+        end_dt = datetime.combine(query_end_date, datetime.max.time())
 
-        daily_calories = defaultdict(float)
-        for r in results:
-            if r.log_date:
-                log_day = r.log_date.date()
-                daily_calories[log_day] += r.calories or 0
+        daily_calories_results = db.session.execute(
+            select(
+                func.strftime('%Y-%m-%d', FoodLog.log_date).label('log_day_str'),
+                func.sum(calories_per_log).label('total_calories')
+            )
+            .select_from(FoodLog)
+            .join(FoodItem, FoodLog.food_item_id == FoodItem.id)
+            .where(
+                FoodLog.user_id == current_user.id,
+                FoodLog.log_date.between(start_dt, end_dt)
+            )
+            .group_by(func.strftime('%Y-%m-%d', FoodLog.log_date))
+            .order_by(func.strftime('%Y-%m-%d', FoodLog.log_date))
+        ).all()
 
-        print(f"Aggregated daily calories: {dict(daily_calories)}")
+        print(f"Executing calorie trend query for range '{time_range}' between {start_dt} and {end_dt}")
+        print(f"Query Result (aggregated by day in DB): {daily_calories_results}")
+
+        calories_by_day_str = {row.log_day_str: row.total_calories or 0 for row in daily_calories_results}
+        print(f"Aggregated daily calories by date string: {calories_by_day_str}")
 
         if time_range == 'day':
-            labels = [today.strftime('%Y-%m-%d')]
-            consumed_data = [round(daily_calories.get(today, 0), 1)]
+            day_str = today.isoformat() # YYYY-MM-DD
+            labels = [day_str]
+            consumed_data = [round(calories_by_day_str.get(day_str, 0), 1)]
 
         elif time_range == 'week':
-            start_date_week = today - timedelta(days=6)
+            start_date_for_labels = today - timedelta(days=6)
             for i in range(7):
-                current_day = start_date_week + timedelta(days=i)
+                current_day = start_date_for_labels + timedelta(days=i)
+                current_day_str = current_day.isoformat()
                 labels.append(current_day.strftime('%m-%d'))
-                consumed_data.append(round(daily_calories.get(current_day, 0), 1))
+                consumed_data.append(round(calories_by_day_str.get(current_day_str, 0), 1))
 
         elif time_range == 'month':
-            start_date_month = today.replace(day=1)
-            days_in_month_so_far = (today - start_date_month).days + 1
-            for i in range(days_in_month_so_far):
-                current_day = start_date_month + timedelta(days=i)
-                labels.append(str(current_day.day))
-                consumed_data.append(round(daily_calories.get(current_day, 0), 1))
+            start_date_for_labels = today.replace(day=1)
+            num_days_in_view = (today - start_date_for_labels).days + 1
+            for i in range(num_days_in_view):
+                current_day = start_date_for_labels + timedelta(days=i)
+                current_day_str = current_day.isoformat()
+                labels.append(current_day.strftime('%m-%d'))
+                consumed_data.append(round(calories_by_day_str.get(current_day_str, 0), 1))
 
-        print(f"Final labels: {labels}")
-        print(f"Final consumed_data: {consumed_data}")
+        print(f"Final labels for chart: {labels}")
+        print(f"Final consumed_data for chart: {consumed_data}")
 
     except Exception as e:
-        print(f"Error querying or processing data: {e}")
+        import traceback
+        print(f"Error querying or processing calorie trend data: {e}")
+        print(traceback.format_exc())
         db.session.rollback()
-        return jsonify({"error": "Could not retrieve or process data"}), 500
+        return jsonify({"error": "Could not retrieve or process calorie trend data"}), 500
 
     daily_calorie_goal = round(current_user.target_calories or 0, 1)
     try:
@@ -139,61 +144,33 @@ def get_calorie_chart_options():
         chart_object = None
 
         if time_range == 'day':
-            if labels:
-                chart_title = f"Calorie Intake ({labels[0]})"
+            if labels: chart_title = f"Calorie Intake ({labels[0]})"
             chart_object = Bar(init_opts=opts.InitOpts(width="100%", height="250px", bg_color="#FFFFFF"))
             chart_object.add_xaxis(xaxis_data=labels)
             chart_object.add_yaxis(
-                series_name="Consumed",
-                y_axis=consumed_data,
-                label_opts=opts.LabelOpts(is_show=False),
-                color="#5470C6",
-                tooltip_opts=opts.TooltipOpts(formatter="{b}<br/>{a}: {c} kcal")
+                series_name="Consumed", y_axis=consumed_data, # ...
             )
-
-        else:
+        else: # week or month
             chart_object = Line(init_opts=opts.InitOpts(width="100%", height="250px", bg_color="#FFFFFF"))
             chart_object.add_xaxis(xaxis_data=labels)
             chart_object.add_yaxis(
-                series_name="Consumed",
-                y_axis=consumed_data,
-                is_smooth=True,
-                label_opts=opts.LabelOpts(is_show=False),
-                linestyle_opts=opts.LineStyleOpts(width=2),
-                color="#5470C6",
-                tooltip_opts=opts.TooltipOpts(formatter="{b}<br/>{a}: {c} kcal")
+                series_name="Consumed", y_axis=consumed_data, is_smooth=True, # ...
             )
-
             chart_object.add_yaxis(
-                series_name="Daily Goal",
-                y_axis=[daily_calorie_goal] * len(labels),
-                is_smooth=False,
-                label_opts=opts.LabelOpts(is_show=False),
-                linestyle_opts=opts.LineStyleOpts(type_="dashed", width=1),
-                symbol="none",
-                color="#EE6666",
-                tooltip_opts=opts.TooltipOpts(formatter="{a}: {c} kcal")
+                series_name="Daily Goal", y_axis=[daily_calorie_goal] * len(labels), # ...
             )
 
         if chart_object is None:
-             raise ValueError("Chart object was not created for the given time range.")
+             raise ValueError("Chart object was not created.")
 
         chart_object.set_global_opts(
-            title_opts=opts.TitleOpts(title=chart_title, pos_left="center", title_textstyle_opts=opts.TextStyleOpts(font_size=14)),
-            tooltip_opts=opts.TooltipOpts(trigger="axis" if time_range != 'day' else "item", axis_pointer_type="cross"),
-            xaxis_opts=opts.AxisOpts(type_="category", name="Time"),
-            yaxis_opts=opts.AxisOpts(
-                type_="value",
-                name="Calories (kcal)",
-                axislabel_opts=opts.LabelOpts(formatter="{value}"),
-                splitline_opts=opts.SplitLineOpts(is_show=True),
-            ),
-            legend_opts=opts.LegendOpts(pos_left="center", pos_top="bottom"),
-            datazoom_opts=[
-                opts.DataZoomOpts(range_start=0, range_end=100) if time_range != 'day' else None,
-                opts.DataZoomOpts(type_="inside", range_start=0, range_end=100) if time_range != 'day' else None,
-            ],
-            toolbox_opts=opts.ToolboxOpts(is_show=True, feature=opts.ToolBoxFeatureOpts(save_as_image=opts.ToolBoxFeatureSaveAsImageOpts(is_show=True)))
+             title_opts=opts.TitleOpts(title=chart_title, pos_left="center", title_textstyle_opts=opts.TextStyleOpts(font_size=14)),
+             tooltip_opts=opts.TooltipOpts(trigger="axis" if time_range != 'day' else "item", axis_pointer_type="cross"),
+             xaxis_opts=opts.AxisOpts(type_="category", name="Time"),
+             yaxis_opts=opts.AxisOpts(type_="value",name="Calories (kcal)",axislabel_opts=opts.LabelOpts(formatter="{value}"),splitline_opts=opts.SplitLineOpts(is_show=True)),
+             legend_opts=opts.LegendOpts(pos_left="center", pos_top="bottom"),
+             datazoom_opts=[opts.DataZoomOpts(range_start=0, range_end=100) if time_range != 'day' else None, opts.DataZoomOpts(type_="inside", range_start=0, range_end=100) if time_range != 'day' else None,],
+             toolbox_opts=opts.ToolboxOpts(is_show=True, feature=opts.ToolBoxFeatureOpts(save_as_image=opts.ToolBoxFeatureSaveAsImageOpts(is_show=True)))
         )
 
         options_dict = json.loads(chart_object.dump_options())
@@ -298,8 +275,6 @@ def api_nutrition_ratio():
 @bp.route('/api/goal_leaderboard')
 @login_required
 def api_goal_leaderboard():
-    """计算并返回达成卡路里目标天数的排行榜"""
-
     period = request.args.get('period', '7d')
     today = date.today()
     if period == '30d':
@@ -327,42 +302,36 @@ def api_goal_leaderboard():
             )
             .select_from(FoodLog)
             .join(FoodItem, FoodLog.food_item_id == FoodItem.id)
-            .where(
-                FoodLog.log_date.between(start_dt, end_dt)
-            )
+            .where(FoodLog.log_date.between(start_dt, end_dt))
             .group_by(FoodLog.user_id, func.strftime('%Y-%m-%d', FoodLog.log_date))
         )
-
-        print(f"Executing leaderboard query between {start_dt} and {end_dt}")
         results = db.session.execute(daily_calories_query).all()
-        print(f"Leaderboard raw results count: {len(results)}")
 
         user_ids_in_logs = {row.user_id for row in results}
-        if not user_ids_in_logs:
+        all_users_info = User.query.all()
+        if not all_users_info:
             return jsonify([])
 
-        users_info_query = select(User.id, User.last_name, User.target_calories).where(User.id.in_(user_ids_in_logs))
-        users_info = db.session.execute(users_info_query).all()
         user_data_map = {
-            user.id: {'last_name': user.last_name, 'target': user.target_calories or 2000.0}
-            for user in users_info
+            user.id: {
+                'first_name': user.first_name or '',
+                'last_name': user.last_name or '',
+                'target': user.target_calories or 2000.0
+            }
+            for user in all_users_info
         }
         print(f"User data map fetched: {user_data_map}")
 
         achieved_days_count = defaultdict(int)
         daily_calories_per_user_day = defaultdict(lambda: defaultdict(float))
-
         for row in results:
             daily_calories_per_user_day[row.user_id][row.log_day_str] += row.daily_calories or 0
-
-        print(f"Aggregated daily calories per user/day: { {k: dict(v) for k, v in daily_calories_per_user_day.items()} }")
 
         current_check_date = start_date
         while current_check_date <= end_date:
             current_check_date_str = current_check_date.isoformat()
-            for user_id in user_data_map:
+            for user_id, user_info in user_data_map.items():
                  daily_cals = daily_calories_per_user_day[user_id].get(current_check_date_str, 0)
-                 user_info = user_data_map[user_id]
                  target = user_info['target']
                  if target > 0:
                      lower_bound = target * LOWER_BOUND_FACTOR
@@ -371,32 +340,41 @@ def api_goal_leaderboard():
                          achieved_days_count[user_id] += 1
             current_check_date += timedelta(days=1)
 
-
         print(f"Achieved days count: {dict(achieved_days_count)}")
 
         leaderboard = []
         for user_id, user_info in user_data_map.items():
-            days_achieved = achieved_days_count.get(user_id, 0)
+            days_met = achieved_days_count.get(user_id, 0)
+            first_name = user_info.get('first_name', '')
+            last_name = user_info.get('last_name', '')
+            full_name = f"{first_name} {last_name}".strip()
+            if not full_name:
+                full_name = f"User {user_id}"
+
             leaderboard.append({
                 'user_id': user_id,
-                'last_name': user_info['last_name'],
-                'days_achieved': days_achieved
+                'full_name': full_name,
+                'first_name_for_sort': first_name.lower(),
+                'last_name_for_sort': last_name.lower(),
+                'days_met': days_met
             })
 
-        leaderboard.sort(key=lambda x: x['days_achieved'], reverse=True)
+        leaderboard.sort(key=lambda x: (-x['days_met'], x['first_name_for_sort'], x['last_name_for_sort']))
 
         ranked_leaderboard = []
         rank = 0
         last_score = -1
-        count = 0
-        for i, entry in enumerate(leaderboard):
-            count += 1
-            if entry['days_achieved'] != last_score:
-                rank = count
-                last_score = entry['days_achieved']
-            entry['rank'] = rank
-            ranked_leaderboard.append(entry)
-
+        count_for_rank = 0
+        for entry in leaderboard:
+            count_for_rank += 1
+            if entry['days_met'] != last_score:
+                rank = count_for_rank
+                last_score = entry['days_met']
+            ranked_leaderboard.append({
+                'rank': rank,
+                'full_name': entry['full_name'],
+                'days_met': entry['days_met']
+            })
 
         print(f"Final leaderboard: {ranked_leaderboard}")
         return jsonify(ranked_leaderboard)
