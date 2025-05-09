@@ -195,22 +195,19 @@
         // --- Search Food API on input ---
         const searchResultsContainer = document.createElement('div');
         searchResultsContainer.id = 'apiSearchResults';
-        searchResultsContainer.className = 'list-group mt-2 position-absolute bg-white shadow'; // 添加样式使其像下拉菜单
-        // 调整样式，使其覆盖在其他元素之上，并有合适的宽度
+        searchResultsContainer.className = 'list-group mt-2 position-absolute bg-white shadow';
         searchResultsContainer.style.zIndex = "1000";
-        searchResultsContainer.style.width = foodInput.offsetWidth + "px"; // 尝试匹配输入框宽度
-        searchResultsContainer.style.maxHeight = "300px"; // 限制最大高度
-        searchResultsContainer.style.overflowY = "auto"; // 允许滚动
-        searchResultsContainer.style.display = "none"; // 初始隐藏
+        searchResultsContainer.style.width = foodInput.offsetWidth + "px";
+        searchResultsContainer.style.maxHeight = "300px";
+        searchResultsContainer.style.overflowY = "auto";
+        searchResultsContainer.style.display = "none";
         foodInput.parentNode.insertBefore(searchResultsContainer, foodInput.nextSibling);
 
-        // 点击页面其他地方时隐藏搜索结果 (可选)
         document.addEventListener('click', function(event) {
             if (!foodInput.contains(event.target) && !searchResultsContainer.contains(event.target)) {
                 searchResultsContainer.style.display = 'none';
             }
         });
-        // 当 foodInput 获得焦点时，如果里面有内容且结果容器有内容，可以重新显示
         foodInput.addEventListener('focus', function() {
             if (this.value.trim().length >= 3 && searchResultsContainer.children.length > 0 && searchResultsContainer.innerHTML.includes('list-group-item-action')) {
                 searchResultsContainer.style.display = 'block';
@@ -223,7 +220,7 @@
         foodInput.addEventListener('input', function() {
             clearTimeout(searchTimeout);
             const searchTerm = this.value.trim();
-            searchResultsContainer.style.width = foodInput.offsetWidth + "px"; // 动态调整宽度
+            searchResultsContainer.style.width = foodInput.offsetWidth + "px"; 
 
             if (searchTerm.length < 3) {
                 searchResultsContainer.innerHTML = '';
@@ -238,8 +235,8 @@
 
         const apikey = 'sPVhIv0bGzO7YH9bW5Dca7XRb2YAIY7GYfqaUvwe'
         const apiUrl = `https://api.nal.usda.gov/fdc/v1/foods/search?query=${encodeURIComponent(searchTerm)}&pageSize=5&api_key=${apikey}`;
-        const controller = new AbortController(); // 用于超时
-        const timeoutId = setTimeout(() => controller.abort(), 28000); // 8秒超时
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 28000);
 
         fetch(apiUrl, { signal: controller.signal })
             .then(response => {
@@ -273,7 +270,6 @@
                             </small>
                         `;
 
-                        // 储存数据用于点击后发送到后端
                         listItem.dataset.foodName = foodName;
                         listItem.dataset.calories = nutrients.calories || null;
                         listItem.dataset.protein = nutrients.protein || null;
@@ -284,7 +280,6 @@
                             e.preventDefault();
                             const foodDataForBackend = {
                                 name: this.dataset.foodName,
-                                // 确保传递给后端的是数字或 null
                                 calories_per_100: this.dataset.calories !== 'null' && this.dataset.calories !== 'N/A' ? parseFloat(this.dataset.calories) : null,
                                 protein_per_100: this.dataset.protein !== 'null' && this.dataset.protein !== 'N/A' ? parseFloat(this.dataset.protein) : null,
                                 fat_per_100: this.dataset.fat !== 'null' && this.dataset.fat !== 'N/A' ? parseFloat(this.dataset.fat) : null,
@@ -292,39 +287,30 @@
                             };
 
                             console.log('Sending to /api/ensure_food_item:', foodDataForBackend);
-                            // 可以在这里给用户一个视觉反馈，比如改变点击项的样式
                             this.innerHTML = "<i>Processing... Please wait.</i>";
-                            this.style.pointerEvents = "none"; // 临时禁用重复点击
+                            this.style.pointerEvents = "none";
 
-                            // --- 发送 POST 请求到后端 API ---
-                            fetch('/api/ensure_food_item', { // 确保这个 URL 是你后端定义的
+                            fetch('/api/ensure_food_item', { 
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
-                                    // 如果你的 Flask 应用启用了 CSRF 保护，并且这个 POST 请求不是通过 Flask-WTF 表单提交的，
-                                    // 你可能需要在这里添加 CSRF token 到请求头。
-                                    // 例如: 'X-CSRFToken': getCsrfTokenFromSomewhere() // 你需要一个函数来获取 token
                                 },
                                 body: JSON.stringify(foodDataForBackend)
                             })
                             .then(response => {
-                                // 检查响应是否成功，如果后端返回错误状态码，也尝试解析 JSON 获取错误信息
                                 if (!response.ok) {
                                     return response.json().then(errData => {
-                                        // 尝试从后端返回的 JSON 中获取错误信息
                                         throw new Error(errData.error || `Server error: ${response.status}`);
                                     }).catch(() => {
-                                        // 如果解析 JSON 失败，或者没有 error 字段，则抛出通用错误
                                         throw new Error(`Server error: ${response.status} - ${response.statusText}`);
                                     });
                                 }
-                                return response.json(); // 解析成功的 JSON 响应
+                                return response.json(); 
                             })
                             .then(result => {
                                 if (result.error) {
                                     console.error('Error ensuring food item from backend:', result.error);
-                                    alert('Error: ' + result.error); // 或者用更友好的方式显示错误
-                                    // 恢复列表项的原始状态，以便用户可以重试或选择其他
+                                    alert('Error: ' + result.error);
                                     this.innerHTML = `
                                         <strong>${foodDataForBackend.name}</strong><br>
                                         <small class="text-muted">
@@ -334,18 +320,15 @@
                                             C: ${foodDataForBackend.carbs_per_100 || 'N/A'}g (per 100g)
                                         </small>
                                     `;
-                                    this.style.pointerEvents = "auto"; // 重新启用点击
+                                    this.style.pointerEvents = "auto";
                                 } else {
                                     console.log('Food item ensured/added to local DB:', result);
-                                    // 用后端返回的（可能是新创建的或已存在的）食物名称填充主表单
                                     foodInput.value = result.name;
-                                    quantityInput.value = '100'; // 默认数量
-                                    unitInput.value = 'g';     // 默认单位
+                                    quantityInput.value = '100';
+                                    unitInput.value = 'g';
 
-                                    // 清空并隐藏搜索结果列表
                                     searchResultsContainer.innerHTML = '';
                                     searchResultsContainer.style.display = 'none';
-                                    // (可选) 给用户一个成功提示，比如 "Food added to your list and form!"
                                 }
                             })
                             .catch(error => {
@@ -363,7 +346,7 @@
                                 `;
                                 this.style.pointerEvents = "auto";
                             });
-                        }); // listItem.addEventListener 结束
+                        });
 
                         searchResultsContainer.appendChild(listItem);
                     });
@@ -376,7 +359,7 @@
                 console.error('USDA API Error:', error);
                 searchResultsContainer.innerHTML = `<li class="list-group-item text-danger list-group-item-light">Error: ${error.message}</li>`;
             });
-            }, 700); // 延迟时间可以调整 (700ms)
+            }, 700); 
         });
     });
     </script>

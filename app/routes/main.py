@@ -415,26 +415,23 @@ def api_ensure_food_item():
     if not data or not data.get('name'):
         return jsonify({'error': 'Missing food name'}), 400
 
-    food_name_from_api = data.get('name') # 食物名称来自 API/前端
+    food_name_from_api = data.get('name')
     calories_100 = data.get('calories_per_100')
     protein_100 = data.get('protein_per_100')
     fat_100 = data.get('fat_per_100')
     carbs_100 = data.get('carbs_per_100')
 
-    # 检查本地数据库是否已存在该食物 (不区分大小写)
     existing_food = db.session.scalar(
         select(FoodItem).where(FoodItem.name.ilike(food_name_from_api))
     )
 
     if existing_food:
-        # 如果食物已存在，返回它的 ID 和名称
         return jsonify({
             'id': existing_food.id,
-            'name': existing_food.name, # 使用数据库中的规范名称
+            'name': existing_food.name, 
             'message': 'Food item already exists in local DB.'
         }), 200 # 200 OK
     else:
-        # 如果不存在，并且有足够的营养信息，则创建新条目
         if calories_100 is not None and protein_100 is not None and \
            fat_100 is not None and carbs_100 is not None:
             try:
@@ -446,12 +443,10 @@ def api_ensure_food_item():
                     carbs_per_100=float(carbs_100),
                     serving_size=100.0,
                     serving_unit='g',
-                    # --- 确保是 .id ---
                     user_id=current_user.id if current_user.is_authenticated else None
                 )
                 db.session.add(new_food)
                 db.session.commit()
-                # 返回新创建食物的 ID 和名称
                 return jsonify({
                     'id': new_food.id,
                     'name': new_food.name,
@@ -459,14 +454,8 @@ def api_ensure_food_item():
                 }), 201 # 201 Created
             except Exception as e:
                 db.session.rollback()
-                import traceback
-                print(f"!!! EXCEPTION in /api/ensure_food_item: {e}")
-                print(traceback.format_exc()) # 打印完整的堆栈信息
-
-
                 return jsonify({'error': f'Failed to add food item to local DB: {e}'}), 500
         else:
-            # 如果 API 数据不足以创建新条目，但本地又没有，这算是一个需要用户手动添加的情况
             return jsonify({
                 'error': 'Insufficient nutritional data from API to create new food item. Please add manually.',
                 'name_suggestion': food_name_from_api # 可以把名字传回去方便用户手动添加
