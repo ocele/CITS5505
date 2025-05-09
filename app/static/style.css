@@ -39,7 +39,8 @@ body {
     background-image: url('../static/background.jpg');
     background-size: cover;
     background-position: center;
-    min-height: 500px;
+    /* min-height: 500px; */
+    height: 90vh;
     position: relative;
     display: flex;
     align-items: center;
@@ -55,7 +56,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.2); /* Semi-transparent dark overlay */
+    background-color: rgba(0, 0, 0, 0.4); /* Semi-transparent dark overlay */
 }
 
 /* Hero Content Container */
@@ -142,10 +143,14 @@ body {
 }
 
 .group-image {
-    width: 100%;
+    width: auto;            /* 按比例缩放宽度 */
+    max-width: 100%;        /* 不超过容器宽度 */
+    max-height: 250px;      /* 图片最高不超过 300px */
     border-radius: 8px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
+    display: block;
+    margin: 0 auto;         /* 水平居中 */
+  }
 
 /* Features Section */
 .features-section {
@@ -249,3 +254,6 @@ footer {
         padding: 50px 0;
     }
 }
+
+
+  
