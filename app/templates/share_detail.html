@@ -8,11 +8,9 @@
 <div class="p-4">
   <h3>Shared by {{ share.sender.first_name }} {{ share.sender.last_name }}</h3>
   <p><strong>Period:</strong>
-     {{ period_start }}{% if share.date_range!='daily' %} – {{ period_end }}{% endif %}
+    {{ period_label }}
   </p>
 
-
-  {# 2. 渲染图表容器 #}
   <div id="chartContainer" style="height:350px;"></div>
 
   <a href="{{ url_for('main.sharing_list') }}" class="btn btn-secondary mt-3">
@@ -25,54 +23,80 @@
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 
 <script>
-  console.log(' share_detail.js loaded');
-
+  console.log('share_detail.js loaded');
+  
   document.addEventListener('DOMContentLoaded', function(){
     console.log('DOMContentLoaded in share_detail');
-
-    const type  = "{{ share.content_type }}";   // 'calorie','nutrition' 或 'ranking'
-    const range = "{{ share.date_range }}";     // 'daily','weekly','monthly'
-    const start = "{{ period_start.isoformat() }}";
-    const dom   = document.getElementById('chartContainer');
-    console.log('share.content_type=', type, ' share.date_range=', range, ' chartContainer=', dom);
-
+  
+    const type        = "{{ share.content_type }}";   // 'calorie','nutrition' or 'ranking'
+    const range       = "{{ share.date_range }}";     // 'day','week','month'
+    const periodLabel = "{{ period_label }}";         // 'today','this week','this month'
+    const dom         = document.getElementById('chartContainer');
+  
+    console.log('type=', type, ' range=', range, ' periodLabel=', periodLabel, ' dom=', dom);
     if (!dom) {
       console.error('chartContainer not found!');
       return;
     }
-
+  
     const chart = echarts.init(dom);
     console.log('✔ echarts.init done');
-
   
     if (type === 'calorie') {
-      console.log('→ will fetch calorie chart with range', range);
-      fetch(`/api/get_calorie_chart_options?range=${range}`, {headers:{Accept:'application/json'}})
-        .then(r=> { console.log('calorie response status', r.status); return r.json() })
-        .then(opts=> { console.log('calorie opts', opts); chart.setOption(opts) })
-        .catch(e=> console.error('❌ calorie error', e));
+      console.log('→ fetch calorie chart, range=', range);
+      fetch(`/api/get_calorie_chart_options?range=${range}`, {
+        headers: { Accept: 'application/json' }
+      })
+      .then(r => { console.log('calorie status', r.status); return r.json() })
+      .then(opts => { console.log('calorie opts', opts); chart.setOption(opts) })
+      .catch(e => console.error('❌ calorie error', e));
+  
+    } else if (type === 'nutrition') {
+      console.log('→ fetch nutrition ratio, range=', range);
+      fetch(`/api/nutrition_ratio?range=${range}`, {
+        headers: { Accept: 'application/json' }
+      })
+      .then(r => { console.log('nutrition status', r.status); return r.json() })
+      .then(opts => { console.log('nutrition opts', opts); chart.setOption(opts) })
+      .catch(e => {
+        console.error('❌ nutrition error', e);
+        dom.innerHTML = '<p class="text-danger text-center">Cannot load this chart.</p>';
+      });
+  
+    } else if (type === 'ranking') {
+      console.log('→ fetch leaderboard, range=', range);
+      fetch(`/api/goal_leaderboard/${range}`, {
+        headers: { Accept: 'application/json' }
+      })
+      .then(r => r.json())
+      .then(data => {
+        const html = `
+          <table class="table">
+            <thead><tr><th>Ranking</th><th>Name</th><th>Days</th></tr></thead>
+            <tbody>${
+              data.map(u => `
+                <tr>
+                  <td>${u.rank}</td>
+                  <td>${u.last_name}</td>
+                  <td>${u.days_achieved}</td>
+                </tr>
+              `).join('')
+            }</tbody>
+          </table>`;
+        dom.innerHTML = html;
+      })
+      .catch(e => {
+        console.error('❌ ranking error', e);
+        dom.innerHTML = '<p class="text-danger text-center">Cannot load this chart.</p>';
+      });
     }
-    else if (type === 'nutrition') {
-      fetch(`/api/nutrition_ratio?date=${start}&range=${range}`, {headers:{Accept:'application/json'}})
-        .then(r => r.json()).then(opts => chart.setOption(opts))
-        .catch(() => dom.innerHTML = '<p class="text-danger text-center">Cannot load this chart.</p>');
-    }
-    else if (type === 'ranking') {
-      fetch(`/api/goal_leaderboard/${range}`, {headers:{Accept:'application/json'}})
-        .then(r => r.json())
-        .then(data => {
-          let html = `<table class="table"><thead><tr><th>Ranking</th><th>Name</th><th>Days</th></tr></thead><tbody>${
-            data.map(u=>`<tr>
-              <td>${u.rank}</td>
-              <td>${u.last_name}</td>
-              <td>${u.days_achieved}</td>
-            </tr>`).join('')
-          }</tbody></table>`;
-          dom.innerHTML = html;
-        })
-        .catch(() => dom.innerHTML = '<p class="text-danger text-center">Cannot load this chart.</p>');
+  
+    const titleEl = document.getElementById('chartTitle');
+    if (titleEl) {
+      titleEl.textContent = `Data for ${periodLabel}`;
     }
   });
   </script>
+  
 
 {% endblock %}
