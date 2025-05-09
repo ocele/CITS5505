@@ -45,11 +45,10 @@
                 <!-- Profile Section -->
                 <div class="profile-section">
                     <div class="avatar">
-                        {% if current_user.is_authenticated and current_user.avatar_url %}
-                            <img src="{{ current_user.avatar_url }}" alt="User Avatar" class="img-fluid rounded-circle" style="width: 100px; height: 80px; object-fit: cover;">
-                        {% else %}
-                            <i class="fa-regular fa-face-smile fa-3x mb-2"></i>
-                        {% endif %}
+                        <img src="{{ current_user.avatar_url or url_for('static', filename='avatars/default_avatar.png') }}"
+                        alt="User Avatar"
+                        class="img-fluid rounded-circle"
+                        style="width: 100px; height: 80px; object-fit: cover;">
                     </div>
                     <div class="username">{{ current_user.first_name or 'User' }} {{ current_user.last_name or '' }}</div>
                     <div class="email text-muted small mb-2">{{ current_user.email }}</div>
