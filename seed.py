@@ -45,14 +45,21 @@ with app.app_context():
 
     print("Seeded initial users.")
 
-    # 2. 创建默认餐次类型，绑定给 admin 用户
-    mealtypes = ["breakfast", "lunch", "dinner", "supper", "snacks"]
+default_meal_type_names = ["Breakfast", "Lunch", "Dinner", "Snacks"]
 
-    for name in mealtypes:
-        # 检查该 admin 是否已经有这个 type_name 的 MealType
-        if not MealType.query.filter_by(type_name=name, user_id=admin.id).first():
-            db.session.add(MealType(type_name=name, user_id=admin.id))
-    print("Seed data inserted for admin user.")
+for name in default_meal_type_names:
+    existing_system_type = MealType.query.filter_by(type_name=name, user_id=None).first()
+    if not existing_system_type:
+        db.session.add(MealType(type_name=name, user_id=None))
+        print(f"Added system default meal type: {name}")
+    else:
+        print(f"System default meal type '{name}' already exists.")
+try:
+    db.session.commit()
+    print("Seed data for meal types committed.")
+except Exception as e:
+    db.session.rollback()
+    print(f"Error committing meal type seed data: {e}")
 
     # 3.预制20种食物
     sample_foods = [
