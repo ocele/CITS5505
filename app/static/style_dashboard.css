@@ -167,7 +167,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #f9f9f9;
+    /* background-color: #f9f9f9; */
     border-radius: 8px;
     margin-bottom: 20px;
     color: #aaa;
@@ -247,4 +247,37 @@ body {
   .form-check-input:focus {
     box-shadow: 0 0 0 0.25rem rgba(var(--bs-warning-rgb), .25);
   }
+  
+
+  /* Podium 容器 */
+.leaderboard-podium .podium {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 1rem;
+  }
+  
+  /* 平台共通样式 */
+  .leaderboard-podium .platform {
+    width: 60px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 4px 4px 0 0;
+  }
+  
+  .leaderboard-podium .first {
+    height: 120px;
+    background: #bfbfbf;  
+  }
+  .leaderboard-podium .second {
+    height: 100px;
+    background: #9f9f9f;  
+  }
+  .leaderboard-podium .third {
+    height: 80px;
+    background: #7f7f7f;  
+  }
+  
   
