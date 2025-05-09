@@ -130,7 +130,7 @@ class MealType(db.Model):
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
-    user_id: Mapped[int] = mapped_column(db.ForeignKey('user.id'), nullable=False, index=True)
+    user_id: Mapped[int] = mapped_column(db.ForeignKey('user.id'), nullable=True, index=True)
     type_name: Mapped[str] = mapped_column(String(128), unique=False, nullable=False)
 
 class ShareRecord(db.Model):

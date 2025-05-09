@@ -12,7 +12,7 @@ from collections import defaultdict
 from pyecharts import options as opts
 from pyecharts.charts import Line, Bar, Pie, Pie
 import json, os, uuid
-from app.forms import EditProfileForm
+from app.forms import EditProfileForm, AddMealForm
 from werkzeug.utils import secure_filename
 
 bp = Blueprint('main', __name__)
@@ -475,15 +475,45 @@ def api_ensure_food_item():
 def addMeal():
     form = AddMealForm()
     edit_profile_form = EditProfileForm()
-    print(f"Choices after form init: {form.mealType.choices}")
+    if request.method == 'GET':
+        edit_profile_form.first_name.data = current_user.first_name
+        edit_profile_form.last_name.data = current_user.last_name
+    user_meal_types_query = MealType.query.filter(MealType.user_id == current_user.id)
+    system_default_meal_types_query = MealType.query.filter(MealType.user_id == None) 
+    user_types = user_meal_types_query.order_by(MealType.type_name).all()
+    system_types = system_default_meal_types_query.order_by(MealType.type_name).all()
+    final_choices_dict = {} 
+    preferred_order = ['Breakfast', 'Lunch', 'Dinner', 'Snacks']
+    for type_name in preferred_order:
+        found_system_type = next((st for st in system_types if st.type_name == type_name), None)
+        if found_system_type:
+            final_choices_dict[found_system_type.type_name] = found_system_type.type_name
 
-    # --- History Items ---
+    for st in system_types:
+        if st.type_name not in final_choices_dict:
+            final_choices_dict[st.type_name] = st.type_name
+            
+    for ut in user_types:
+        if ut.type_name not in final_choices_dict:
+            final_choices_dict[ut.type_name] = ut.type_name
+            
+    form.mealType.choices = list(final_choices_dict.items())
+
+    if not form.mealType.choices:
+        form.mealType.choices = [
+            ('Breakfast', 'Breakfast'),
+            ('Lunch', 'Lunch'),
+            ('Dinner', 'Dinner'),
+            ('Snacks', 'Snacks')
+        ]
+
+    print(f"Choices after form init and route processing: {form.mealType.choices}")
+
     historyItemsID = db.session.execute(select(FoodLog.food_item_id).where(FoodLog.user_id == current_user.id)).scalars().all()
     historyItemsNames = []
     if historyItemsID:
         historyItemsNames = db.session.execute(select(FoodItem.name).where(FoodItem.id.in_(historyItemsID))).scalars().all()
 
-    # --- Suggestions ---
     admin = User.query.filter_by(email='admin@DailyBite.com').first()
     suggestion_filter = None
     if hasattr(FoodItem, 'user_id'):
@@ -526,7 +556,14 @@ def addMeal():
         form.unit.data = "g"
 
     print(f"Choices before render: {form.mealType.choices}")
-    return render_template('addMeal.html', form=form, foodFound=foodFound, historyItems=historyItemsNames, suggestions=suggestions_for_template, edit_profile_form=edit_profile_form)
+    return render_template(
+        'addMeal.html',
+        form=form,
+        foodFound=foodFound,
+        historyItems=historyItemsNames,
+        suggestions=suggestions_for_template,
+        edit_profile_form=edit_profile_form
+    )
 
 @bp.post('/addMeal')
 @login_required
