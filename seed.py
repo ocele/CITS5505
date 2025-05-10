@@ -55,11 +55,18 @@ with app.app_context():
     try:
         db.session.commit()
         print("Seeded/Updated users.")
+        default_meal_type_names = ["Breakfast", "Lunch", "Dinner", "Snacks"]
+        for mt_name in default_meal_type_names:
+            exists = MealType.query.filter_by(user_id=admin.id, type_name=mt_name).first()
+            if not exists:
+                mt = MealType(user_id=admin.id, type_name=mt_name)
+                db.session.add(mt)
+                print(f"Default meal type '{mt_name}' created for admin.")
+        db.session.commit()
     except Exception as e:
         db.session.rollback()
         print(f"Error seeding/updating users: {e}")
 
-    default_meal_type_names = ["Breakfast", "Lunch", "Dinner", "Snacks"]
     for name in default_meal_type_names:
         existing_system_type = MealType.query.filter_by(type_name=name, user_id=None).first()
         if not existing_system_type:
