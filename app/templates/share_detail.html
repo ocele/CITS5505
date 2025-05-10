@@ -7,11 +7,12 @@
 {% block content %}
 <div class="p-4">
   <h3>Shared by {{ share.sender.first_name }} {{ share.sender.last_name }}</h3>
-  <p><strong>Period:</strong>
-    {{ period_label }}
-  </p>
+  
 
   <div class="d-flex flex-column align-items-center my-4">
+    <p><strong>Period:</strong>
+      {{ period_label }}
+    </p>
     <div id="chartContainer" style="width: 80%; max-width: 600px; height: 350px;"></div>
     <a href="{{ url_for('main.sharing_list') }}"
        class="btn btn-warning text-white mt-3">
