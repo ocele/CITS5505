@@ -60,6 +60,15 @@ def get_year_month(dt):
 @login_required
 def get_calorie_chart_options():
     time_range = request.args.get('range', 'week')
+    share_id   = request.args.get('share_id', type=int)
+
+    if share_id:
+        share = ShareRecord.query.get_or_404(share_id)
+        user_id = share.sender_id
+        daily_calorie_goal = round(share.sender.target_calories or 0, 1)
+    else:
+        user_id = current_user.id
+        daily_calorie_goal = round(current_user.target_calories or 0, 1)
 
     today = date.today()
     labels = []
@@ -84,7 +93,6 @@ def get_calorie_chart_options():
 
         start_dt = datetime.combine(query_start_date, datetime.min.time())
         end_dt = datetime.combine(query_end_date, datetime.max.time())
-
         daily_calories_results = db.session.execute(
             select(
                 func.strftime('%Y-%m-%d', FoodLog.log_date).label('log_day_str'),
@@ -93,7 +101,7 @@ def get_calorie_chart_options():
             .select_from(FoodLog)
             .join(FoodItem, FoodLog.food_item_id == FoodItem.id)
             .where(
-                FoodLog.user_id == current_user.id,
+                FoodLog.user_id == user_id,
                 FoodLog.log_date.between(start_dt, end_dt)
             )
             .group_by(func.strftime('%Y-%m-%d', FoodLog.log_date))
@@ -138,7 +146,7 @@ def get_calorie_chart_options():
         db.session.rollback()
         return jsonify({"error": "Could not retrieve or process calorie trend data"}), 500
 
-    daily_calorie_goal = round(current_user.target_calories or 0, 1)
+    # daily_calorie_goal = round(current_user.target_calories or 0, 1)
     try:
         chart_title = f"Calorie Intake Trend ({time_range.capitalize()})"
         chart_object = None
@@ -186,6 +194,14 @@ def get_calorie_chart_options():
 @login_required
 def api_nutrition_ratio():
     target_date_str = request.args.get('date', date.today().isoformat())
+    share_id   = request.args.get('share_id', type=int)
+
+    if share_id:
+        share = ShareRecord.query.get_or_404(share_id)
+        user_id = share.sender_id
+    else:
+        user_id = current_user.id
+    
     try:
         target_date = date.fromisoformat(target_date_str)
     except ValueError:
@@ -196,8 +212,7 @@ def api_nutrition_ratio():
         fat_per_log = (func.coalesce(FoodLog.quantity_consumed, 0) / 100.0) * func.coalesce(FoodItem.fat_per_100, 0)
         carbs_per_log = (func.coalesce(FoodLog.quantity_consumed, 0) / 100.0) * func.coalesce(FoodItem.carbs_per_100, 0)
 
-        start_dt = datetime.combine(target_date, datetime.min.time())
-        end_dt = datetime.combine(target_date, datetime.max.time())
+        date_str = target_date.isoformat()
 
         query = (
             select(
@@ -208,8 +223,8 @@ def api_nutrition_ratio():
             .select_from(FoodLog) # 明确 select_from
             .join(FoodItem, FoodLog.food_item_id == FoodItem.id)
             .where(
-                FoodLog.user_id == current_user.id,
-                FoodLog.log_date.between(start_dt, end_dt)
+                FoodLog.user_id == user_id,
+                func.strftime('%Y-%m-%d', FoodLog.log_date) == date_str
             )
         )
         result = db.session.execute(query).first()
@@ -227,6 +242,7 @@ def api_nutrition_ratio():
     fat_kcal = round(fat_g * 9, 1)
     carbs_kcal = round(carbs_g * 4, 1)
     total_kcal = protein_kcal + fat_kcal + carbs_kcal
+    print("DEBUG nutrition grams:", protein_g, fat_g, carbs_g)
 
     pie_data = [
         ('Protein', protein_kcal),
@@ -276,12 +292,20 @@ def api_nutrition_ratio():
 @login_required
 def api_goal_leaderboard():
     period = request.args.get('period', '7d')
+    share_id = request.args.get('share_id', type=int)
+
     today = date.today()
     if period == '30d':
         start_date = today - timedelta(days=29)
     else:
         start_date = today - timedelta(days=6)
     end_date = today
+
+    if share_id:
+        share     = ShareRecord.query.get_or_404(share_id)
+        owner_id  = share.sender_id
+    else:
+        owner_id  = None
 
     LOWER_BOUND_FACTOR = 0.90
     UPPER_BOUND_FACTOR = 1.10
@@ -302,7 +326,10 @@ def api_goal_leaderboard():
             )
             .select_from(FoodLog)
             .join(FoodItem, FoodLog.food_item_id == FoodItem.id)
-            .where(FoodLog.log_date.between(start_dt, end_dt))
+            .where(
+                FoodLog.log_date.between(start_dt, end_dt),
+                *( [FoodLog.user_id == owner_id] if owner_id else [] )
+            )
             .group_by(FoodLog.user_id, func.strftime('%Y-%m-%d', FoodLog.log_date))
         )
         results = db.session.execute(daily_calories_query).all()
@@ -371,6 +398,7 @@ def api_goal_leaderboard():
                 rank = count_for_rank
                 last_score = entry['days_met']
             ranked_leaderboard.append({
+                'user_id': entry['user_id'],       
                 'rank': rank,
                 'full_name': entry['full_name'],
                 'days_met': entry['days_met']

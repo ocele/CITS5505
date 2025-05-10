@@ -11,92 +11,127 @@
     {{ period_label }}
   </p>
 
-  <div id="chartContainer" style="height:350px;"></div>
-
-  <a href="{{ url_for('main.sharing_list') }}" class="btn btn-secondary mt-3">
-    ← Back to Sharing List
-  </a>
+  <div class="d-flex flex-column align-items-center my-4">
+    <div id="chartContainer" style="width: 80%; max-width: 600px; height: 350px;"></div>
+    <a href="{{ url_for('main.sharing_list') }}"
+       class="btn btn-warning text-white mt-3">
+      ← Back to Sharing List
+    </a>
+  </div>
+  
+  
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
-
 <script>
+  window.shareId = {{ share.id }};
+  window.shareSenderId = {{ share.sender_id }};
+  window.shareDate = "{{ share.timestamp.date().isoformat() }}";
   console.log('share_detail.js loaded');
-  
-  document.addEventListener('DOMContentLoaded', function(){
+
+  document.addEventListener('DOMContentLoaded', function () {
     console.log('DOMContentLoaded in share_detail');
-  
-    const type        = "{{ share.content_type }}";   // 'calorie','nutrition' or 'ranking'
-    const range       = "{{ share.date_range }}";     // 'day','week','month'
+
+    const type = "{{ share.content_type }}";   // 'calorie','nutrition' or 'ranking'
+    const range = "{{ share.date_range }}";     // 'day','week','month'
     const periodLabel = "{{ period_label }}";         // 'today','this week','this month'
-    const dom         = document.getElementById('chartContainer');
-  
+    const dom = document.getElementById('chartContainer');
+
+    
     console.log('type=', type, ' range=', range, ' periodLabel=', periodLabel, ' dom=', dom);
     if (!dom) {
       console.error('chartContainer not found!');
       return;
     }
-  
+
     const chart = echarts.init(dom);
     console.log('✔ echarts.init done');
-  
+
     if (type === 'calorie') {
       console.log('→ fetch calorie chart, range=', range);
-      fetch(`/api/get_calorie_chart_options?range=${range}`, {
+      const dateParam = new Date().toISOString().slice(0, 10);
+
+      fetch(`/api/get_calorie_chart_options?range=${range}&share_id=${window.shareId}`, {
         headers: { Accept: 'application/json' }
       })
-      .then(r => { console.log('calorie status', r.status); return r.json() })
-      .then(opts => { console.log('calorie opts', opts); chart.setOption(opts) })
-      .catch(e => console.error('❌ calorie error', e));
-  
+        .then(r => { console.log('calorie status', r.status); return r.json() })
+        .then(opts => { console.log('calorie opts', opts); chart.setOption(opts) })
+        .catch(e => console.error('❌ calorie error', e));
+
     } else if (type === 'nutrition') {
-      console.log('→ fetch nutrition ratio, range=', range);
-      fetch(`/api/nutrition_ratio?range=${range}`, {
+      console.log('→ fetch nutrition ratio, range=', window.shareDate);
+      fetch(`/api/nutrition_ratio?date=${window.shareDate}&share_id=${window.shareId}`, {
         headers: { Accept: 'application/json' }
       })
-      .then(r => { console.log('nutrition status', r.status); return r.json() })
-      .then(opts => { console.log('nutrition opts', opts); chart.setOption(opts) })
-      .catch(e => {
-        console.error('❌ nutrition error', e);
-        dom.innerHTML = '<p class="text-danger text-center">Cannot load this chart.</p>';
-      });
-  
+
+        .then(r => { console.log('nutrition status', r.status); return r.json() })
+        .then(opts => {
+          console.log('nutrition opts', opts);
+          if (opts.error) {
+            dom.innerHTML = `<p class="text-danger text-center">${opts.error}</p>`;
+          } else {
+            chart.setOption(opts);
+          }
+        })
+
+        .catch(e => {
+          console.error('❌ nutrition error', e);
+          dom.innerHTML = '<p class="text-danger text-center">Cannot load this chart.</p>';
+        });
+
     } else if (type === 'ranking') {
-      console.log('→ fetch leaderboard, range=', range);
-      fetch(`/api/goal_leaderboard/${range}`, {
+      console.log('→ load full leaderboard, filter for sender:', window.shareSenderId);
+      const container = document.getElementById('chartContainer');
+      container.innerHTML = '<p class="text-center text-muted">Loading...</p>';
+      container.style.height = 'auto';
+
+      fetch(`/api/goal_leaderboard?period=${range}`, {
         headers: { Accept: 'application/json' }
       })
-      .then(r => r.json())
-      .then(data => {
-        const html = `
-          <table class="table">
-            <thead><tr><th>Ranking</th><th>Name</th><th>Days</th></tr></thead>
-            <tbody>${
-              data.map(u => `
-                <tr>
-                  <td>${u.rank}</td>
-                  <td>${u.last_name}</td>
-                  <td>${u.days_achieved}</td>
-                </tr>
-              `).join('')
-            }</tbody>
-          </table>`;
-        dom.innerHTML = html;
-      })
-      .catch(e => {
-        console.error('❌ ranking error', e);
-        dom.innerHTML = '<p class="text-danger text-center">Cannot load this chart.</p>';
-      });
+        .then(r => r.json())
+        .then(data => {
+          const entry = data.find(u => u.user_id === window.shareSenderId);
+          if (!entry) {
+            container.innerHTML = '<p class="text-center text-muted">No ranking data for this user.</p>';
+            return;
+          }
+          container.innerHTML = `
+            <div class="card mx-auto" style="max-width:400px; margin:1rem auto;">
+              <div class="card-header text-center bg-warning text-white">
+                <h5 class="mb-0">Personal Leaderboard</h5>
+              </div>
+              <div class="card-body">
+                <div class="row mb-2">
+                  <div class="col-5 fw-bold">Rank</div>
+                  <div class="col-7">${entry.rank}</div>
+                </div>
+                <div class="row mb-2">
+                  <div class="col-5 fw-bold">Name</div>
+                  <div class="col-7">${entry.full_name}</div>
+                </div>
+                <div class="row mb-2">
+                  <div class="col-5 fw-bold">Days Met</div>
+                  <div class="col-7">${entry.days_met}</div>
+                </div>
+              </div>
+              <div class="card-footer text-muted text-center small">
+                Based on days meeting calorie goal (±10%)
+              </div>
+            </div>
+          `;
+        })
+        .catch(e => {
+          console.error('❌ ranking error', e);
+          container.innerHTML = '<p class="text-danger text-center">Cannot load leaderboard.</p>';
+        });
     }
-  
+
     const titleEl = document.getElementById('chartTitle');
     if (titleEl) {
       titleEl.textContent = `Data for ${periodLabel}`;
     }
   });
-  </script>
-  
-
+</script>
 {% endblock %}
