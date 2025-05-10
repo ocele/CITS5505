@@ -320,7 +320,7 @@
                             .then(result => {
                                 if (result.error) {
                                     console.error('Error ensuring food item from backend:', result.error);
-                                    alert('Error: ' + result.error);
+                                    flash('Error: ' + result.error);
                                     this.innerHTML = `
                                         <strong>${foodDataForBackend.name}</strong><br>
                                         <small class="text-muted">
@@ -343,7 +343,7 @@
                             })
                             .catch(error => {
                                 console.error('Error in /api/ensure_food_item API call:', error);
-                                alert('Failed to process selected food: ' + error.message + '. Please try again or add manually.');
+                                flash('Failed to process selected food: ' + error.message + '. Please try again or add manually.');
                                 // 恢复列表项的原始状态
                                 this.innerHTML = `
                                     <strong>${foodDataForBackend.name}</strong><br>
