@@ -492,7 +492,7 @@ def addMeal():
     if historyItemsID:
         historyItemsNames = db.session.execute(select(FoodItem.name).where(FoodItem.id.in_(historyItemsID))).scalars().all()
 
-    admin = User.query.filter_by(email='admin@DailyBite.com').first()
+    admin = User.query.filter_by(email='admin@dailybite.com').first()
     suggestion_filter = None
     if hasattr(FoodItem, 'user_id'):
          suggestion_filter_user = (FoodItem.user_id == current_user.id)
@@ -615,7 +615,7 @@ def settings():
     form3 = AddNewProductForm()
     edit_profile_form = EditProfileForm()
     
-    admin = User.query.filter_by(email='admin@DailyBite.com').first()
+    admin = User.query.filter_by(email='admin@dailybite.com').first()
 
     meal_types = (
         MealType.query
