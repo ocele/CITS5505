@@ -172,10 +172,10 @@
                         if (data.success) {
                             btn.closest('li').remove();
                         } else {
-                            alert('Delete failed.');
+                            flash('Delete failed.');
                         }
                     })
-                    .catch(() => alert('An error occurred.'));
+                    .catch(() => flash('An error occurred.'));
             });
         });
     });

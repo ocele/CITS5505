@@ -45,7 +45,7 @@
         <script defer>
             const messages = {{ get_flashed_messages()|tojson }};
             if (messages.length > 0) {
-                alert(messages.join('\n'));
+                flash(messages.join('\n'));
             }
         </script>
 

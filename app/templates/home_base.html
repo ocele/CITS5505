@@ -247,7 +247,7 @@
     <script defer>
         const messages = {{ get_flashed_messages() | tojson }};
         if (messages.length > 0) {
-            alert(messages.join('\n'));
+            flash(messages.join('\n'));
         }
     </script>
     <script>
@@ -270,7 +270,7 @@
                     }
                     reader.readAsDataURL(file);
                 } else {
-                    alert('Invalid file type. Please select a JPG, PNG, or GIF image.');
+                    flash('Invalid file type. Please select a JPG, PNG, or GIF image.');
                     event.target.value = null;
                 }
             } else {
