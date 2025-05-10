@@ -9,7 +9,7 @@ with app.app_context():
     # db.drop_all()
     # db.create_all()
 
-    admin_email = 'admin@DailyBite.com'
+    admin_email = 'admin@dailybite.com'
     admin = User.query.filter_by(email=admin_email).first()
     if not admin:
         admin = User(
@@ -32,12 +32,14 @@ with app.app_context():
     ]
     created_user_objects = []
     for u_data in users_data:
-        user = User.query.filter_by(email=u_data['email']).first()
+        normalized_email = u_data['email'].strip().lower()
+        user = User.query.filter_by(email=normalized_email).first()
+
         if not user:
             user = User(
                 first_name=u_data['first_name'],
                 last_name=u_data['last_name'],
-                email=u_data['email'],
+                email=normalized_email,
                 target_calories=u_data.get('target_calories', 2000)
             )
             user.set_password(u_data['password'])

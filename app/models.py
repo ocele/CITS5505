@@ -113,7 +113,11 @@ class FoodLog(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
     food_item_id = db.Column(db.Integer, db.ForeignKey('food_item.id'), nullable=False, index=True)
 
-    log_date = db.Column(db.DateTime, index=True, default=date.today)
+    log_date = db.Column(
+        db.DateTime,          
+        nullable=False,
+        default=datetime.now   
+    )
     meal_type = db.Column(db.String(50), index=True, nullable=False)
 
     quantity_consumed = db.Column(db.Float, nullable=False)
