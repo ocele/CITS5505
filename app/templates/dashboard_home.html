@@ -52,7 +52,7 @@
                 </div>
                 <div class="card-body d-flex flex-column" id="leaderboardBody">
                     <p class="text-center text-muted" id="leaderboardLoading" style="display: none;">Loading leaderboard...</p>
-                    <ol class="list-group list-group-numbered flex-grow-1" id="leaderboardList" style="max-height: 200px; overflow-y: auto; display: none;"></ol>
+                    <ol class="list-group flex-grow-1" id="leaderboardList" style="max-height: 200px; overflow-y: auto; display: none;"></ol>
                     <p class="text-center text-danger" id="leaderboardError" style="display: none;">Could not load leaderboard data.</p>
                 <div class="card-footer text-muted small mt-auto" id="leaderboardFooter" style="display: none;">
                     Ranking based on days meeting calorie goal (±10%).
@@ -336,7 +336,7 @@
                             </p>
                         `;
                     } else {
-                        leaderboardData.forEach(entry => {
+                        leaderboardData.slice(0, 3).forEach((entry, index) => {
                             const listItem = document.createElement('li');
                             listItem.className = 'list-group-item d-flex justify-content-between align-items-center py-3';
                             
@@ -347,28 +347,18 @@
                             rankSpan.className = 'me-3';
                             rankSpan.style.fontSize = '1.1em';
 
-                            let rankDisplay = '';
-                            if (entry.rank === 1) {
-                                rankDisplay = '🥇 ';
-                            } else if (entry.rank === 2) {
-                                rankDisplay = '🥈 ';
-                            } else if (entry.rank === 3) {
-                                rankDisplay = '🥉 ';
-                            } else {
-                                rankSpan.className += ' fw-bold text-muted';
-                                rankDisplay = `${entry.rank}. `;
-                            }
-                            rankSpan.textContent = rankDisplay;
+                            // 🥇🥈🥉 只给前3加奖牌
+                            const medals = ['🥇', '🥈', '🥉'];
+                            rankSpan.textContent = medals[index] || '';
 
                             nameDiv.appendChild(rankSpan);
-
                             nameDiv.appendChild(document.createTextNode(entry.full_name || 'Unknown User'));
 
                             const badge = document.createElement('span');
                             let badgeClass = 'bg-secondary';
-                            if (entry.rank === 1) badgeClass = 'bg-warning text-dark';
-                            else if (entry.rank === 2) badgeClass = 'bg-info text-dark';
-                            else if (entry.rank === 3) badgeClass = 'bg-success';
+                            if (index === 0) badgeClass = 'bg-warning text-dark';
+                            else if (index === 1) badgeClass = 'bg-info text-dark';
+                            else if (index === 2) badgeClass = 'bg-success';
 
                             badge.className = `badge ${badgeClass} rounded-pill`;
                             badge.textContent = `${entry.days_met} ${entry.days_met === 1 ? 'day met' : 'days met'}`;
@@ -376,7 +366,7 @@
                             listItem.appendChild(nameDiv);
                             listItem.appendChild(badge);
                             leaderboardList.appendChild(listItem);
-                        });
+                        });                        
                     }
 
                     leaderboardList.style.display = 'block';
