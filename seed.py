@@ -6,8 +6,8 @@ import random
 app = create_app()
 
 with app.app_context():
-    # db.drop_all()
-    # db.create_all()
+    db.drop_all()
+    db.create_all()
 
     admin_email = 'admin@dailybite.com'
     admin = User.query.filter_by(email=admin_email).first()
