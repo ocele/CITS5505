@@ -13,10 +13,43 @@ body {
     min-height: 100vh;
 }
 
-/* Override navbar styles for dashboard */
+/* 导航栏水平排列样式 */
 .navbar {
     background-color: #FFB84D !important;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem 1rem;
+}
+
+.navbar .container-fluid {
+    display: flex;
+    align-items: center;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+.navbar-brand {
+    padding: 0;
+    margin-right: 1rem;
+    font-size: 1.25rem;
+}
+
+/* 导航链接样式 */
+.navbar .nav-link {
+    color: white !important;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+}
+
+/* 汉堡菜单按钮样式 */
+.navbar-toggler {
+    display: none;
+    background: transparent;
+    border: none;
+    color: white;
+    padding: 0.25rem;
+    font-size: 1.25rem;
+    cursor: pointer;
 }
 
 /* Dashboard content layout */
@@ -235,17 +268,6 @@ body {
     border-radius: 0.375rem;
 }
 
-/* 汉堡菜单样式 */
-.navbar-toggler {
-    display: none;
-    background: transparent;
-    border: none;
-    color: white;
-    padding: 0.25rem 0.75rem;
-    font-size: 1.25rem;
-    cursor: pointer;
-}
-
 /* 关闭按钮样式 */
 .sidebar-close {
     position: absolute;
@@ -332,7 +354,22 @@ body {
     /* 汉堡菜单按钮显示 */
     .navbar-toggler {
         display: block;
-        margin-left: auto;
+    }
+    
+    /* 确保在小屏幕上导航元素正确对齐 */
+    .navbar .container-fluid {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+    
+    /* 减小品牌名称和导航链接之间的间距 */
+    .navbar-brand {
+        font-size: 1.1rem;
+    }
+    
+    .navbar .nav-link {
+        padding: 0.5rem 0.35rem;
+        font-size: 0.9rem;
     }
     
     /* 仪表板布局调整 */

@@ -19,27 +19,28 @@
         <!-- Top Navigation Bar -->
         <nav class="navbar navbar-expand-lg">
             <div class="container-fluid">
-                <a class="navbar-brand text-white fw-bold" href="{{ url_for('main.dashboard') }}">DailyBite</a>
-                <!-- 汉堡菜单按钮 -->
-                <button class="navbar-toggler d-md-none" type="button" aria-label="Toggle sidebar">
+                <!-- 左侧元素 -->
+                <a class="navbar-brand text-white fw-bold me-3" href="{{ url_for('main.dashboard') }}">DailyBite</a>
+                <a class="nav-link text-white active me-auto" href="{{ url_for('main.dashboard') }}">Home</a>
+                
+                <!-- 右侧元素 -->
+                <button class="navbar-toggler d-md-none p-0 me-2" type="button" aria-label="Toggle sidebar">
                     <i class="fa-solid fa-bars"></i>
                 </button>
-                <div class="navbar-nav me-auto">
-                    <a class="nav-link text-white active" href="{{ url_for('main.dashboard') }}">Home</a>
-                </div>
-                <div class="navbar-nav ms-auto">
-                    <a class="nav-link position-relative" href="{{ url_for('main.sharing_list') }}">
-                        <i class="fa-solid fa-bell"></i>
-                        {% if unread_share_count %}
-                          <span
-                            class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"
-                            style="width:0.6rem; height:0.6rem;"
-                          ></span>
-                        {% endif %}
-                      </a>
-                    <a class="nav-link" href="{{ url_for('auth.logout') }}"><i class="fa-solid fa-sign-out-alt"></i>
-                        Logout</a>
-                </div>
+                
+                <a class="nav-link position-relative me-2" href="{{ url_for('main.sharing_list') }}">
+                    <i class="fa-solid fa-bell"></i>
+                    {% if unread_share_count %}
+                    <span
+                        class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"
+                        style="width:0.6rem; height:0.6rem;">
+                    </span>
+                    {% endif %}
+                </a>
+                
+                <a class="nav-link" href="{{ url_for('auth.logout') }}">
+                    <i class="fa-solid fa-sign-out-alt"></i> Logout
+                </a>
             </div>
         </nav>
 
