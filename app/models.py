@@ -83,13 +83,13 @@ class FoodItem(db.Model):
 
     # Optional metadata.
     category = db.Column(db.String(50), index=True, nullable=True)
-    source = db.Column(db.String(50), default='manual')
+    source = db.Column(db.String(50), default='manual', nullable=True)
 
     # Defines the one-to-many relationship between FoodItem and FoodLog.
     logs = db.relationship('FoodLog', backref='food_details', lazy='dynamic')
 
     # Sets the user who created the food item.
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id', name='fk_fooditem_user_id'), nullable=False, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', name='fk_fooditem_user_id'), nullable=True, index=True)
 
     # String representation for debugging.
     def __repr__(self):
@@ -113,7 +113,11 @@ class FoodLog(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
     food_item_id = db.Column(db.Integer, db.ForeignKey('food_item.id'), nullable=False, index=True)
 
-    log_date = db.Column(db.DateTime, index=True, default=date.today)
+    log_date = db.Column(
+        db.DateTime,          
+        nullable=False,
+        default=datetime.now   
+    )
     meal_type = db.Column(db.String(50), index=True, nullable=False)
 
     quantity_consumed = db.Column(db.Float, nullable=False)
@@ -130,7 +134,7 @@ class MealType(db.Model):
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
-    user_id: Mapped[int] = mapped_column(db.ForeignKey('user.id'), nullable=False, index=True)
+    user_id: Mapped[int] = mapped_column(db.ForeignKey('user.id'), nullable=True, index=True)
     type_name: Mapped[str] = mapped_column(String(128), unique=False, nullable=False)
 
 class ShareRecord(db.Model):

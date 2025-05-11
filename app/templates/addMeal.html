@@ -16,39 +16,60 @@
                 {% for error in form.mealType.errors %} <span class="text-danger">{{ error }}</span> {% endfor %}
             </div>
 
+            {# --- History Items --- #}
+            <div class="mb-3" id="historyContainer">
+                 <label class="form-label">History Items</label>
+                 <div class="history-items-list">
+                    {% for item_name in historyItems %}
+                     <button type="button" class="btn btn-warning btn-sm m-1 historyItem" data-name="{{ item_name }}">{{ item_name }}</button>
+                    {% endfor %}
+                 </div>
+            </div>
+            
             {# --- Food Input & Search --- #}
             <div class="mb-3" id="foodinputcontainer">
                 <label for="foodInput" class="form-label">Food</label>
                 <div class="input-group">
                     {{ form.food(class="form-control", id="foodInput", placeholder="Search food...") }}
-                    <span class="input-group-text"><a href="#" id="searchFoodLink"><i class="fa-solid fa-magnifying-glass"></i></a></span>
+                    <span class="input-group-text">
+                        <a href="#" id="searchFoodLink" class="text-warning">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </a>
+                    </span>
                 </div>
-                {% for error in form.food.errors %} <span class="text-danger">{{ error }}</span> {% endfor %}
+                {% for error in form.food.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
 
                 {# --- Search Results --- #}
                 {% if foodFound %}
-                <div class="alert alert-secondary alert-dismissible fade show mt-2 scrollable" id="foodFoundContainer" role="alert">
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    <strong>Search Results:</strong><br>
-                    {% for food_item in foodFound %}
-                        <div class="form-check mt-1">
-                            <input type="radio" class="form-check-input searchResult"
-                                   id="search-{{ food_item.id }}"
-                                   name="selectedFood"
-                                   value="{{ food_item.name }}"
-                                   data-name="{{ food_item.name }}"
-                                   data-quantity="100"
-                                   data-unit="g">
-                            <label class="form-check-label" for="search-{{ food_item.id }}">
-                                <h5>{{ food_item.name }}</h5>
-                                <small class="text-muted">{{ food_item.calories_per_100 }} kcal / 100 g</small>
-                                {% if food_item.serving_size and food_item.serving_unit %}
-                                    <small class="text-muted"> (Common: {{ food_item.serving_size }} {{ food_item.serving_unit }})</small>
-                                {% endif %}
-                             </label>
-                        </div>
-                    {% endfor %}
-                </div>
+                    <div class="alert alert-secondary alert-dismissible fade show mt-2 scrollable" id="foodFoundContainer" role="alert">
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        <strong>Search Results:</strong><br>
+                        {% for food_item in foodFound %}
+                            <div class="form-check mt-1">
+                                <input type="radio" class="form-check-input searchResult"
+                                    id="search-{{ food_item.id }}"
+                                    name="selectedFood"
+                                    value="{{ food_item.name }}"
+                                    data-name="{{ food_item.name }}"
+                                    data-quantity="100"
+                                    data-unit="g">
+                                <label class="form-check-label" for="search-{{ food_item.id }}">
+                                    <h5>{{ food_item.name }}</h5>
+                                    <small class="text-muted">{{ food_item.calories_per_100 }} kcal / 100 g</small>
+                                    {% if food_item.serving_size and food_item.serving_unit %}
+                                        <small class="text-muted"> (Common: {{ food_item.serving_size }} {{ food_item.serving_unit }})</small>
+                                    {% endif %}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% elif request.args.get("food") %}
+                    <div class="alert alert-warning mt-2" id="noResultContainer">
+                        <strong>No results found.</strong> You can add this food manually in 
+                        <a href="{{ url_for('main.settings') }}" class="btn btn-sm btn-outline-primary ms-2">Settings</a>
+                    </div>
                 {% endif %}
             </div>
 
@@ -57,21 +78,10 @@
                 <label for="quantityInput" class="form-label">Quantity (in grams)</label>
                 <div class="input-group">
                     {{ form.quantity(class="form-control", id="quantityInput", type="number", step="any", placeholder="Enter grams") }}
-                    {{ form.unit(class="form-control", id="unitInput", value="g", readonly=True) }}
+                    {{ form.unit(class="form-control", id="unitInput", value="g", readonly="readonly") }}
                 </div>
                  {% for error in form.quantity.errors %} <span class="text-danger">{{ error }}</span> {% endfor %}
                  {% for error in form.unit.errors %} <span class="text-danger">{{ error }}</span> {% endfor %}
-            </div>
-
-
-            {# --- History Items --- #}
-            <div class="mb-3" id="historyContainer">
-                 <label class="form-label">History Items</label>
-                 <div class="history-items-list">
-                    {% for item_name in historyItems %}
-                     <button type="button" class="btn btn-outline-secondary btn-sm m-1 historyItem" data-name="{{ item_name }}">{{ item_name }}</button>
-                    {% endfor %}
-                 </div>
             </div>
 
             {# --- Suggestions --- #}
@@ -88,7 +98,7 @@
                                         <small class="text-muted"> (Common: {{ suggestion.serving_size }} {{ suggestion.serving_unit }})</small>
                                     {% endif %}
                                 </div>
-                                <button type="button" class="btn btn-sm btn-outline-primary add-suggestion"
+                                <button type="button" class="btn btn-sm btn-outline-warning add-suggestion"
                                         data-name="{{ suggestion.name }}"
                                         data-quantity="100"
                                         data-unit="g">
@@ -192,24 +202,175 @@
         // Initial update in case of pre-filled values (e.g., from history click redirect)
         updateSearchLink();
 
-         // --- History Item Link Update (No longer needed if handled by click listener) ---
-        /*
-        const initialMealType = mealTypeInput ? mealTypeInput.value : '';
-        const historyItems = document.querySelectorAll('.historyItem'); // These are buttons now
-        historyItems.forEach( historyItem => {
-            // We handle clicks now, setting href might be confusing
-            // historyItem.href = "{{ url_for('main.addMeal') }}?mealType=" + encodeURIComponent(initialMealType) + "&item=" + historyItem.getAttribute("data-name");
-        });
-        if (mealTypeInput) {
-             mealTypeInput.addEventListener('change', function () {
-                 const mealTypeValue = this.value;
-                 historyItems.forEach( historyItem => {
-                     // historyItem.href = "{{ url_for('main.addMeal') }}?mealType=" + encodeURIComponent(mealTypeValue) + "&item=" + historyItem.getAttribute("data-name");
-                 });
-             });
-         }
-         */
+        // --- Search Food API on input ---
+        const searchResultsContainer = document.createElement('div');
+        searchResultsContainer.id = 'apiSearchResults';
+        searchResultsContainer.className = 'list-group mt-2 position-absolute bg-white shadow';
+        searchResultsContainer.style.zIndex = "1000";
+        searchResultsContainer.style.width = foodInput.offsetWidth + "px";
+        searchResultsContainer.style.maxHeight = "300px";
+        searchResultsContainer.style.overflowY = "auto";
+        searchResultsContainer.style.display = "none";
+        foodInput.parentNode.insertBefore(searchResultsContainer, foodInput.nextSibling);
 
+        document.addEventListener('click', function(event) {
+            if (!foodInput.contains(event.target) && !searchResultsContainer.contains(event.target)) {
+                searchResultsContainer.style.display = 'none';
+            }
+        });
+        foodInput.addEventListener('focus', function() {
+            if (this.value.trim().length >= 3 && searchResultsContainer.children.length > 0 && searchResultsContainer.innerHTML.includes('list-group-item-action')) {
+                searchResultsContainer.style.display = 'block';
+            }
+        });
+
+
+        let searchTimeout = null;
+
+        foodInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            const searchTerm = this.value.trim();
+            searchResultsContainer.style.width = foodInput.offsetWidth + "px"; 
+
+            if (searchTerm.length < 3) {
+                searchResultsContainer.innerHTML = '';
+                searchResultsContainer.style.display = 'none';
+                return;
+            }
+
+        searchTimeout = setTimeout(() => {
+        console.log('Searching Open Food Facts for:', searchTerm);
+        searchResultsContainer.innerHTML = '<li class="list-group-item text-muted list-group-item-light"><i>Searching...</i></li>';
+        searchResultsContainer.style.display = 'block';
+
+        const apikey = 'sPVhIv0bGzO7YH9bW5Dca7XRb2YAIY7GYfqaUvwe'
+        const apiUrl = `https://api.nal.usda.gov/fdc/v1/foods/search?query=${encodeURIComponent(searchTerm)}&pageSize=5&api_key=${apikey}`;
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 28000);
+
+        fetch(apiUrl, { signal: controller.signal })
+            .then(response => {
+                clearTimeout(timeoutId);
+                if (!response.ok) throw new Error(`Network error (${response.status})`);
+                return response.json();
+            })
+            .then(data => {
+                searchResultsContainer.innerHTML = '';
+                if (data.foods && data.foods.length > 0) {
+                    data.foods.forEach(food => {
+                        const foodName = food.description || 'Unknown Food';
+                        const nutrients = {};
+                        food.foodNutrients.forEach(n => {
+                            if (n.nutrientName === 'Energy' && n.unitName === 'KCAL') nutrients.calories = n.value;
+                            if (n.nutrientName === 'Protein') nutrients.protein = n.value;
+                            if (n.nutrientName === 'Total lipid (fat)') nutrients.fat = n.value;
+                            if (n.nutrientName === 'Carbohydrate, by difference') nutrients.carbs = n.value;
+                        });
+
+                        const listItem = document.createElement('a');
+                        listItem.href = '#';
+                        listItem.className = 'list-group-item list-group-item-action api-search-result';
+                        listItem.innerHTML = `
+                            <strong>${foodName}</strong><br>
+                            <small class="text-muted">
+                                Cal: ${nutrients.calories || 'N/A'} kcal, 
+                                P: ${nutrients.protein || 'N/A'}g, 
+                                F: ${nutrients.fat || 'N/A'}g, 
+                                C: ${nutrients.carbs || 'N/A'}g (per 100g)
+                            </small>
+                        `;
+
+                        listItem.dataset.foodName = foodName;
+                        listItem.dataset.calories = nutrients.calories || null;
+                        listItem.dataset.protein = nutrients.protein || null;
+                        listItem.dataset.fat = nutrients.fat || null;
+                        listItem.dataset.carbs = nutrients.carbs || null;
+
+                        listItem.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            const foodDataForBackend = {
+                                name: this.dataset.foodName,
+                                calories_per_100: this.dataset.calories !== 'null' && this.dataset.calories !== 'N/A' ? parseFloat(this.dataset.calories) : null,
+                                protein_per_100: this.dataset.protein !== 'null' && this.dataset.protein !== 'N/A' ? parseFloat(this.dataset.protein) : null,
+                                fat_per_100: this.dataset.fat !== 'null' && this.dataset.fat !== 'N/A' ? parseFloat(this.dataset.fat) : null,
+                                carbs_per_100: this.dataset.carbs !== 'null' && this.dataset.carbs !== 'N/A' ? parseFloat(this.dataset.carbs) : null,
+                            };
+
+                            console.log('Sending to /api/ensure_food_item:', foodDataForBackend);
+                            this.innerHTML = "<i>Processing... Please wait.</i>";
+                            this.style.pointerEvents = "none";
+
+                            fetch('/api/ensure_food_item', { 
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify(foodDataForBackend)
+                            })
+                            .then(response => {
+                                if (!response.ok) {
+                                    return response.json().then(errData => {
+                                        throw new Error(errData.error || `Server error: ${response.status}`);
+                                    }).catch(() => {
+                                        throw new Error(`Server error: ${response.status} - ${response.statusText}`);
+                                    });
+                                }
+                                return response.json(); 
+                            })
+                            .then(result => {
+                                if (result.error) {
+                                    console.error('Error ensuring food item from backend:', result.error);
+                                    flash('Error: ' + result.error);
+                                    this.innerHTML = `
+                                        <strong>${foodDataForBackend.name}</strong><br>
+                                        <small class="text-muted">
+                                            Cal: ${foodDataForBackend.calories_per_100 || 'N/A'} kcal,
+                                            P: ${foodDataForBackend.protein_per_100 || 'N/A'}g,
+                                            F: ${foodDataForBackend.fat_per_100 || 'N/A'}g,
+                                            C: ${foodDataForBackend.carbs_per_100 || 'N/A'}g (per 100g)
+                                        </small>
+                                    `;
+                                    this.style.pointerEvents = "auto";
+                                } else {
+                                    console.log('Food item ensured/added to local DB:', result);
+                                    foodInput.value = result.name;
+                                    quantityInput.value = '100';
+                                    unitInput.value = 'g';
+
+                                    searchResultsContainer.innerHTML = '';
+                                    searchResultsContainer.style.display = 'none';
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error in /api/ensure_food_item API call:', error);
+                                flash('Failed to process selected food: ' + error.message + '. Please try again or add manually.');
+                                // 恢复列表项的原始状态
+                                this.innerHTML = `
+                                    <strong>${foodDataForBackend.name}</strong><br>
+                                    <small class="text-muted">
+                                        Cal: ${foodDataForBackend.calories_per_100 || 'N/A'} kcal,
+                                        P: ${foodDataForBackend.protein_per_100 || 'N/A'}g,
+                                        F: ${foodDataForBackend.fat_per_100 || 'N/A'}g,
+                                        C: ${foodDataForBackend.carbs_per_100 || 'N/A'}g (per 100g)
+                                    </small>
+                                `;
+                                this.style.pointerEvents = "auto";
+                            });
+                        });
+
+                        searchResultsContainer.appendChild(listItem);
+                    });
+                } else {
+                    searchResultsContainer.innerHTML = '<li class="list-group-item text-muted list-group-item-light">No results. Try a different keyword.</li>';
+                }
+            })
+            .catch(error => {
+                clearTimeout(timeoutId);
+                console.error('USDA API Error:', error);
+                searchResultsContainer.innerHTML = `<li class="list-group-item text-danger list-group-item-light">Error: ${error.message}</li>`;
+            });
+            }, 700); 
+        });
     });
     </script>
 {% endblock %}

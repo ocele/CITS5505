@@ -18,7 +18,13 @@
         class="sharing-item-link {% if not share.is_read %}unread{% endif %}">
         <div class="sharing-item">
             <div class="sharing-avatar">
+                {% if share.sender.avatar_filename %}
+                <img src="{{ url_for('static', filename='avatars/' ~ share.sender.avatar_filename) }}"
+                    alt="{{ share.sender.first_name }} Profile" class="avatar-img"
+                    onerror="this.onerror=null;this.src='{{ url_for('static', filename='avatars/default.png') }}';">
+                {% else %}
                 <i class="fa-solid fa-user fa-lg"></i>
+                {% endif %}
             </div>
             <div class="sharing-content">
                 <div class="sharing-user">{{ share.sender.first_name }} {{ share.sender.last_name }}</div>
@@ -26,23 +32,23 @@
                     {% set dr = share.date_range %}
                     {% set ct = share.content_type %}
                     {% if dr == 'day' and ct == 'calorie' %}
-                        shared with you today’s calorie intake.
+                    shared with you today’s calorie intake.
                     {% elif dr == 'day' and ct == 'nutrition' %}
-                        shared with you today’s nutrition intake.
+                    shared with you today’s nutrition intake.
                     {% elif dr == 'week' and ct == 'ranking' %}
-                        shared with you this week’s ranking.
+                    shared with you this week’s ranking.
                     {% elif dr == 'week' and ct == 'calorie' %}
-                        shared with you this week’s calorie intake.
+                    shared with you this week’s calorie intake.
                     {% elif dr == 'week' and ct == 'nutrition' %}
-                        shared with you this week’s nutrition intake.
+                    shared with you this week’s nutrition intake.
                     {% elif dr == 'month' and ct == 'ranking' %}
-                        shared with you this month’s ranking.
+                    shared with you this month’s ranking.
                     {% elif dr == 'month' and ct == 'calorie' %}
-                        shared with you this month’s calorie intake.
+                    shared with you this month’s calorie intake.
                     {% elif dr == 'month' and ct == 'nutrition' %}
-                        shared with you this month’s nutrition intake.
+                    shared with you this month’s nutrition intake.
                     {% else %}
-                        shared some data with you.
+                    shared some data with you.
                     {% endif %}
                 </div>
             </div>
