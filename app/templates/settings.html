@@ -6,7 +6,9 @@
 {% endblock %}
 
 {% block content %}
-<div class="whole mx-auto">
+<h2 class="setting">Setting</h2>
+
+<div class="whole">
     <ul class="nav nav-tabs" id="formTabs" role="tablist">
         <li class="nav-item" role="presentation">
             <button class="nav-link active" id="addProduct-tab" data-bs-toggle="tab" data-bs-target="#addProduct"
@@ -26,7 +28,7 @@
         <div class="tab-pane fade show active" id="addProduct" role="tabpanel" aria-labelledby="addProduct-tab">
             <form action="{{ url_for('main.addNewProduct') }}" method="POST" novalidate>
                 {{ form3.hidden_tag() }}
-                <h2>Add New Product</h2>
+                <h4>Add New Product</h4>
 
                 {# --- Product Name --- #}
                 <div class="mb-3">
@@ -106,7 +108,7 @@
         <div class="tab-pane fade" id="mealType" role="tabpanel" aria-labelledby="mealType-tab">
             <form action="{{ url_for('main.addMealType') }}" method="POST">
                 {{ form1.hidden_tag() }}
-                <h2>Add Meal Type</h2>
+                <h4>Add Meal Type</h4>
                 <label for="typeName" class="form-label">Type Name</label><br>
                 {{ form1.typeName(class="form-control") }}
                 <br><br>
@@ -145,8 +147,8 @@
         <div class="tab-pane fade" id="setGoal" role="tabpanel" aria-labelledby="setGoal-tab">
             <form action="{{ url_for('main.setGoal') }}" method="POST">
                 {{ form2.hidden_tag() }}
-                <h2>Set Your Goal</h2>
-                <label for="goal" class="form-label">Set Goal (Calories/Day)</label><br>
+                <h4>Set Your Goal</h4>
+                <label for="goal" class="form-label">Your Goal (Calories/Day)</label><br>
                 {{ form2.goal(class="form-control", value=2000) }}
                 <br><br>
                 <div class="d-flex justify-content-between">

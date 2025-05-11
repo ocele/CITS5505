@@ -1,3 +1,10 @@
+.wholeContainer form {
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    height: 80vh;
+
+}
 .scrollable {
     overflow: auto;
     height: 10rem;  
@@ -7,8 +14,11 @@
     width: 70%;
 }
 
-h2 {
+.wholeContainer > h2 {
     margin-bottom: 2rem ;
+    background: transparent;
+    display: inline-block;
+
 }
 
 .suggestions, .suggestion {
@@ -23,4 +33,12 @@ h2 {
 #unitInput[readonly] {
     background-color: #e9ecef;
   }
+  .wholeContainer form .mb-3 {
+    background-color: white;
+    padding: .75rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+  }
+  
+  
   
