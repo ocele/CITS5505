@@ -1,26 +1,23 @@
 {# share_detail.html #}
 {% extends "home_base.html" %}
 {% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='style_sharing_detail.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='style_shareDetail.css') }}">
 {% endblock %}
 
 {% block content %}
-<div class="p-4">
-  <h3>Shared by {{ share.sender.first_name }} {{ share.sender.last_name }}</h3>
-  
-
-  <div class="d-flex flex-column align-items-center my-4">
-    <p><strong>Period:</strong>
-      {{ period_label }}
-    </p>
-    <div id="chartContainer" style="width: 80%; max-width: 600px; height: 350px;"></div>
-    <a href="{{ url_for('main.sharing_list') }}"
-       class="btn btn-warning text-white mt-3">
-      ← Back to Sharing List
-    </a>
+<div class="wholeContainer">
+  <h2>Shared by {{ share.sender.first_name }} {{ share.sender.last_name }}</h2>
+  <div class="p-4 share-detail-container">
+    <div class="d-flex flex-column my-4">
+      <p><strong>Period:</strong>
+        {{ period_label }}
+      </p>
+      <div id="chartContainer"></div>
+      <a href="{{ url_for('main.sharing_list') }}" class="btn-back btn btn-warning text-white">
+        ← Back to List
+      </a>
+    </div>
   </div>
-  
-  
 </div>
 {% endblock %}
 
@@ -40,7 +37,7 @@
     const periodLabel = "{{ period_label }}";         // 'today','this week','this month'
     const dom = document.getElementById('chartContainer');
 
-    
+
     console.log('type=', type, ' range=', range, ' periodLabel=', periodLabel, ' dom=', dom);
     if (!dom) {
       console.error('chartContainer not found!');
@@ -100,7 +97,7 @@
           }
           container.innerHTML = `
             <div class="card mx-auto" style="max-width:400px; margin:1rem auto;">
-              <div class="card-header text-center bg-warning text-white">
+              <div class="card-header bg-warning text-white">
                 <h5 class="mb-0">Personal Leaderboard</h5>
               </div>
               <div class="card-body">

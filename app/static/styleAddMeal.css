@@ -1,26 +1,57 @@
-.scrollable {
-    overflow: auto;
-    height: 10rem;  
-}
-
 .wholeContainer {
-    width: 70%;
-}
-
-h2 {
-    margin-bottom: 2rem ;
-}
-
-.suggestions, .suggestion {
-    border: solid 1px;
-}
-.suggestion {
+    width: 100%;
+    max-width: 800px;
+    box-sizing: border-box;
+  }
+  
+  .wholeContainer > h2 {
+    margin-bottom: 2rem;
+  }
+  
+  .wholeContainer form {
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-sizing: border-box;
+    overflow: visible;
+    max-height: none;
+  }
+  
+  .scrollable { overflow: auto; height: 10rem; }
+  .suggestions, .suggestion { border: solid 1px; }
+  .suggestion {
     margin: 1rem;
     display: flex;
     justify-content: center;
     align-items: center;
-}
-#unitInput[readonly] {
-    background-color: #e9ecef;
+  }
+  #unitInput[readonly] { background-color: #e9ecef; }
+  .wholeContainer form .mb-3 {
+    background-color: white;
+    padding: .75rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
   }
   
+  @media (max-width: 575.98px) {
+    .wholeContainer {
+      width: 100%;        
+      max-width: none;    
+      padding: 0.5rem;    
+      margin: 0;          
+    }
+  
+    .wholeContainer > h2 {
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+    }
+  
+    .wholeContainer form {
+      padding: 1rem;
+    }
+  
+    .wholeContainer form .mb-3 {
+      padding: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+  }
