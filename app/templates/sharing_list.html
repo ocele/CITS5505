@@ -8,68 +8,69 @@
 {% endblock %}
 
 {% block content %}
+<div class="wholeContainer">
+    <h2 class="sharing-list-title">Sharing List</h2>
 
-<h2 class="sharing-list-title">Sharing List</h2>
-
-<div class="sharing-list-container">
-    {% if shares %}
-    {% for share in shares %}
-    <!-- let whole .sharing-item can click -->
-    <a href="{{ url_for('main.view_share', share_id=share.id) }}"
-        class="sharing-item-link {% if not share.is_read %}unread{% endif %}">
-        <div class="sharing-item">
-            <div class="sharing-avatar">
-                {% if share.sender.avatar_filename %}
-                <img src="{{ url_for('static', filename='avatars/' ~ share.sender.avatar_filename) }}"
-                    alt="{{ share.sender.first_name }} Profile" class="avatar-img"
-                    onerror="this.onerror=null;this.src='{{ url_for('static', filename='avatars/default.png') }}';">
-                {% else %}
-                <i class="fa-solid fa-user fa-lg"></i>
-                {% endif %}
-            </div>
-            <div class="sharing-content">
-                <div class="sharing-user">{{ share.sender.first_name }} {{ share.sender.last_name }}</div>
-                <div class="sharing-text">
-                    {% set dr = share.date_range %}
-                    {% set ct = share.content_type %}
-                    {% if dr == 'day' and ct == 'calorie' %}
-                    shared with you today’s calorie intake.
-                    {% elif dr == 'day' and ct == 'nutrition' %}
-                    shared with you today’s nutrition intake.
-                    {% elif dr == 'week' and ct == 'ranking' %}
-                    shared with you this week’s ranking.
-                    {% elif dr == 'week' and ct == 'calorie' %}
-                    shared with you this week’s calorie intake.
-                    {% elif dr == 'week' and ct == 'nutrition' %}
-                    shared with you this week’s nutrition intake.
-                    {% elif dr == 'month' and ct == 'ranking' %}
-                    shared with you this month’s ranking.
-                    {% elif dr == 'month' and ct == 'calorie' %}
-                    shared with you this month’s calorie intake.
-                    {% elif dr == 'month' and ct == 'nutrition' %}
-                    shared with you this month’s nutrition intake.
+    <div class="sharing-list-container">
+        {% if shares %}
+        {% for share in shares %}
+        <!-- let whole .sharing-item can click -->
+        <a href="{{ url_for('main.view_share', share_id=share.id) }}"
+            class="sharing-item-link {% if not share.is_read %}unread{% endif %}">
+            <div class="sharing-item">
+                <div class="sharing-avatar">
+                    {% if share.sender.avatar_filename %}
+                    <img src="{{ url_for('static', filename='avatars/' ~ share.sender.avatar_filename) }}"
+                        alt="{{ share.sender.first_name }} Profile" class="avatar-img"
+                        onerror="this.onerror=null;this.src='{{ url_for('static', filename='avatars/default.png') }}';">
                     {% else %}
-                    shared some data with you.
+                    <i class="fa-solid fa-user fa-lg"></i>
                     {% endif %}
                 </div>
+                <div class="sharing-content">
+                    <div class="sharing-user">{{ share.sender.first_name }} {{ share.sender.last_name }}</div>
+                    <div class="sharing-text">
+                        {% set dr = share.date_range %}
+                        {% set ct = share.content_type %}
+                        {% if dr == 'day' and ct == 'calorie' %}
+                        shared with you today’s calorie intake.
+                        {% elif dr == 'day' and ct == 'nutrition' %}
+                        shared with you today’s nutrition intake.
+                        {% elif dr == 'week' and ct == 'ranking' %}
+                        shared with you this week’s ranking.
+                        {% elif dr == 'week' and ct == 'calorie' %}
+                        shared with you this week’s calorie intake.
+                        {% elif dr == 'week' and ct == 'nutrition' %}
+                        shared with you this week’s nutrition intake.
+                        {% elif dr == 'month' and ct == 'ranking' %}
+                        shared with you this month’s ranking.
+                        {% elif dr == 'month' and ct == 'calorie' %}
+                        shared with you this month’s calorie intake.
+                        {% elif dr == 'month' and ct == 'nutrition' %}
+                        shared with you this month’s nutrition intake.
+                        {% else %}
+                        shared some data with you.
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="sharing-time">{{ share.elapsed_time }}</div>
             </div>
-            <div class="sharing-time">{{ share.elapsed_time }}</div>
+        </a>
+        {% endfor %}
+        {% else %}
+        <div class="no-shares text-center my-5">
+            <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-3"
+                style="opacity: .4;">
+                <path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" />
+                <polyline points="22,6 12,13 2,6" />
+            </svg>
+            <p class="text-muted text-center my-5">
+                You haven’t received any shares yet.<br>
+                Invite your friends to get started!
+            </p>
         </div>
-    </a>
-    {% endfor %}
-    {% else %}
-    <div class="no-shares text-center my-5">
-        <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-3"
-            style="opacity: .4;">
-            <path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" />
-            <polyline points="22,6 12,13 2,6" />
-        </svg>
-        <p class="text-muted text-center my-5">
-            You haven’t received any shares yet.<br>
-            Invite your friends to get started!
-        </p>
+        {% endif %}
     </div>
-    {% endif %}
 </div>
 {% endblock %}

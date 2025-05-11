@@ -17,17 +17,14 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    
-    /* top 50% orange, bottom 50% gray */
-    background: linear-gradient(
-      to bottom,
-      #FFB84D 0%,
-      #FFB84D 40%,
-      #f1f1f1 40%,
-      #f1f1f1 100%
-    );
-  }
-  
+
+    background: linear-gradient(to bottom,
+            #FFB84D 0%,
+            #FFB84D 40%,
+            #f1f1f1 40%,
+            #f1f1f1 100%);
+}
+
 
 /* Override navbar styles for dashboard */
 .navbar {
@@ -38,18 +35,21 @@ body {
 /* Dashboard content layout */
 .dashboard-content {
     display: flex;
-    flex: 1;
+    flex: 1 1 auto;
+    overflow: auto;
 }
 
 /* Sidebar styles */
 .sidebar {
-    width: 300px;
     display: flex;
     flex-direction: column;
+    flex: 3;
+
 }
 
 .profile-section {
-    background-color: #FFB84D;
+    flex: 0 0 40vh;
+    /* background-color: #FFB84D; */
     color: white;
     padding: 30px 20px;
     text-align: center;
@@ -59,6 +59,18 @@ body {
     background-color: transparent;
     flex: 1;
     padding: 20px;
+}
+
+/* Main content area */
+.main-content {
+    flex: 7;
+    padding: 20px;
+    overflow-y: auto;
+
+}
+
+.empty-placeholder {
+    flex: 1 1 auto;
 }
 
 /* User profile section */
@@ -144,12 +156,7 @@ body {
     margin-bottom: 20px;
 }
 
-/* Main content area */
-.main-content {
-    flex: 1;
-    padding: 20px;
-    overflow-y: auto;
-}
+
 
 /* Chart tabs */
 .chart-tabs {
@@ -270,7 +277,7 @@ body {
 
 .card-body {
     height: 300px;
-    
+
 }
 
 #leaderboardList .list-group-item {

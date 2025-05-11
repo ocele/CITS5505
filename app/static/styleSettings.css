@@ -1,75 +1,93 @@
-.whole {
-    margin-top: 3rem;
-    max-width: auto;
-    height: 80vh;
-    margin: 0 auto;
+.wholeContainer {
+    width: 100%;
+    max-width: 800px;
+    box-sizing: border-box;
+  }
+  
+  .wholeContainer > h2 {
+    margin-bottom: 2rem;
+  }
+
+.settingsContainer {
     background: #fff;
     padding: 1.5rem;
     border-radius: 8px;
-}
-h2 {
-    margin-bottom: 2rem ;
-    background: transparent;
-    display: inline-block;
+    box-sizing: border-box;
+    overflow: visible;
+    max-height: none;
 }
 
 .row-cols-2 {
-    display: flex;
-    /* justify-content: center; */
-    align-items: center;
+  display: flex;
+  align-items: center;
 }
 
 .col-sm-6 {
-    background-color: white;
-    border: orange solid 1px;
+  background-color: #fff;
+  border: 1px solid orange;
 }
 
-.shadowCol, .emptyCol {
-    background-color: rgb(215, 215, 215);
+.shadowCol,
+.emptyCol {
+  background-color: rgb(215, 215, 215);
 }
 
 .titleCol {
-    text-align: center;
+  text-align: center;
 }
 
 .btn-group {
-    margin-bottom: 2rem;
+  margin-bottom: 2rem;
 }
 
-h2 {
-    padding-top: 1rem;
-    text-align: center;
-}
-
-.whole {
-    margin-top: 3rem;
-    width: 50vw;
-}
-
-/* Tabs not selected */
 .nav-tabs .nav-link {
-    background-color: #fff;
-    color: #FFB84D;
-    border: 1px solid #FFB84D;
-    margin-bottom: -1px; 
+  background-color: #fff;
+  color: #FFB84D;
+  border: 1px solid #FFB84D;
+  margin-bottom: -1px;
+}
+
+.nav-tabs .nav-link.active,
+.nav-tabs .nav-link:focus,
+.nav-tabs .show > .nav-link {
+  background-color: #FFB84D;
+  color: #fff;
+  border-top: 1px solid #FFB84D;
+  border-left: 1px solid #FFB84D;
+  border-right: 1px solid #FFB84D;
+  border-bottom: none;
+  margin-bottom: -1px;
+}
+
+.nav-tabs .nav-link:hover {
+  background-color: #FFB84D;
+  color: #fff;
+}
+
+@media (min-width: 992px) {
+  .wholeContainer {
+    height: 80vh;
   }
-  
-  /* Tabs selected */
-  .nav-tabs .nav-link.active,
-  .nav-tabs .nav-link:focus,
-  .nav-tabs .show > .nav-link {
-    background-color: #FFB84D;
-    color: #fff;
-    border-top:    1px solid #FFB84D;
-    border-left:   1px solid #FFB84D;
-    border-right:  1px solid #FFB84D;
-    border-bottom: none;
-    margin-bottom: -1px;
+  .settingsContainer {
+    max-height: calc(100% - 2.5rem);
+    overflow-y: auto;
   }
-  
-  /* Hover 态也保持同样样式 */
-  .nav-tabs .nav-link:hover {
-    background-color: #FFB84D;
-    color: #fff;
+}
+
+@media (max-width: 575.98px) {
+  .wholeContainer {
+    padding: 0.5rem;
   }
-  
+  .wholeContainer > h2 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+  .settingsContainer {
+    padding: 1rem;
+    overflow: visible;
+    max-height: none;
+  }
+  .btn-group {
+    margin-bottom: 1rem;
+  }
+}

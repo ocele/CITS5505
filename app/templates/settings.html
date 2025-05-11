@@ -6,172 +6,180 @@
 {% endblock %}
 
 {% block content %}
-<h2 class="setting">Setting</h2>
+<div class="wholeContainer">
+    <h2 class="setting">Setting</h2>
 
-<div class="whole">
-    <ul class="nav nav-tabs" id="formTabs" role="tablist">
-        <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="addProduct-tab" data-bs-toggle="tab" data-bs-target="#addProduct"
-                type="button" role="tab" aria-controls="addProduct" aria-selected="true">New Product</button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="mealType-tab" data-bs-toggle="tab" data-bs-target="#mealType" type="button"
-                role="tab" aria-controls="mealType" aria-selected="false">New Meal Type</button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="setGoal-tab" data-bs-toggle="tab" data-bs-target="#setGoal" type="button"
-                role="tab" aria-controls="setGoal" aria-selected="false">Set Goal</button>
-        </li>
-    </ul>
-    <div class="tab-content mt-3">
-        <!-- Add New Product Form -->
-        <div class="tab-pane fade show active" id="addProduct" role="tabpanel" aria-labelledby="addProduct-tab">
-            <form action="{{ url_for('main.addNewProduct') }}" method="POST" novalidate>
-                {{ form3.hidden_tag() }}
-                <h4>Add New Product</h4>
+    <div class="settingsContainer">
+        <ul class="nav nav-tabs" id="formTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="addProduct-tab" data-bs-toggle="tab" data-bs-target="#addProduct"
+                    type="button" role="tab" aria-controls="addProduct" aria-selected="true">New Product</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="mealType-tab" data-bs-toggle="tab" data-bs-target="#mealType" type="button"
+                    role="tab" aria-controls="mealType" aria-selected="false">New Meal Type</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="setGoal-tab" data-bs-toggle="tab" data-bs-target="#setGoal" type="button"
+                    role="tab" aria-controls="setGoal" aria-selected="false">Set Goal</button>
+            </li>
+        </ul>
+        <div class="tab-content mt-3">
+            <!-- Add New Product Form -->
+            <div class="tab-pane fade show active" id="addProduct" role="tabpanel" aria-labelledby="addProduct-tab">
+                <form action="{{ url_for('main.addNewProduct') }}" method="POST" novalidate>
+                    {{ form3.hidden_tag() }}
+                    <h4>Add New Product</h4>
 
-                {# --- Product Name --- #}
-                <div class="mb-3">
-                    {{ form3.name.label(class="form-label") }}
-                    {{ form3.name(class="form-control", placeholder="e.g., Apple, Whole Wheat Bread") }}
-                    {% for error in form3.name.errors %} <span class="text-danger">{{ error }}</span> {% endfor %}
-                </div>
+                    {# --- Product Name --- #}
+                    <div class="mb-3">
+                        {{ form3.name.label(class="form-label") }}
+                        {{ form3.name(class="form-control", placeholder="e.g., Apple, Whole Wheat Bread") }}
+                        {% for error in form3.name.errors %} <span class="text-danger">{{ error }}</span> {% endfor %}
+                    </div>
 
+                    <hr>
+                    <p class="text-muted small">Enter nutritional information per 100g (or 100ml):</p>
+
+                    <div class="row mb-3">
+                        <div class="col">
+                            {{ form3.calories_per_100.label(class="form-label") }}
+                            {{ form3.calories_per_100(class="form-control", type="number", step="any") }}
+                            {% for error in form3.calories_per_100.errors %} <span class="text-danger">{{ error
+                                }}</span> {%
+                            endfor %}
+                        </div>
+                        <div class="col">
+                            {{ form3.protein_per_100.label(class="form-label") }}
+                            {{ form3.protein_per_100(class="form-control", type="number", step="any") }}
+                            {% for error in form3.protein_per_100.errors %} <span class="text-danger">{{ error }}</span>
+                            {%
+                            endfor %}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            {{ form3.fat_per_100.label(class="form-label") }}
+                            {{ form3.fat_per_100(class="form-control", type="number", step="any") }}
+                            {% for error in form3.fat_per_100.errors %} <span class="text-danger">{{ error }}</span> {%
+                            endfor %}
+                        </div>
+                        <div class="col">
+                            {{ form3.carbs_per_100.label(class="form-label") }}
+                            {{ form3.carbs_per_100(class="form-control", type="number", step="any") }}
+                            {% for error in form3.carbs_per_100.errors %} <span class="text-danger">{{ error }}</span>
+                            {%
+                            endfor %}
+                        </div>
+                    </div>
+
+                    <hr>
+                    <p class="text-muted small">Optional: Define a common serving size for reference:</p>
+
+                    {# --- Optional Serving Size --- #}
+                    <div class="row mb-3">
+                        <div class="col">
+                            {{ form3.serving_size.label(class="form-label") }}
+                            {{ form3.serving_size(class="form-control", type="number", step="any", placeholder="e.g.,
+                            150")
+                            }}
+                            {% for error in form3.serving_size.errors %} <span class="text-danger">{{ error }}</span> {%
+                            endfor %}
+                        </div>
+                        <div class="col">
+                            {{ form3.serving_unit.label(class="form-label") }}
+                            {{ form3.serving_unit(class="form-control", placeholder="e.g., g, ml, piece, cup") }}
+                            {% for error in form3.serving_unit.errors %} <span class="text-danger">{{ error }}</span> {%
+                            endfor %}
+                        </div>
+                    </div>
+
+                    {# --- Optional Category --- #}
+                    <div class="mb-3">
+                        {{ form3.category.label(class="form-label") }}
+                        {{ form3.category(class="form-control", placeholder="e.g., Fruit, Dairy, Snack") }}
+                        {% for error in form3.category.errors %} <span class="text-danger">{{ error }}</span> {% endfor
+                        %}
+                    </div>
+
+                    {# --- Submit and Cancel Buttons --- #}
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{{ url_for('main.addMeal') }}" class="btn btn-secondary">Cancel</a>
+                        {{ form3.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+
+            <!-- Meal Type Form -->
+            <div class="tab-pane fade" id="mealType" role="tabpanel" aria-labelledby="mealType-tab">
+                <form action="{{ url_for('main.addMealType') }}" method="POST">
+                    {{ form1.hidden_tag() }}
+                    <h4>Add Meal Type</h4>
+                    <label for="typeName" class="form-label">Type Name</label><br>
+                    {{ form1.typeName(class="form-control") }}
+                    <br><br>
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">Cancel</a>
+                        <input type="submit" class="btn btn-primary" value="Save">
+                    </div>
+
+                </form>
                 <hr>
-                <p class="text-muted small">Enter nutritional information per 100g (or 100ml):</p>
 
-                <div class="row mb-3">
-                    <div class="col">
-                        {{ form3.calories_per_100.label(class="form-label") }}
-                        {{ form3.calories_per_100(class="form-control", type="number", step="any") }}
-                        {% for error in form3.calories_per_100.errors %} <span class="text-danger">{{ error }}</span> {%
-                        endfor %}
+                <!--  Meal Types list -->
+                <h3>Your Meal Types</h3>
+                {% if meal_types %}
+                <ul class="list-group">
+                    {% for mt in meal_types %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ mt.type_name }}
+                        {% if mt.user_id == current_user.id %}
+                        <button class="btn btn-sm btn-primary delete-meal-type"
+                            data-url="{{ url_for('main.delete_meal_type', mt_id=mt.id) }}">
+                            &times;
+                        </button>
+                        {% else %}
+                        <span class="badge bg-secondary">System</span>
+                        {% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted">You don't have any meal types yet.</p>
+                {% endif %}
+            </div>
+
+            <!-- Set Goal Form -->
+            <div class="tab-pane fade" id="setGoal" role="tabpanel" aria-labelledby="setGoal-tab">
+                <form action="{{ url_for('main.setGoal') }}" method="POST">
+                    {{ form2.hidden_tag() }}
+                    <h4>Set Your Goal</h4>
+                    <label for="goal" class="form-label">Your Goal (Calories/Day)</label><br>
+                    {{ form2.goal(class="form-control", value=2000) }}
+                    <br><br>
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">Cancel</a>
+                        <input type="submit" class="btn btn-primary" value="Save">
                     </div>
-                    <div class="col">
-                        {{ form3.protein_per_100.label(class="form-label") }}
-                        {{ form3.protein_per_100(class="form-control", type="number", step="any") }}
-                        {% for error in form3.protein_per_100.errors %} <span class="text-danger">{{ error }}</span> {%
-                        endfor %}
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col">
-                        {{ form3.fat_per_100.label(class="form-label") }}
-                        {{ form3.fat_per_100(class="form-control", type="number", step="any") }}
-                        {% for error in form3.fat_per_100.errors %} <span class="text-danger">{{ error }}</span> {%
-                        endfor %}
-                    </div>
-                    <div class="col">
-                        {{ form3.carbs_per_100.label(class="form-label") }}
-                        {{ form3.carbs_per_100(class="form-control", type="number", step="any") }}
-                        {% for error in form3.carbs_per_100.errors %} <span class="text-danger">{{ error }}</span> {%
-                        endfor %}
-                    </div>
-                </div>
-
-                <hr>
-                <p class="text-muted small">Optional: Define a common serving size for reference:</p>
-
-                {# --- Optional Serving Size --- #}
-                <div class="row mb-3">
-                    <div class="col">
-                        {{ form3.serving_size.label(class="form-label") }}
-                        {{ form3.serving_size(class="form-control", type="number", step="any", placeholder="e.g., 150")
-                        }}
-                        {% for error in form3.serving_size.errors %} <span class="text-danger">{{ error }}</span> {%
-                        endfor %}
-                    </div>
-                    <div class="col">
-                        {{ form3.serving_unit.label(class="form-label") }}
-                        {{ form3.serving_unit(class="form-control", placeholder="e.g., g, ml, piece, cup") }}
-                        {% for error in form3.serving_unit.errors %} <span class="text-danger">{{ error }}</span> {%
-                        endfor %}
-                    </div>
-                </div>
-
-                {# --- Optional Category --- #}
-                <div class="mb-3">
-                    {{ form3.category.label(class="form-label") }}
-                    {{ form3.category(class="form-control", placeholder="e.g., Fruit, Dairy, Snack") }}
-                    {% for error in form3.category.errors %} <span class="text-danger">{{ error }}</span> {% endfor %}
-                </div>
-
-                {# --- Submit and Cancel Buttons --- #}
-                <div class="d-flex justify-content-between mt-4">
-                    <a href="{{ url_for('main.addMeal') }}" class="btn btn-secondary">Cancel</a>
-                    {{ form3.submit(class="btn btn-primary") }}
-                </div>
-            </form>
-        </div>
-
-        <!-- Meal Type Form -->
-        <div class="tab-pane fade" id="mealType" role="tabpanel" aria-labelledby="mealType-tab">
-            <form action="{{ url_for('main.addMealType') }}" method="POST">
-                {{ form1.hidden_tag() }}
-                <h4>Add Meal Type</h4>
-                <label for="typeName" class="form-label">Type Name</label><br>
-                {{ form1.typeName(class="form-control") }}
-                <br><br>
-                <div class="d-flex justify-content-between">
-                    <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">Cancel</a>
-                    <input type="submit" class="btn btn-primary" value="Save">
-                </div>
-
-            </form>
-            <hr>
-
-            <!--  Meal Types list -->
-            <h3>Your Meal Types</h3>
-            {% if meal_types %}
-            <ul class="list-group">
-                {% for mt in meal_types %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    {{ mt.type_name }}
-                    {% if mt.user_id == current_user.id %}
-                    <button class="btn btn-sm btn-primary delete-meal-type"
-                        data-url="{{ url_for('main.delete_meal_type', mt_id=mt.id) }}">
-                        &times;
-                    </button>
-                    {% else %}
-                    <span class="badge bg-secondary">System</span>
-                    {% endif %}
-                </li>
-                {% endfor %}
-            </ul>
-            {% else %}
-            <p class="text-muted">You don't have any meal types yet.</p>
-            {% endif %}
-        </div>
-
-        <!-- Set Goal Form -->
-        <div class="tab-pane fade" id="setGoal" role="tabpanel" aria-labelledby="setGoal-tab">
-            <form action="{{ url_for('main.setGoal') }}" method="POST">
-                {{ form2.hidden_tag() }}
-                <h4>Set Your Goal</h4>
-                <label for="goal" class="form-label">Your Goal (Calories/Day)</label><br>
-                {{ form2.goal(class="form-control", value=2000) }}
-                <br><br>
-                <div class="d-flex justify-content-between">
-                    <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">Cancel</a>
-                    <input type="submit" class="btn btn-primary" value="Save">
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
-</div>
 </div>
 <!-- Flash Toasts -->
 <div class="position-fixed top-0 end-0 p-3" style="z-index: 1100">
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% for category, message in messages %}
-        <div class="toast align-items-center text-bg-{{ category }} border-0 shadow show" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast align-items-center text-bg-{{ category }} border-0 shadow show" role="alert" aria-live="assertive"
+        aria-atomic="true">
         <div class="d-flex">
             <div class="toast-body">
-            {{ message }}
+                {{ message }}
             </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                aria-label="Close"></button>
         </div>
-        </div>
+    </div>
     {% endfor %}
     {% endwith %}
 </div>
@@ -179,8 +187,8 @@
     document.addEventListener('DOMContentLoaded', function () {
         const toastElList = [].slice.call(document.querySelectorAll('.toast'));
         toastElList.forEach(function (toastEl) {
-        const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
-        toast.show();
+            const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+            toast.show();
         });
     });
 </script>
