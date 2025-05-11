@@ -10,7 +10,7 @@ from flask import url_for
 # Loads a user object based on the user ID stored in the session.
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return db.session.get(User, user_id)
 
 # Represents a registered user in the application.
 class User(UserMixin, db.Model):
