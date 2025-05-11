@@ -614,27 +614,6 @@ def addMealPost():
                 print(f"Validation error in {field_label}: {error}")
         return redirect(url_for('main.addMeal'))
 
-# @bp.route('/searchFood')
-# @login_required
-# def searchFood():
-#     form = AddMealForm()
-#     mealType = request.args.get("mealType")
-#     foodSearched = request.args.get("food")
-#     print ("retrieved data is", form.food.data)
-#     foodFound = db.session.execute(select(FoodItem).where(FoodItem.name.ilike(f"%{foodSearched}%"))).all()
-#     print("This is the food found", foodFound, type(foodFound))
-#     return redirect(url_for('main.addMeal', foodFound = foodFound, mealType = mealType))
-
-# @bp.route('/getHistory')
-# @login_required
-# def getHistory():
-#     form = AddMealForm()
-#     mealType = form.mealType.data
-#     item = request.args.get('item')
-#     history = db.session.execute(select(FoodItem).where(FoodItem.name == item)).scalars()
-
-#     return redirect(url_for('main.addMeal', mealType = mealType, item = history))
-
 @bp.get('/settings')
 @login_required
 def settings():
@@ -691,21 +670,7 @@ def setGoal():
     else:
         flash('Failed to set your goal.', 'danger')
     return redirect(url_for('main.settings', _anchor='mealType'))
-# @bp.post('/addNewProduct')
-# @login_required
-# def addNewProduct():
-#     form3 = AddNewProductForm()
-#     if form3.validate_on_submit():
-#         if db.session.execute(select(FoodItem).where(FoodItem.name == form3.productName.data)).one_or_none():
-#             flash("Error: The food with the same name already exist!", "error")
-#             return redirect(url_for('main.settings'))
-#         else:
-#             foodItem = FoodItem(name=form3.productName.data, serving_size=form3.quantity.data, serving_unit=form3.unit.data, calories=form3.kilojoules.data)
-#             db.session.add(foodItem)
-#             db.session.commit()
-#             return redirect(url_for('main.dashboard'))
-#     else:
-#         return redirect(url_for('main.settings'))
+
 @bp.post('/addNewProduct')
 @login_required
 def addNewProduct():
@@ -895,50 +860,3 @@ def update_profile():
             for error in errors:
                 flash(f"Error in {getattr(form, field).label.text}: {error}", 'warning')
         return redirect(url_for('main.dashboard'))
-
-
-# def index():
-#     print(f"DEBUG: App template folder: {current_app.template_folder}") # 打印模板文件夹路径
-#     try:
-#         return render_template('index.html', title='Home')
-#     except Exception as e:
-#         print(f"ERROR rendering template: {e}") # 打印渲染时的具体错误
-#         raise #
-#     # user = {'username': current_user.username} # 示例
-#     # return render_template('index.html', title='Home', user=user)
-#     return render_template('index.html', title='Home') # 先渲染一个简单的首页
-
-# @bp.route('/login', methods=['GET', 'POST'])
-# def login():
-#     form1 = LoginForm()
-#     form2 = RegisterForm()
-#     if request.method == "POST":
-#         if not form1.validate_on_submit() and not form2.validate_on_submit():
-#             errorMessage = "Please fill all necessary field!"
-#         else:
-#             formType = request.form.get('form_type')
-#             if formType == 'login':
-#                 email = form1.emailLogin.data
-#                 password = form1.passwordLogin.data
-
-#                 #  TODO:Account Verification 
-
-#                 return redirect () # TODO:Redirect to the user page
-            
-#             elif formType == 'register':
-#                 email = form2.emailRegister.data
-#                 password = form2.passwordRegister.data
-#                 firstName = form2.firstName.data
-#                 lastName = form2.lastName.data
-#                 subscription = form2.subscription.data # Do we really need to send emails tho?
-
-#                 # TODO:Account registration
-
-#                 return redirect () # TODO:Redirect to the user page
-#                 '''I don't know if it is appropriate to automatically redirect directly
-#                 to the user page right after the registration. I mean, many websites still
-#                 require you to sign in even when you just finished register an accnount.
-#                 Personnaly, I take that as a nuisance. But I guess there might be some reason 
-#                 behind that kind of design. If so, please let me know and I'll change the code.'''
-        
-#     return render_template('login.html', form1 = form1, form2 = form2, errorMessage = errorMessage)
