@@ -16,7 +16,7 @@ body {
 /* Override navbar styles for dashboard */
 .navbar {
     background-color: #FFB84D !important;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: none !important;
 }
 
 /* Dashboard content layout */
