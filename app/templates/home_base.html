@@ -21,7 +21,10 @@
             <div class="container-fluid">
                 <!-- 左侧元素 -->
                 <a class="navbar-brand text-white fw-bold me-3" href="{{ url_for('main.dashboard') }}">DailyBite</a>
-                <a class="nav-link text-white active me-auto" href="{{ url_for('main.dashboard') }}">Home</a>
+                <div class="navbar-nav me-auto">
+                    <a class="nav-link text-white active home-link" href="{{ url_for('main.dashboard') }}">Home</a>
+                    <a class="nav-link text-white active" href="{{ url_for('main.index') }}">About Us</a>
+                </div>
                 
                 <!-- 右侧元素 -->
                 <button class="navbar-toggler d-md-none p-0 me-2" type="button" aria-label="Toggle sidebar">
@@ -45,14 +48,18 @@
         </nav>
 
         <div class="dashboard-content">
+            <!-- Empty placeholder (from main branch) -->
+            <div class="empty-placeholder"></div>
+
             <!-- Sidebar -->
             <div class="sidebar">
-                <!-- 关闭按钮 -->
+                <!-- 关闭按钮 (from your branch) -->
                 <button class="sidebar-close" aria-label="Close sidebar">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
                 
                 <!-- Profile Section -->
+                {% if current_user.is_authenticated %}
                 <div class="profile-section">
                     <div class="avatar">
                         <img src="{{ current_user.avatar_url or url_for('static', filename='avatars/default_avatar.png') }}"
@@ -121,6 +128,7 @@
                     </div>
                     </div>
                 </div>
+                {% endif %}
 
                 <!-- Navigation Section -->
                 <div class="navigation-section">
@@ -157,6 +165,10 @@
             <div class="main-content">
                 {% block content %}{% endblock %}
             </div>
+
+            <!-- Empty placeholder (from main branch) -->
+            <div class="empty-placeholder"></div>
+
             <!-- —— Global Share Modal —— -->
 
             <!-- Share Modal -->
@@ -237,6 +249,40 @@
 
         </div>
     </div>
+
+    <!-- Footer (from main branch) -->
+    <footer class="footer">
+        <div class="col-12 text-center">
+            <p class="mb-0 small">
+            &copy; Copyright DailyBite All Rights Reserved<br>
+            Designed by Group 52</p>
+        </div>
+    </footer>
+
+    <!-- Flash Toasts (from main branch) -->
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 1100">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="toast align-items-center text-bg-{{ category }} border-0 shadow show" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                {{ message }}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            </div>
+        {% endfor %}
+        {% endwith %}
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const toastElList = [].slice.call(document.querySelectorAll('.toast'));
+            toastElList.forEach(function (toastEl) {
+            const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+            toast.show();
+            });
+        });
+    </script>
 
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>

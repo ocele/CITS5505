@@ -4,9 +4,10 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styleAddMeal.css') }}">
 {% endblock %}
 {% block content %}
-    <div class="container wholeContainer">
+    <div class="wholeContainer">
+        <h2>Add Meal</h2>
         <form action="{{ url_for('main.addMeal')}}" method="POST" novalidate>
-            <h2>Add Meal</h2>
+            
             {{ form.hidden_tag() }} {# CSRF Token #}
 
             {# --- Meal Type --- #}
