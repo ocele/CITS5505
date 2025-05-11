@@ -4,7 +4,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styleAddMeal.css') }}">
 {% endblock %}
 {% block content %}
-    <div class="container wholeContainer">
+    <div class="wholeContainer">
         <form action="{{ url_for('main.addMeal')}}" method="POST" novalidate>
             <h2>Add Meal</h2>
             {{ form.hidden_tag() }} {# CSRF Token #}
@@ -102,8 +102,8 @@
 
             {# --- Buttons --- #}
             <div class="d-flex justify-content-between mt-4">
-                {{ form.submit(class="btn btn-primary") }}
                 <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">Cancel</a>
+                {{ form.submit(class="btn btn-primary") }}
             </div>
         </form>
         <br><br>

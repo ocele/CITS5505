@@ -11,6 +11,7 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    background-color: white;
 }
 
 /* Override navbar styles for dashboard */
@@ -22,12 +23,14 @@ body {
 /* Dashboard content layout */
 .dashboard-content {
     display: flex;
+    width: 80vw;
+    /* max-width: 1200px; */
     flex: 1;
 }
 
 /* Sidebar styles */
 .sidebar {
-    width: 300px;
+    width: 35vw;
     display: flex;
     flex-direction: column;
 }
@@ -37,12 +40,14 @@ body {
     color: white;
     padding: 30px 20px;
     text-align: center;
+    padding-left: 10vw;
 }
 
 .navigation-section {
     background-color: #f1f1f1;
     flex: 1;
     padding: 20px;
+    padding-left: 10vw;
 }
 
 /* User profile section */
@@ -132,6 +137,7 @@ body {
     flex: 1;
     padding: 20px;
     overflow-y: auto;
+    background: transparent;
 }
 
 /* Chart tabs */
