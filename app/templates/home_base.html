@@ -19,19 +19,13 @@
         <!-- Top Navigation Bar -->
         <nav class="navbar navbar-expand-lg">
             <div class="container-fluid">
-
                 <a class="navbar-brand text-white fw-bold" href="{{ url_for('main.dashboard') }}">DailyBite</a>
                 <!-- 汉堡菜单按钮 -->
                 <button class="navbar-toggler d-md-none" type="button" aria-label="Toggle sidebar">
                     <i class="fa-solid fa-bars"></i>
                 </button>
-
-                
-
                 <div class="navbar-nav me-auto">
                     <a class="nav-link text-white active" href="{{ url_for('main.dashboard') }}">Home</a>
-                
-                    <a class="nav-link text-white active" href="{{ url_for('main.index') }}">About Us</a>
                 </div>
                 <div class="navbar-nav ms-auto">
                     <a class="nav-link position-relative" href="{{ url_for('main.sharing_list') }}">
@@ -58,26 +52,21 @@
                 </button>
                 
                 <!-- Profile Section -->
-                {% if current_user.is_authenticated %}
                 <div class="profile-section">
                     <div class="avatar">
                         <img src="{{ current_user.avatar_url or url_for('static', filename='avatars/default_avatar.png') }}"
-<<<<<<< HEAD
                         alt="User Avatar"
                         class="img-fluid rounded-circle"
                         style="width: 100%; height: 100%; object-fit: cover;">
-=======
-                            alt="User Avatar"
-                            class="img-fluid rounded-circle"
-                            style="width: 100px; height: 80px; object-fit: cover;">
->>>>>>> origin/main
                     </div>
                     <div class="username">{{ current_user.first_name or 'User' }} {{ current_user.last_name or '' }}</div>
                     <div class="email text-muted small mb-2">{{ current_user.email }}</div>
+                
+                    {# --- Edit Profile button --- #}
                     <div class="button">
-                        <button type="button" class="btn btn-sm btn-outline-light me-2" data-bs-toggle="modal" data-bs-target="#editProfileModal">
-                            <i class="fa-solid fa-pencil me-1"></i> Edit Profile
-                        </button>
+                    <button type="button" class="btn btn-sm btn-outline-light me-2" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                        <i class="fa-solid fa-pencil me-1"></i> Edit Profile
+                    </button>
                     </div>
                     <div class="calorie-badge mt-2">
                         <i class="fa-solid fa-bullseye"></i> {{ current_user.target_calories }} kcal
@@ -131,8 +120,6 @@
                     </div>
                     </div>
                 </div>
-                {% endif %}
-
 
                 <!-- Navigation Section -->
                 <div class="navigation-section">
@@ -249,39 +236,7 @@
 
         </div>
     </div>
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="col-12 text-center">
-            <p class="mb-0 small">
-            &copy; Copyright DailyBite All Rights Reserved<br>
-            Designed by Group 52</p>
-        </div>
-    </footer>
 
-    <!-- Flash Toasts -->
-    <div class="position-fixed top-0 end-0 p-3" style="z-index: 1100">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% for category, message in messages %}
-            <div class="toast align-items-center text-bg-{{ category }} border-0 shadow show" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body">
-                {{ message }}
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-            </div>
-        {% endfor %}
-        {% endwith %}
-    </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const toastElList = [].slice.call(document.querySelectorAll('.toast'));
-            toastElList.forEach(function (toastEl) {
-            const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
-            toast.show();
-            });
-        });
-    </script>    
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <!-- jQuery -->
@@ -296,7 +251,6 @@
 
     {% block extra_js %}{% endblock %}
 
-<<<<<<< HEAD
     <script defer>
         const messages = {{ get_flashed_messages() | tojson }};
         if (messages.length > 0) {
@@ -304,11 +258,6 @@
         }
     </script>
     
-=======
-
-
-
->>>>>>> origin/main
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const avatarUploadInput = document.getElementById('avatarUploadInput');

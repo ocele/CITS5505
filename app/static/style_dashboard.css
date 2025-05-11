@@ -16,7 +16,7 @@ body {
 /* Override navbar styles for dashboard */
 .navbar {
     background-color: #FFB84D !important;
-    box-shadow: none !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Dashboard content layout */
@@ -108,6 +108,7 @@ body {
     color: #666;
     text-decoration: none;
     transition: all 0.3s ease;
+    margin: 5px 0;
 }
 
 .nav-icon:hover,
@@ -121,11 +122,14 @@ body {
     font-size: 1.5rem;
 }
 
+/* 修改导航图标布局为网格 - 桌面视图 */
 .nav-icon-row {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    margin-bottom: 20px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 每行2个图标 */
+    grid-gap: 15px;
+    width: 100%;
+    justify-items: center;
+    margin-bottom: 0;
 }
 
 /* Main content area */
@@ -268,6 +272,16 @@ body {
     .profile-section {
         padding: 25px 15px;
     }
+    
+    /* 调整导航布局 */
+    .navigation-section {
+        padding: 20px 10px;
+    }
+    
+    .nav-icon-row {
+        max-width: 200px;
+        margin: 0 auto;
+    }
 }
 
 /* 中等屏幕设备 (768px-991px) */
@@ -402,7 +416,7 @@ body {
         justify-content: center;
     }
     
-    /* 移除导航行，使图标网格排列 */
+    /* 移动设备上的导航布局 */
     .nav-icon-row {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
@@ -503,6 +517,11 @@ body {
         font-size: 1.5rem;
     }
     
+    /* 超小屏幕保持两列布局 */
+    .nav-icon-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
     /* 调整按钮组样式，使其更适合小屏幕 */
     .btn-group.calorie-trend-toggle,
     .btn-group.leaderboard-toggle {
@@ -551,10 +570,5 @@ body {
     .calorie-badge {
         padding: 5px 12px;
         font-size: 0.9rem;
-    }
-    
-    /* 导航图标网格改为两列 */
-    .nav-icon-row {
-        grid-template-columns: repeat(2, 1fr);
     }
 }
