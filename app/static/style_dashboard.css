@@ -23,7 +23,7 @@ body {
 /* Dashboard content layout */
 .dashboard-content {
     display: flex;
-    width: 80vw;
+    width: 90vw;
     /* max-width: 1200px; */
     flex: 1;
 }
@@ -40,14 +40,14 @@ body {
     color: white;
     padding: 30px 20px;
     text-align: center;
-    padding-left: 10vw;
+    padding-left: 2vw;
 }
 
 .navigation-section {
     background-color: #f1f1f1;
     flex: 1;
     padding: 20px;
-    padding-left: 10vw;
+    padding-left: 2vw;
 }
 
 /* User profile section */
