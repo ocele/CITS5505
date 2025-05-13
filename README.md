@@ -3,12 +3,13 @@
 # DailyBite
 ## Group Members
 
-| GitHub Username      | Student Name     | Student ID |
-|----------------------|------------------|------------|
-| ocele                | Jiahe Fan        | 24014534   |
-| vandvennie           | Veronica Lyu     | 24516605   |
-| Zongzi-Zoe-Shuhan    | Shuhan Wang      | 24057211   |
-| MuzzleThing          | Haoran Yu        | 24180266   |
+| Student ID | Student Name     | GitHub Username   |
+|------------|------------------|-------------------|
+| 24014534   | Jiahe Fan        | ocele             |
+| 24516605   | Zhulin Lyu       | vandvennie        |
+| 24057211   | Shuhan Wang      | Zongzi-Zoe-Shuhan |
+| 24180266   | Haoran Yu        | MuzzleThing       |
+
 
 ## Project Overview
 
@@ -63,7 +64,7 @@ source venv/bin/activate
 # Windows
 venv\Scripts\activate
 pip install -r requirements.txt
-````
+```
 
 ### Configure the Database
 
@@ -76,23 +77,40 @@ python seed.py
 
 ```bash
 export FLASK_APP=run.py
-export FLASK_ENV=development   # optional: enables debug mode
+export FLASK_ENV=development
 flask run --host=0.0.0.0 --port=5000
 ```
 
 Open your browser at [http://localhost:5000](http://localhost:5000)
 
+**Test Accounts**
+
+| Email                     | Password         |
+|---------------------------|------------------|
+| Veronica@DailyBite.com    | DailyBite        |
+| zoe@DailyBite.com         | DailyBite        |
+| haoran@DailyBite.com      | DailyBite        |
+| william@DailyBite.com     | DailyBite        |
+| admin@dailybite.com       | admin_DailyBite  |
+
+
 ## Testing
 
-This project uses **pytest**. All test files are under the `tests/` directory.
+This project uses **pytest** for both unit and end-to-end (Selenium) tests. All test files live under the `tests/` folder:
 
 ```bash
-# Run all tests
+# Run all tests (unit + Selenium)
 pytest
 
 # Run only unit tests
 pytest tests/unit
 
-# Generate coverage report
+# Run only Selenium (end-to-end) tests
+pytest tests/selenium
+
+# If you're using pytest-selenium with Chrome
+pytest --driver Chrome tests/selenium
+
+# Generate an HTML coverage report
 pytest --cov=app --cov-report=html
 ```
