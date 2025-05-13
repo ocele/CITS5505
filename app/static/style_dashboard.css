@@ -611,15 +611,15 @@ body {
 }
 
 .leaderboard-toggle .btn .short-text {
-    display: none; /* 默认隐藏缩写文字 */
+    display: none;
 }
 
-@media (max-width: 1460px) and (min-width: 999px) { /* 针对小屏幕 */
+@media (max-width: 1460px) and (min-width: 999px) { 
     .leaderboard-toggle .btn .full-text {
-        display: none; /* 隐藏完整文字 */
+        display: none;
     }
 
     .leaderboard-toggle .btn .short-text {
-        display: inline; /* 显示缩写文字 */
+        display: inline;
     }
 }
