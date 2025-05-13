@@ -307,6 +307,23 @@ body {
 /* 响应式布局调整 */
 /* ======================= */
 
+
+@media (max-width: 999px) {
+    .row.row-cols-1.row-cols-md-2 {
+      flex-direction: column;
+    }
+  
+    .row.row-cols-1.row-cols-md-2 > .col,
+    .row.row-cols-1.row-cols-md-2 > [class^="col-"] {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+  }
+
+.sidebar-close {
+    display: none;
+  }
+
 /* 大屏幕设备 (992px-1199px) */
 @media (max-width: 1199px) {
     .sidebar {
@@ -598,19 +615,26 @@ body {
         grid-template-columns: repeat(2, 1fr);
     }
     
-    /* 调整按钮组样式，使其更适合小屏幕 */
+    /* 按钮组容器：强制并排、允许自动换行 */
     .btn-group.calorie-trend-toggle,
     .btn-group.leaderboard-toggle {
-        flex-direction: row;
-        width: 100%;
-        margin-bottom: 8px;
+    display: flex;
+    flex-wrap: wrap;          /* 允许换行 */
+    gap: 4px;                 /* 按钮间距 */
+    width: 100%;
+    margin-bottom: 8px;
     }
-    
+
+    /* 单个按钮：自适应宽度但不被内容撑破 */
     .btn-group.calorie-trend-toggle .btn,
     .btn-group.leaderboard-toggle .btn {
-        flex: 1;
-        padding: 0.2rem 0.4rem;
-        font-size: 0.7rem;
+    flex: 1 1 48%;
+    padding: 0.2rem 0.4rem;
+    font-size: 0.7rem;
+    min-width: 0;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
     }
     
     /* 调整卡片标题和内容的间距 */
