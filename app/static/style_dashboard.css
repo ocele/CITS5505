@@ -224,7 +224,7 @@ body {
     border-radius: 8px;
     margin-bottom: 20px;
     color: #aaa;
-    overflow: hidden;
+    /* overflow: hidden; */
 }
 
 /* Activity items */
@@ -307,9 +307,9 @@ body {
 /* ======================= */
 /* 响应式布局调整 */
 /* ======================= */
-@media (max-width: 450px) {
+@media (max-width: 440px) {
     body {
-      min-width: 450px;
+      min-width: 420px;
       overflow-x: auto;
     }
   }
