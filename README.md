@@ -106,7 +106,7 @@ pytest
 pytest tests/unit
 
 # Run only Selenium (end-to-end) tests
-pytest tests/selenium
+pytest tests/selenium/test_user_journey_full.py
 
 # If you're using pytest-selenium with Chrome
 pytest --driver Chrome tests/selenium

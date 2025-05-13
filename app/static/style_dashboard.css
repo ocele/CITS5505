@@ -275,11 +275,11 @@ body {
     height: 300px;
 }
 
-#leaderboardList .list-group-item {
+/* #leaderboardList .list-group-item {
     border: 1px solid #ced4da;
     margin-bottom: 0.5rem;
     border-radius: 0.375rem;
-}
+} */
 
 /* Footer styles */
 .footer {
@@ -589,23 +589,37 @@ body {
 
 }
 
-/* 默认样式 */
+/* default style */
 #nutritionRatioChart {
-    width: 100% !important;  /* 确保宽度为 100% */
+    width: 100% !important; 
     max-width: 300px;
-    height: auto !important; /* 让高度自动适应 */
+    height: auto !important; 
     margin: 0 auto;
     display: block;
 }
 
 .chart-placeholder {
-   width: 100%; /*确保占据全部宽度*/
+   width: 100%; 
 }
 
-/* 小屏幕样式 (max-width: 480px) */
+/* Small screen (max-width: 480px) */
 @media (max-width: 480px) {
     #nutritionRatioChart {
-        max-width: 100% !important; /*确保小于或者等于容器宽度*/
+        max-width: 100% !important;
         height: 200px !important;
+    }
+}
+
+.leaderboard-toggle .btn .short-text {
+    display: none; /* 默认隐藏缩写文字 */
+}
+
+@media (max-width: 1460px) and (min-width: 999px) { /* 针对小屏幕 */
+    .leaderboard-toggle .btn .full-text {
+        display: none; /* 隐藏完整文字 */
+    }
+
+    .leaderboard-toggle .btn .short-text {
+        display: inline; /* 显示缩写文字 */
     }
 }
