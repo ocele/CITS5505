@@ -224,6 +224,7 @@ body {
     border-radius: 8px;
     margin-bottom: 20px;
     color: #aaa;
+    overflow: hidden;
 }
 
 /* Activity items */
@@ -306,7 +307,12 @@ body {
 /* ======================= */
 /* 响应式布局调整 */
 /* ======================= */
-
+@media (max-width: 450px) {
+    body {
+      min-width: 450px;
+      overflow-x: auto;
+    }
+  }
 
 @media (max-width: 999px) {
     .row.row-cols-1.row-cols-md-2 {
@@ -388,11 +394,7 @@ body {
         margin-bottom: 20px;
     }
     
-    /* 确保图表在平板电脑上有足够的高度 */
-    #calorieTrendChart,
-    #nutritionRatioChart {
-        height: 250px !important;
-    }
+
     
     /* 调整按钮组在平板电脑上的样式 */
     .btn-group.btn-group-sm .btn {
@@ -584,91 +586,26 @@ body {
         font-size: 0.75rem;
     }
     
-    /* 调整图表容器在移动设备上的高度 */
-    #calorieTrendChart, 
-    #nutritionRatioChart {
-        height: 200px !important;
-    }
+
 }
 
-/* 超小屏幕设备 (小于480px) */
-@media (max-width: 480px) {
-    /* 调整侧边栏布局为更紧凑的样式 */
-    .profile-section {
-        padding: 15px 10px;
-        min-height: 140px;
-    }
-    
-    /* 更小的导航图标 */
-    .nav-icon {
-        width: 70px;
-        height: 70px;
-        border-radius: 12px;
-    }
-    
-    .nav-icon i {
-        font-size: 1.5rem;
-    }
-    
-    /* 超小屏幕保持两列布局 */
-    .nav-icon-row {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    
-    /* 按钮组容器：强制并排、允许自动换行 */
-    .btn-group.calorie-trend-toggle,
-    .btn-group.leaderboard-toggle {
-    display: flex;
-    flex-wrap: wrap;          /* 允许换行 */
-    gap: 4px;                 /* 按钮间距 */
-    width: 100%;
-    margin-bottom: 8px;
-    }
+/* 默认样式 */
+#nutritionRatioChart {
+    width: 100% !important;  /* 确保宽度为 100% */
+    max-width: 300px;
+    height: auto !important; /* 让高度自动适应 */
+    margin: 0 auto;
+    display: block;
+}
 
-    /* 单个按钮：自适应宽度但不被内容撑破 */
-    .btn-group.calorie-trend-toggle .btn,
-    .btn-group.leaderboard-toggle .btn {
-    flex: 1 1 48%;
-    padding: 0.2rem 0.4rem;
-    font-size: 0.7rem;
-    min-width: 0;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    }
-    
-    /* 调整卡片标题和内容的间距 */
-    .card-header h5 {
-        font-size: 1rem;
-        margin-bottom: 0;
-    }
-    
-    /* 调整活动列表项的样式 */
-    .activity-item {
-        flex-wrap: wrap;
-    }
-    
-    .activity-details {
-        width: 100%;
-        margin-bottom: 5px;
-    }
-    
-    .activity-time {
-        width: 100%;
-        text-align: right;
-    }
-    
-    /* 优化用户信息显示 */
-    .username {
-        font-size: 1.2rem;
-    }
-    
-    .userid {
-        font-size: 0.8rem;
-    }
-    
-    .calorie-badge {
-        padding: 5px 12px;
-        font-size: 0.9rem;
+.chart-placeholder {
+   width: 100%; /*确保占据全部宽度*/
+}
+
+/* 小屏幕样式 (max-width: 480px) */
+@media (max-width: 480px) {
+    #nutritionRatioChart {
+        max-width: 100% !important; /*确保小于或者等于容器宽度*/
+        height: 200px !important;
     }
 }
