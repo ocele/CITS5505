@@ -292,7 +292,7 @@ body {
 }
 
 /* 关闭按钮样式 */
-.sidebar-close {
+/* .sidebar-close {
     position: absolute;
     top: 15px;
     right: 15px;
@@ -302,7 +302,7 @@ body {
     border: none;
     cursor: pointer;
     z-index: 1060;
-}
+} */
 
 /* ======================= */
 /* 响应式布局调整 */
@@ -326,9 +326,21 @@ body {
     }
   }
 
-.sidebar-close {
+/* .sidebar-close {
     display: none;
-  }
+  } */
+  
+  
+/* .sidebar-close {
+    display: block;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 1.5rem;
+    z-index: 1100;
+    background: transparent;
+    border: none;
+}   */
 
 /* 大屏幕设备 (992px-1199px) */
 @media (max-width: 1199px) {
@@ -621,5 +633,22 @@ body {
 
     .leaderboard-toggle .btn .short-text {
         display: inline;
+    }
+}
+
+.sidebar-close {
+    display: block;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 1.5rem;
+    z-index: 1100;
+    background: transparent;
+    border: none;
+}
+
+@media (min-width: 768px) {
+    .sidebar-close {
+        display: none;
     }
 }
