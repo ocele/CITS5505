@@ -1,4 +1,4 @@
-from flask import redirect, render_template, request, url_for, Blueprint,current_app, flash, jsonify, session
+from flask import redirect, render_template, request, url_for, Blueprint,current_app, flash, jsonify, session, request
 from app.forms import AddMealForm, AddMealTypeForm, SetGoalForm, AddNewProductForm, ShareForm
 from flask_login import current_user, login_required
 from app import db
@@ -14,6 +14,7 @@ from pyecharts.charts import Line, Bar, Pie, Pie
 import json, os, uuid
 from app.forms import EditProfileForm, AddMealForm
 from werkzeug.utils import secure_filename
+import requests
 
 bp = Blueprint('main', __name__)
 
@@ -475,6 +476,88 @@ def api_ensure_food_item():
                 'error': 'Insufficient nutritional data from API to create new food item. Please add manually or try a different search.',
                 'name_suggestion': food_name_from_api
             }), 400
+
+def call_usda_api(name: str, max_results: int = 5) -> list[dict]:
+    """
+    调用 USDA API 返回最多 max_results 条数据
+    每条数据包含 name, calories, protein, fat, carbs
+    """
+    apikey = 'sPVhIv0bGzO7YH9bW5Dca7XRb2YAIY7GYfqaUvwe'
+    url = 'https://api.nal.usda.gov/fdc/v1/foods/search'
+    params = {
+        'query': name,
+        'pageSize': max_results,
+        'api_key': apikey
+    }
+    resp = requests.get(url, params=params, timeout=10)
+    items = []
+    if not resp.ok:
+        return items
+
+    data = resp.json().get('foods', [])
+    for f in data:
+        # 提取常用营养素
+        nuts = {n['nutrientName']: n['value'] for n in f.get('foodNutrients', [])}
+        items.append({
+            'name':     f.get('description'),
+            'calories': nuts.get('Energy'),
+            'protein':  nuts.get('Protein'),
+            'fat':       nuts.get('Total lipid (fat)'),
+            'carbs':    nuts.get('Carbohydrate, by difference')
+        })
+    return items
+
+@bp.route('/api/food/search', methods=['POST'])
+def search_food():
+    payload = request.get_json() or {}
+    name = (payload.get('name') or '').strip()
+    if not name:
+        return jsonify(results=[]), 200
+
+    # —— 构造 “自己或 admin 添加” 的过滤条件 ——
+    admin = User.query.filter_by(email='admin@dailybite.com').first()
+    if hasattr(FoodItem, 'user_id'):
+        user_cond = (FoodItem.user_id == current_user.id)
+        if admin:
+            suggestion_filter = or_(user_cond, FoodItem.user_id == admin.id)
+        else:
+            suggestion_filter = user_cond
+    else:
+        suggestion_filter = None
+
+    max_total = 10
+    results = []
+
+    # —— 1. 数据库查询（加上 suggestion_filter） ——
+    query = FoodItem.query
+    if suggestion_filter is not None:
+        query = query.filter(suggestion_filter)
+    db_items = (
+        query
+        .filter(FoodItem.name.ilike(f'%{name}%'))
+        .order_by(FoodItem.name)
+        .limit(max_total)
+        .all()
+    )
+    for it in db_items:
+        results.append({
+            'name':     it.name,
+            'calories': it.calories_per_100,
+            'protein':  it.protein_per_100,
+            'fat':      it.fat_per_100,
+            'carbs':    it.carbs_per_100
+        })
+
+    # —— 2. 本地不足，补 USDA —— 
+    if len(results) < max_total:
+        usda_list = call_usda_api(name, max_results=max_total - len(results))
+        seen = {r['name'] for r in results}
+        for u in usda_list:
+            if u['name'] not in seen:
+                results.append(u)
+                seen.add(u['name'])
+
+    return jsonify(results=results), 200
 
 @bp.get('/addMeal')
 @login_required
