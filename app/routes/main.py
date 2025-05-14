@@ -10,11 +10,12 @@ from app.models import FoodLog, FoodItem, MealType, User, ShareRecord
 from datetime import datetime, timezone, timedelta, date
 from collections import defaultdict
 from pyecharts import options as opts
-from pyecharts.charts import Line, Bar, Pie, Pie
+from pyecharts.charts import Line, Bar, Pie
 import json, os, uuid
 from app.forms import EditProfileForm, AddMealForm
 from werkzeug.utils import secure_filename
-import requests
+from email.mime.text import MIMEText
+import requests, smtplib
 
 bp = Blueprint('main', __name__)
 
@@ -824,6 +825,23 @@ def time_ago(dt):
     else:
         return f"{int(seconds // 86400)} days ago"
     
+def send_email(to_email, subject, body):
+    sender_email = "wyshzgsj@gmail.com"
+    sender_password = "bqtd fvid jxip giub"
+
+    msg = MIMEText(body)
+    msg["Subject"] = subject
+    msg["From"] = sender_email
+    msg["To"] = to_email
+
+    try:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(sender_email, sender_password)
+            server.send_message(msg)
+            print(f"[✅] Email sent to {to_email}")
+    except Exception as e:
+        print("[❌] Failed to send email:", e)
+    
 @bp.route('/share', methods=['GET','POST'])
 @login_required
 def share():
@@ -867,8 +885,20 @@ def share():
         )
         db.session.add(new_share)
         db.session.commit()
-        flash("Content shared successfully.", "success")
-        return redirect(url_for('main.dashboard'))
+        receiver = User.query.get(int(selected_id))
+        if receiver and receiver.email:
+            subject = f"You've received shared content from {current_user.first_name}"
+            body = (
+                f"Hi {receiver.first_name},\n\n"
+                f"{current_user.first_name} {current_user.last_name} has shared their "
+                f"{content_type} data ({date_range}) with you on DailyBite.\n\n"
+                f"Log in to view it: {url_for('main.sharing_list', _external=True)}\n\n"
+                "– DailyBite Team"
+            )
+            send_email(receiver.email, subject, body)
+
+    flash("Content shared successfully.", "success")
+        # return redirect(url_for('main.dashboard'))
 
     return redirect(request.referrer or url_for('main.dashboard'))
 
@@ -958,3 +988,4 @@ def update_profile():
             for error in errors:
                 flash(f"Error in {getattr(form, field).label.text}: {error}", 'warning')
         return redirect(url_for('main.dashboard'))
+
