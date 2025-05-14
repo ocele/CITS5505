@@ -652,3 +652,8 @@ body {
         display: none;
     }
 }
+
+.chart-placeholder {
+    padding-bottom: 2rem;
+    min-height: 220px; 
+}
