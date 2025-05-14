@@ -510,22 +510,22 @@ def call_usda_api(name: str, max_results: int = 5) -> list[dict]:
     return items
 
 @bp.route('/api/food/search', methods=['GET', 'POST'])
+@login_required
 def search_food():
-    # 兼容 GET（autocomplete）和 POST（搜索按钮）
+    # GET 和 POST 都走同样逻辑，只是读取 name 的方式不同
     if request.method == 'POST':
         payload = request.get_json() or {}
         name = (payload.get('name') or '').strip()
-    else:  # GET
+    else:
         name = (request.args.get('name') or '').strip()
 
     if not name:
         return jsonify(results=[]), 200
 
-    # 下面复用你原来的 DB -> API 填充逻辑
     max_total = 10
     results = []
 
-    # 构造过滤条件（只搜自己或 admin）
+    # —— 构造 “自己或 admin 添加” 的过滤条件 —— 
     admin = User.query.filter_by(email='admin@dailybite.com').first()
     if hasattr(FoodItem, 'user_id'):
         user_cond = (FoodItem.user_id == current_user.id)
@@ -533,15 +533,17 @@ def search_food():
     else:
         suggestion_filter = None
 
-    # 1) 查本地
+    # 1) 本地数据库匹配
     query = FoodItem.query
     if suggestion_filter is not None:
         query = query.filter(suggestion_filter)
+
     db_items = (
-        query.filter(FoodItem.name.ilike(f'%{name}%'))
-             .order_by(FoodItem.name)
-             .limit(max_total)
-             .all()
+        query
+        .filter(FoodItem.name.ilike(f'%{name}%'))
+        .order_by(FoodItem.name)
+        .limit(max_total)
+        .all()
     )
     for it in db_items:
         results.append({
@@ -551,19 +553,24 @@ def search_food():
             'protein':  it.protein_per_100,
             'fat':      it.fat_per_100,
             'carbs':    it.carbs_per_100,
-            'quantity_per_100': it.quantity_per_100,
+            'quantity': it.serving_size if it.serving_size is not None else 100,
             'unit':     it.serving_unit or 'g'
         })
 
-    # 2) 补足外部 API
+    # 2) 再调外部 API，补足到 max_total 条
     if len(results) < max_total:
-        usda_list = call_usda_api(name, max_results=max_total - len(results))
+        try:
+            usda_list = call_usda_api(name, max_results=max_total - len(results))
+        except Exception as e:
+            current_app.logger.warning(f"USDA API error during search: {e}")
+            usda_list = []
         seen = {r['name'] for r in results}
         for u in usda_list:
             if u['name'] not in seen:
                 results.append(u)
                 seen.add(u['name'])
 
+    # 3) 如果两者都没数据，results 为空，前端会提示 “No results”
     return jsonify(results=results), 200
 
 
