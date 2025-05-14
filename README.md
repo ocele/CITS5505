@@ -91,9 +91,6 @@ This project uses environment variables for sensitive settings. Follow these ste
 
 # USDA API key (register at https://fdc.nal.usda.gov/api-key-signup.html)
 USDA_API_KEY=xxxxxx
-
-# Flask secret key
-FLASK_SECRET_KEY=
 ```
 
 After this, install dependencies and run:

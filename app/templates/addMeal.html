@@ -381,7 +381,8 @@
         const foodInput = document.getElementById('foodInput');
         const container = document.getElementById('foodinputcontainer');
         const hiddenIdInput = document.getElementById('foodItemId');
-
+        const quantityInput = document.getElementById('quantityInput');
+        const unitInput = document.getElementById('unitInput');
 
         searchLink.addEventListener('click', async e => {
             e.preventDefault();
@@ -397,16 +398,14 @@
                 });
                 if (!resp.ok) throw new Error(`status ${resp.status}`);
                 const json = await resp.json();
-                console.log('🔍 search api response:', json);
-
                 results = json.results || [];
                 console.log('🔍 parsed results array:', results);
-
             } catch (err) {
                 console.error(err);
-                return alert('Search fail' + err.message);
+                return alert('Search failed: ' + err.message);
             }
 
+            // 移除旧的结果
             const old = document.getElementById('foodFoundContainer');
             if (old) old.remove();
             const nores = document.getElementById('noResultContainer');
@@ -415,67 +414,68 @@
             if (results.length) {
                 const wrap = document.createElement('div');
                 wrap.id = 'foodFoundContainer';
-                wrap.className = 'alert alert-secondary alert-dismissible fade show mt-2 scrollable';
-                wrap.setAttribute('role', 'alert');
+                wrap.className = 'list-group scrollable mt-2';
+                wrap.style.maxHeight = '12rem';
+                wrap.style.overflowY = 'auto';
 
-                if (results.length) {
-                    const wrap = document.createElement('div');
-                    wrap.id = 'foodFoundContainer';
-                    wrap.className = 'list-group scrollable mt-2';
+                results.forEach((food, idx) => {
+                    const id = `search-${idx}`;
+                    const label = document.createElement('label');
+                    label.className = 'list-group-item list-group-item-action d-flex align-items-start p-2 fs-6';
+                    label.setAttribute('for', id);
+                    label.innerHTML = `
+                        <input type="radio"
+                            class="form-check-input me-2 mt-1"
+                            id="${id}"
+                            name="selectedFood"
+                            value="${food.name}"
+                            data-name="${food.name}"
+                            data-quantity="${food.quantity || 100}"
+                            data-unit="${food.unit || 'g'}">
+                        <div>
+                            <h6 class="mb-1">${food.name}</h6>
+                            <small class="text-muted">
+                                ${food.calories ?? 'N/A'} kcal / 100 g
+                            </small>
+                        </div>
+                    `;
 
-                    wrap.style.maxHeight = '12rem';
-                    wrap.style.overflowY = 'auto';
-
-                    results.forEach((food, idx) => {
-                        const id = `search-${idx}`;
-                        const label = document.createElement('label');
-                        label.className = 'list-group-item list-group-item-action d-flex align-items-start p-2 fs-6';
-                        label.setAttribute('for', id);
-
-                        label.innerHTML = `
-      <input type="radio"
-             class="form-check-input me-2 mt-1"
-             id="${id}"
-             name="selectedFood"
-             value="${food.name}"
-             data-name="${food.name}"
-             data-quantity="${food.quantity || 100}"
-             data-unit="${food.unit || 'g'}">
-      <div>
-        <h6 class="mb-1">${food.name}</h6>
-        <small class="text-muted">
-          ${food.calories ?? 'N/A'} kcal / 100 g
-        </small>
-      </div>
-    `;
-
-                        label.addEventListener('click', e => {
-                            // 回写表单
-                            foodInput.value = food.name;
-                            if (hiddenIdInput) hiddenIdInput.value = food.id || '';
-                            quantityInput.value = food.quantity || 100;
-                            unitInput.value = food.unit || 'g';
-
-                            wrap.remove();
-                        });
-
-                        wrap.appendChild(label);
+                    // 鼠标点整行时的表单填充
+                    label.addEventListener('click', () => {
+                        foodInput.value = food.name;
+                        if (hiddenIdInput) hiddenIdInput.value = food.id || '';
+                        quantityInput.value = food.quantity || 100;
+                        unitInput.value = food.unit || 'g';
+                        wrap.remove();
                     });
 
-                    container.appendChild(wrap);
-                }
+                    wrap.appendChild(label);
+                });
 
+                // ✅ 添加 change 监听，兼容 radio 被直接点击或 Selenium 自动选中
+                wrap.addEventListener('change', (e) => {
+                    if (e.target && e.target.matches('.form-check-input')) {
+                        const selected = e.target;
+                        foodInput.value = selected.dataset.name || '';
+                        quantityInput.value = selected.dataset.quantity || '100';
+                        unitInput.value = selected.dataset.unit || 'g';
+                        if (hiddenIdInput) hiddenIdInput.value = selected.dataset.id || '';
+                        wrap.remove();
+                    }
+                });
+
+                container.appendChild(wrap);
 
             } else {
                 const warn = document.createElement('div');
                 warn.id = 'noResultContainer';
                 warn.className = 'alert alert-warning mt-2';
                 warn.innerHTML = `
-        <strong>No results found.</strong>
-        You can add this food manually in
-        <a href="{{ url_for('main.settings') }}" 
-           class="btn btn-sm btn-outline-secondary ms-2">Settings</a>
-      `;
+                    <strong>No results found.</strong>
+                    You can add this food manually in
+                    <a href="{{ url_for('main.settings') }}" 
+                    class="btn btn-sm btn-outline-secondary ms-2">Settings</a>
+                `;
                 container.appendChild(warn);
             }
         });

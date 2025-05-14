@@ -2,6 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
 import time, uuid
 
 BASE_URL = "http://127.0.0.1:5000"
@@ -49,20 +50,44 @@ def test_login():
 
 def test_add_meal():
     driver = webdriver.Chrome()
-    login(driver, DEFAULT_EMAIL, DEFAULT_PASSWORD)
-    driver.get(f"{BASE_URL}/addMeal")
-    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "foodInput")))
-    driver.find_element(By.ID, "foodInput").send_keys("chicken")
-    driver.find_element(By.ID, "searchFoodLink").click()
-    time.sleep(2)
-    driver.find_elements(By.CLASS_NAME, "searchResult")[0].click()
-    driver.find_element(By.ID, "quantityInput").clear()
-    driver.find_element(By.ID, "quantityInput").send_keys("150")
-    driver.execute_script("arguments[0].click();", driver.find_element(By.ID, "addMealSubmit"))
-    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "calorieTrendChart")))
-    print("[✅] Add meal test passed")
-    time.sleep(1)
-    driver.quit()
+    try:
+        login(driver, DEFAULT_EMAIL, DEFAULT_PASSWORD)
+        driver.get(f"{BASE_URL}/addMeal")
+
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.ID, "foodInput"))
+        )
+
+        food_input = driver.find_element(By.ID, "foodInput")
+        food_input.send_keys("chicken")
+
+        try:
+            search_results = WebDriverWait(driver, 10).until(
+                EC.presence_of_all_elements_located((By.CLASS_NAME, "api-search-result"))
+            )
+            driver.execute_script("arguments[0].click();", search_results[0])
+        except TimeoutException:
+            print("[❌] No API search results found for 'chicken'")
+            assert False, "Add meal failed: no API search results"
+
+        time.sleep(2)
+
+        quantity_input = driver.find_element(By.ID, "quantityInput")
+        quantity_input.clear()
+        quantity_input.send_keys("150")
+
+        add_button = driver.find_element(By.ID, "addMealSubmit")
+        driver.execute_script("arguments[0].click();", add_button)
+
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.ID, "calorieTrendChart"))
+        )
+
+        print("[✅] Add meal test passed")
+
+    finally:
+        time.sleep(1)
+        driver.quit()
 
 def test_switch_view():
     driver = webdriver.Chrome()
