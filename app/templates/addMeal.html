@@ -1,131 +1,127 @@
 {% extends "home_base.html" %}
 {% block title %} DailyBite - Add Meal{% endblock %}
 {% block extra_css %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='styleAddMeal.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='styleAddMeal.css') }}">
 {% endblock %}
 {% block content %}
-    <div class="wholeContainer">
-        <h2>Add Meal</h2>
-        <form action="{{ url_for('main.addMeal')}}" method="POST" novalidate>
-            
-            {{ form.hidden_tag() }} {# CSRF Token #}
+<div class="wholeContainer">
+    <h2>Add Meal</h2>
+    <form action="{{ url_for('main.addMeal')}}" method="POST" novalidate>
 
-            {# --- Meal Type --- #}
-            <div class="mb-3">
-                <label for="mealTypeInput" class="form-label">Meal Type</label>
-                {{ form.mealType(class="form-select", id="mealTypeInput") }}
-                {% for error in form.mealType.errors %} <span class="text-danger">{{ error }}</span> {% endfor %}
-            </div>
+        {{ form.hidden_tag() }} {# CSRF Token #}
 
-            {# --- History Items --- #}
-            <div class="mb-3" id="historyContainer">
-                 <label class="form-label">History Items</label>
-                 <div class="history-items-list">
-                    {% for item_name in historyItems %}
-                     <button type="button" class="btn btn-warning btn-sm m-1 historyItem" data-name="{{ item_name }}">{{ item_name }}</button>
-                    {% endfor %}
-                 </div>
-            </div>
-            
-            {# --- Food Input & Search --- #}
-            <div class="mb-3" id="foodinputcontainer">
-                <label for="foodInput" class="form-label">Food</label>
-                <div class="input-group">
-                    {{ form.food(class="form-control", id="foodInput", placeholder="Search food...") }}
-                    <span class="input-group-text">
-                        <a href="#" id="searchFoodLink" class="text-warning">
-                            <i class="fa-solid fa-magnifying-glass"></i>
-                        </a>
-                    </span>
-                </div>
-                {% for error in form.food.errors %}
-                    <span class="text-danger">{{ error }}</span>
+        {# --- Meal Type --- #}
+        <div class="mb-3">
+            <label for="mealTypeInput" class="form-label">Meal Type</label>
+            {{ form.mealType(class="form-select", id="mealTypeInput") }}
+            {% for error in form.mealType.errors %} <span class="text-danger">{{ error }}</span> {% endfor %}
+        </div>
+
+        {# --- History Items --- #}
+        <div class="mb-3" id="historyContainer">
+            <label class="form-label">History Items</label>
+            <div class="history-items-list">
+                {% for item_name in historyItems %}
+                <button type="button" class="btn btn-warning btn-sm m-1 historyItem" data-name="{{ item_name }}">{{
+                    item_name }}</button>
                 {% endfor %}
-
-                {# --- Search Results --- #}
-                {% if foodFound %}
-                    <div class="alert alert-secondary alert-dismissible fade show mt-2 scrollable" id="foodFoundContainer" role="alert">
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        <strong>Search Results:</strong><br>
-                        {% for food_item in foodFound %}
-                            <div class="form-check mt-1">
-                                <input type="radio" class="form-check-input searchResult"
-                                    id="search-{{ food_item.id }}"
-                                    name="selectedFood"
-                                    value="{{ food_item.name }}"
-                                    data-name="{{ food_item.name }}"
-                                    data-quantity="100"
-                                    data-unit="g">
-                                <label class="form-check-label" for="search-{{ food_item.id }}">
-                                    <h5>{{ food_item.name }}</h5>
-                                    <small class="text-muted">{{ food_item.calories_per_100 }} kcal / 100 g</small>
-                                    {% if food_item.serving_size and food_item.serving_unit %}
-                                        <small class="text-muted"> (Common: {{ food_item.serving_size }} {{ food_item.serving_unit }})</small>
-                                    {% endif %}
-                                </label>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% elif request.args.get("food") %}
-                    <div class="alert alert-warning mt-2" id="noResultContainer">
-                        <strong>No results found.</strong> You can add this food manually in 
-                        <a href="{{ url_for('main.settings') }}" class="btn btn-sm btn-outline-primary ms-2">Settings</a>
-                    </div>
-                {% endif %}
             </div>
+        </div>
 
-            {# --- Quantity & Unit --- #}
-            <div class="mb-3">
-                <label for="quantityInput" class="form-label">Quantity (in grams)</label>
-                <div class="input-group">
-                    {{ form.quantity(class="form-control", id="quantityInput", type="number", step="any", placeholder="Enter grams") }}
-                    {{ form.unit(class="form-control", id="unitInput", value="g", readonly="readonly") }}
-                </div>
-                 {% for error in form.quantity.errors %} <span class="text-danger">{{ error }}</span> {% endfor %}
-                 {% for error in form.unit.errors %} <span class="text-danger">{{ error }}</span> {% endfor %}
+        {# --- Food Input & Search --- #}
+        <div class="mb-3" id="foodinputcontainer">
+            <label for="foodInput" class="form-label">Food</label>
+            <div class="input-group">
+                {{ form.food(class="form-control", id="foodInput", placeholder="Search food...") }}
+                <span class="input-group-text">
+                    <a href="#" id="searchFoodLink" class="text-warning">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </a>
+                </span>
             </div>
+            {% for error in form.food.errors %}
+            <span class="text-danger">{{ error }}</span>
+            {% endfor %}
 
-            {# --- Suggestions --- #}
-            <div class="mb-3" id="suggestionsContainer">
-                 <label class="form-label">Suggestions</label>
-                 <div class="list-group suggestions-list scrollable" style="max-height: 200px;">
-                    {% for suggestion in suggestions %}
-                        <div class="list-group-item list-group-item-action suggestion-item">
-                            <div class="d-flex w-100 justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="mb-1">{{ suggestion.name }}</h6>
-                                    <small class="text-muted">{{ suggestion.calories_per_100 }} kcal / 100 g</small>
-                                    {% if suggestion.serving_size and suggestion.serving_unit %}
-                                        <small class="text-muted"> (Common: {{ suggestion.serving_size }} {{ suggestion.serving_unit }})</small>
-                                    {% endif %}
-                                </div>
-                                <button type="button" class="btn btn-sm btn-outline-warning add-suggestion"
-                                        data-name="{{ suggestion.name }}"
-                                        data-quantity="100"
-                                        data-unit="g">
-                                    <i class="fa-solid fa-plus"></i> Add
-                                </button>
-                            </div>
+            {# --- Search Results --- #}
+            {% if foodFound %}
+            <div id="foodFoundContainer" class="list-group scrollable mt-2" style="max-height: 12rem;">
+                {% for food_item in foodFound %}
+                <label class="list-group-item list-group-item-action d-flex align-items-start p-2 fs-6"
+                    for="search-{{ food_item.id }}">
+                    <input type="radio" class="form-check-input me-2 mt-1" id="search-{{ food_item.id }}"
+                        name="selectedFood" value="{{ food_item.name }}" data-name="{{ food_item.name }}"
+                        data-quantity="100" data-unit="g">
+                    <div>
+                        <h6 class="mb-1">{{ food_item.name }}</h6>
+                        <small class="text-muted">
+                            {{ food_item.calories_per_100 }} kcal / 100 g
+                        </small>
+                        {% if food_item.serving_size and food_item.serving_unit %}
+                        <small class="text-muted">
+                            (Common: {{ food_item.serving_size }} {{ food_item.serving_unit }})
+                        </small>
+                        {% endif %}
+                    </div>
+                </label>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        {# --- Quantity & Unit --- #}
+        <div class="mb-3">
+            <label for="quantityInput" class="form-label">Quantity (in grams)</label>
+            <div class="input-group">
+                {{ form.quantity(class="form-control", id="quantityInput", type="number", step="any", placeholder="Enter
+                grams") }}
+                {{ form.unit(class="form-control", id="unitInput", value="g", readonly="readonly") }}
+            </div>
+            {% for error in form.quantity.errors %} <span class="text-danger">{{ error }}</span> {% endfor %}
+            {% for error in form.unit.errors %} <span class="text-danger">{{ error }}</span> {% endfor %}
+        </div>
+
+        {# --- Suggestions --- #}
+        <div class="mb-3" id="suggestionsContainer">
+            <label class="form-label">Suggestions</label>
+            <div class="list-group suggestions-list scrollable" style="max-height: 200px;">
+                {% for suggestion in suggestions %}
+                <div class="list-group-item list-group-item-action suggestion-item">
+                    <div class="d-flex w-100 justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">{{ suggestion.name }}</h6>
+                            <small class="text-muted">{{ suggestion.calories_per_100 }} kcal / 100 g</small>
+                            {% if suggestion.serving_size and suggestion.serving_unit %}
+                            <small class="text-muted"> (Common: {{ suggestion.serving_size }} {{ suggestion.serving_unit
+                                }})</small>
+                            {% endif %}
                         </div>
-                    {% endfor %}
+                        <button type="button" class="btn btn-sm btn-outline-warning add-suggestion"
+                            data-name="{{ suggestion.name }}" data-quantity="100" data-unit="g">
+                            <i class="fa-solid fa-plus"></i> Add
+                        </button>
+                    </div>
                 </div>
+                {% endfor %}
             </div>
+        </div>
 
-            {# --- Buttons --- #}
-            <div class="d-flex justify-content-between mt-4">
-                <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">Cancel</a>
-                {{ form.submit(class="btn btn-primary", id="addMealSubmit") }}
-            </div>
-        </form>
-        <br><br>
-    </div>
+        {# --- Buttons --- #}
+        <div class="d-flex justify-content-between mt-4">
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">Cancel</a>
+            {{ form.submit(class="btn btn-primary", id="addMealSubmit") }}
+        </div>
+    </form>
+    <br><br>
+</div>
 {% endblock %}
 
 {% block extra_js %}
-    {# <script defer src="{{ url_for('static', filename='addMeal.js') }}"></script> #}
+{#
+<script defer src="{{ url_for('static', filename='addMeal.js') }}"></script> #}
 
-    <script defer>
-    document.addEventListener('DOMContentLoaded', function() {
+<script defer>
+    document.addEventListener('DOMContentLoaded', function () {
 
         const mealTypeInput = document.getElementById('mealTypeInput');
         const foodInput = document.getElementById('foodInput');
@@ -145,7 +141,7 @@
 
         // --- Event Listener for Search Results (Radio Buttons) ---
         if (foodFoundContainer) {
-            foodFoundContainer.addEventListener('change', function(event) {
+            foodFoundContainer.addEventListener('change', function (event) {
                 if (event.target.classList.contains('searchResult') && event.target.checked) {
                     const selectedRadio = event.target;
                     fillForm(
@@ -159,33 +155,33 @@
 
         // --- Event Listener for History Items (Buttons) ---
         if (historyContainer) {
-             historyContainer.addEventListener('click', function(event) {
-                 if (event.target.classList.contains('historyItem')) {
-                     event.preventDefault(); // Prevent default link behavior
-                     const button = event.target;
-                     // We only have the name, maybe set quantity to default 100g?
-                     fillForm(button.dataset.name, '100', 'g');
-                     // Optionally trigger a search? Or user fills quantity.
-                     foodInput.focus(); // Focus food input for potential search
-                 }
-             });
+            historyContainer.addEventListener('click', function (event) {
+                if (event.target.classList.contains('historyItem')) {
+                    event.preventDefault(); // Prevent default link behavior
+                    const button = event.target;
+                    // We only have the name, maybe set quantity to default 100g?
+                    fillForm(button.dataset.name, '100', 'g');
+                    // Optionally trigger a search? Or user fills quantity.
+                    foodInput.focus(); // Focus food input for potential search
+                }
+            });
         }
 
         // --- Event Listener for Suggestions (Add Buttons) ---
-         if (suggestionsContainer) {
-             suggestionsContainer.addEventListener('click', function(event) {
-                 const addButton = event.target.closest('.add-suggestion');
-                 if (addButton) {
-                     event.preventDefault();
-                     fillForm(
-                         addButton.dataset.name,
-                         addButton.dataset.quantity,
-                         addButton.dataset.unit 
-                     );
-                     foodInput.focus();
-                 }
-             });
-         }
+        if (suggestionsContainer) {
+            suggestionsContainer.addEventListener('click', function (event) {
+                const addButton = event.target.closest('.add-suggestion');
+                if (addButton) {
+                    event.preventDefault();
+                    fillForm(
+                        addButton.dataset.name,
+                        addButton.dataset.quantity,
+                        addButton.dataset.unit
+                    );
+                    foodInput.focus();
+                }
+            });
+        }
 
 
         // --- Update Search Link URL dynamically ---
@@ -207,19 +203,23 @@
         const searchResultsContainer = document.createElement('div');
         searchResultsContainer.id = 'apiSearchResults';
         searchResultsContainer.className = 'list-group mt-2 position-absolute bg-white shadow';
-        searchResultsContainer.style.zIndex = "1000";
+        searchResultsContainer.style.zIndex = "1050";
         searchResultsContainer.style.width = foodInput.offsetWidth + "px";
         searchResultsContainer.style.maxHeight = "300px";
         searchResultsContainer.style.overflowY = "auto";
         searchResultsContainer.style.display = "none";
+        searchResultsContainer.style.position = 'absolute';
+        searchResultsContainer.style.top = foodInput.offsetHeight + 'px';
+
+
         foodInput.parentNode.insertBefore(searchResultsContainer, foodInput.nextSibling);
 
-        document.addEventListener('click', function(event) {
+        document.addEventListener('click', function (event) {
             if (!foodInput.contains(event.target) && !searchResultsContainer.contains(event.target)) {
                 searchResultsContainer.style.display = 'none';
             }
         });
-        foodInput.addEventListener('focus', function() {
+        foodInput.addEventListener('focus', function () {
             if (this.value.trim().length >= 3 && searchResultsContainer.children.length > 0 && searchResultsContainer.innerHTML.includes('list-group-item-action')) {
                 searchResultsContainer.style.display = 'block';
             }
@@ -228,10 +228,10 @@
 
         let searchTimeout = null;
 
-        foodInput.addEventListener('input', function() {
+        foodInput.addEventListener('input', function () {
             clearTimeout(searchTimeout);
             const searchTerm = this.value.trim();
-            searchResultsContainer.style.width = foodInput.offsetWidth + "px"; 
+            searchResultsContainer.style.width = foodInput.offsetWidth + "px";
 
             if (searchTerm.length < 3) {
                 searchResultsContainer.innerHTML = '';
@@ -239,90 +239,87 @@
                 return;
             }
 
-        searchTimeout = setTimeout(() => {
-        console.log('Searching Open Food Facts for:', searchTerm);
-        searchResultsContainer.innerHTML = '<li class="list-group-item text-muted list-group-item-light"><i>Searching...</i></li>';
-        searchResultsContainer.style.display = 'block';
+            searchTimeout = setTimeout(async () => {
+                console.log('Searching local API for:', searchTerm);
+                searchResultsContainer.innerHTML =
+                    '<li class="list-group-item text-muted"><i>Searching...</i></li>';
+                searchResultsContainer.style.display = 'block';
 
-        const apikey = 'sPVhIv0bGzO7YH9bW5Dca7XRb2YAIY7GYfqaUvwe'
-        const apiUrl = `https://api.nal.usda.gov/fdc/v1/foods/search?query=${encodeURIComponent(searchTerm)}&pageSize=5&api_key=${apikey}`;
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 28000);
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 28000);
 
-        fetch(apiUrl, { signal: controller.signal })
-            .then(response => {
-                clearTimeout(timeoutId);
-                if (!response.ok) throw new Error(`Network error (${response.status})`);
-                return response.json();
-            })
-            .then(data => {
-                searchResultsContainer.innerHTML = '';
-                if (data.foods && data.foods.length > 0) {
-                    data.foods.forEach(food => {
-                        const foodName = food.description || 'Unknown Food';
-                        const nutrients = {};
-                        food.foodNutrients.forEach(n => {
-                            if (n.nutrientName === 'Energy' && n.unitName === 'KCAL') nutrients.calories = n.value;
-                            if (n.nutrientName === 'Protein') nutrients.protein = n.value;
-                            if (n.nutrientName === 'Total lipid (fat)') nutrients.fat = n.value;
-                            if (n.nutrientName === 'Carbohydrate, by difference') nutrients.carbs = n.value;
-                        });
+                try {
+                    const resp = await fetch(
+                        `/api/food/search?name=${encodeURIComponent(searchTerm)}`,
+                        { signal: controller.signal }
+                    );
+                    clearTimeout(timeoutId);
 
-                        const listItem = document.createElement('a');
-                        listItem.href = '#';
-                        listItem.className = 'list-group-item list-group-item-action api-search-result';
-                        listItem.innerHTML = `
-                            <strong>${foodName}</strong><br>
-                            <small class="text-muted">
-                                Cal: ${nutrients.calories || 'N/A'} kcal, 
-                                P: ${nutrients.protein || 'N/A'}g, 
-                                F: ${nutrients.fat || 'N/A'}g, 
-                                C: ${nutrients.carbs || 'N/A'}g (per 100g)
-                            </small>
-                        `;
+                    if (!resp.ok) throw new Error(`Network error (${resp.status})`);
+                    const json = await resp.json();
+                    const items = json.results || [];
 
-                        listItem.dataset.foodName = foodName;
-                        listItem.dataset.calories = nutrients.calories || null;
-                        listItem.dataset.protein = nutrients.protein || null;
-                        listItem.dataset.fat = nutrients.fat || null;
-                        listItem.dataset.carbs = nutrients.carbs || null;
+                    // 清空旧内容
+                    searchResultsContainer.innerHTML = '';
 
-                        listItem.addEventListener('click', function(e) {
-                            e.preventDefault();
-                            const foodDataForBackend = {
-                                name: this.dataset.foodName,
-                                calories_per_100: this.dataset.calories !== 'null' && this.dataset.calories !== 'N/A' ? parseFloat(this.dataset.calories) : null,
-                                protein_per_100: this.dataset.protein !== 'null' && this.dataset.protein !== 'N/A' ? parseFloat(this.dataset.protein) : null,
-                                fat_per_100: this.dataset.fat !== 'null' && this.dataset.fat !== 'N/A' ? parseFloat(this.dataset.fat) : null,
-                                carbs_per_100: this.dataset.carbs !== 'null' && this.dataset.carbs !== 'N/A' ? parseFloat(this.dataset.carbs) : null,
-                            };
+                    if (items.length > 0) {
+                        items.forEach(food => {
+                            const listItem = document.createElement('a');
+                            listItem.href = '#';
+                            listItem.className = 'list-group-item list-group-item-action api-search-result';
+                            listItem.innerHTML = `
+          <strong>${food.name}</strong><br>
+          <small class="text-muted">
+            Cal: ${food.calories ?? 'N/A'} kcal,
+            P: ${food.protein ?? 'N/A'}g,
+            F: ${food.fat ?? 'N/A'}g,
+            C: ${food.carbs ?? 'N/A'}g
+          </small>
+        `;
+                            // 存下 dataset 以备后用
+                            listItem.dataset.name = food.name;
+                            listItem.dataset.calories = food.calories;
+                            listItem.dataset.protein = food.protein;
+                            listItem.dataset.fat = food.fat;
+                            listItem.dataset.carbs = food.carbs;
 
-                            console.log('Sending to /api/ensure_food_item:', foodDataForBackend);
-                            this.innerHTML = "<i>Processing... Please wait.</i>";
-                            this.style.pointerEvents = "none";
 
-                            fetch('/api/ensure_food_item', { 
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify(foodDataForBackend)
-                            })
-                            .then(response => {
-                                if (!response.ok) {
-                                    return response.json().then(errData => {
-                                        throw new Error(errData.error || `Server error: ${response.status}`);
-                                    }).catch(() => {
-                                        throw new Error(`Server error: ${response.status} - ${response.statusText}`);
-                                    });
-                                }
-                                return response.json(); 
-                            })
-                            .then(result => {
-                                if (result.error) {
-                                    console.error('Error ensuring food item from backend:', result.error);
-                                    flash('Error: ' + result.error);
-                                    this.innerHTML = `
+                            listItem.addEventListener('click', function (e) {
+                                e.preventDefault();
+                                const foodDataForBackend = {
+                                    name: this.dataset.name,
+                                    calories_per_100: this.dataset.calories !== 'null' && this.dataset.calories !== 'N/A' ? parseFloat(this.dataset.calories) : null,
+                                    protein_per_100: this.dataset.protein !== 'null' && this.dataset.protein !== 'N/A' ? parseFloat(this.dataset.protein) : null,
+                                    fat_per_100: this.dataset.fat !== 'null' && this.dataset.fat !== 'N/A' ? parseFloat(this.dataset.fat) : null,
+                                    carbs_per_100: this.dataset.carbs !== 'null' && this.dataset.carbs !== 'N/A' ? parseFloat(this.dataset.carbs) : null,
+                                };
+
+                                console.log('Sending to /api/ensure_food_item:', foodDataForBackend);
+                                this.innerHTML = "<i>Processing... Please wait.</i>";
+                                this.style.pointerEvents = "none";
+
+                                fetch('/api/ensure_food_item', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify(foodDataForBackend)
+                                })
+                                    .then(response => {
+                                        if (!response.ok) {
+                                            return response.json().then(errData => {
+                                                throw new Error(errData.error || `Server error: ${response.status}`);
+                                            }).catch(() => {
+                                                throw new Error(`Server error: ${response.status} - ${response.statusText}`);
+                                            });
+                                        }
+                                        return response.json();
+                                    })
+                                    .then(result => {
+                                        if (result.error) {
+                                            console.error('Error ensuring food item from backend:', result.error);
+                                            flash('Error: ' + result.error);
+                                            this.innerHTML = `
                                         <strong>${foodDataForBackend.name}</strong><br>
                                         <small class="text-muted">
                                             Cal: ${foodDataForBackend.calories_per_100 || 'N/A'} kcal,
@@ -331,22 +328,22 @@
                                             C: ${foodDataForBackend.carbs_per_100 || 'N/A'}g (per 100g)
                                         </small>
                                     `;
-                                    this.style.pointerEvents = "auto";
-                                } else {
-                                    console.log('Food item ensured/added to local DB:', result);
-                                    foodInput.value = result.name;
-                                    quantityInput.value = '100';
-                                    unitInput.value = 'g';
+                                            this.style.pointerEvents = "auto";
+                                        } else {
+                                            console.log('Food item ensured/added to local DB:', result);
+                                            foodInput.value = result.name;
+                                            quantityInput.value = '100';
+                                            unitInput.value = 'g';
 
-                                    searchResultsContainer.innerHTML = '';
-                                    searchResultsContainer.style.display = 'none';
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Error in /api/ensure_food_item API call:', error);
-                                flash('Failed to process selected food: ' + error.message + '. Please try again or add manually.');
-                                // 恢复列表项的原始状态
-                                this.innerHTML = `
+                                            searchResultsContainer.innerHTML = '';
+                                            searchResultsContainer.style.display = 'none';
+                                        }
+                                    })
+                                    .catch(error => {
+                                        console.error('Error in /api/ensure_food_item API call:', error);
+                                        flash('Failed to process selected food: ' + error.message + '. Please try again or add manually.');
+                                        // 恢复列表项的原始状态
+                                        this.innerHTML = `
                                     <strong>${foodDataForBackend.name}</strong><br>
                                     <small class="text-muted">
                                         Cal: ${foodDataForBackend.calories_per_100 || 'N/A'} kcal,
@@ -355,23 +352,133 @@
                                         C: ${foodDataForBackend.carbs_per_100 || 'N/A'}g (per 100g)
                                     </small>
                                 `;
-                                this.style.pointerEvents = "auto";
+                                        this.style.pointerEvents = "auto";
+                                    });
                             });
-                        });
 
-                        searchResultsContainer.appendChild(listItem);
-                    });
-                } else {
-                    searchResultsContainer.innerHTML = '<li class="list-group-item text-muted list-group-item-light">No results. Try a different keyword.</li>';
+                            searchResultsContainer.appendChild(listItem);
+                        });
+                    } else {
+                        searchResultsContainer.innerHTML =
+                            '<li class="list-group-item text-muted">No results. Try a different keyword.</li>';
+                    }
+
+                } catch (err) {
+                    clearTimeout(timeoutId);
+                    console.error('Search API Error:', err);
+                    searchResultsContainer.innerHTML =
+                        `<li class="list-group-item text-danger">Error: ${err.message}</li>`;
                 }
-            })
-            .catch(error => {
-                clearTimeout(timeoutId);
-                console.error('USDA API Error:', error);
-                searchResultsContainer.innerHTML = `<li class="list-group-item text-danger list-group-item-light">Error: ${error.message}</li>`;
-            });
-            }, 700); 
+            }, 700);
         });
     });
-    </script>
+</script>
+
+<!-- Search Food -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const searchLink = document.getElementById('searchFoodLink');
+        const foodInput = document.getElementById('foodInput');
+        const container = document.getElementById('foodinputcontainer');
+        const hiddenIdInput = document.getElementById('foodItemId');
+
+
+        searchLink.addEventListener('click', async e => {
+            e.preventDefault();
+            const name = foodInput.value.trim();
+            if (!name) return alert('Please enter a food name to search.');
+
+            let results = [];
+            try {
+                const resp = await fetch('/api/food/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name })
+                });
+                if (!resp.ok) throw new Error(`status ${resp.status}`);
+                const json = await resp.json();
+                console.log('🔍 search api response:', json);
+
+                results = json.results || [];
+                console.log('🔍 parsed results array:', results);
+
+            } catch (err) {
+                console.error(err);
+                return alert('Search fail' + err.message);
+            }
+
+            const old = document.getElementById('foodFoundContainer');
+            if (old) old.remove();
+            const nores = document.getElementById('noResultContainer');
+            if (nores) nores.remove();
+
+            if (results.length) {
+                const wrap = document.createElement('div');
+                wrap.id = 'foodFoundContainer';
+                wrap.className = 'alert alert-secondary alert-dismissible fade show mt-2 scrollable';
+                wrap.setAttribute('role', 'alert');
+
+                if (results.length) {
+                    const wrap = document.createElement('div');
+                    wrap.id = 'foodFoundContainer';
+                    wrap.className = 'list-group scrollable mt-2';
+
+                    wrap.style.maxHeight = '12rem';
+                    wrap.style.overflowY = 'auto';
+
+                    results.forEach((food, idx) => {
+                        const id = `search-${idx}`;
+                        const label = document.createElement('label');
+                        label.className = 'list-group-item list-group-item-action d-flex align-items-start p-2 fs-6';
+                        label.setAttribute('for', id);
+
+                        label.innerHTML = `
+      <input type="radio"
+             class="form-check-input me-2 mt-1"
+             id="${id}"
+             name="selectedFood"
+             value="${food.name}"
+             data-name="${food.name}"
+             data-quantity="${food.quantity || 100}"
+             data-unit="${food.unit || 'g'}">
+      <div>
+        <h6 class="mb-1">${food.name}</h6>
+        <small class="text-muted">
+          ${food.calories ?? 'N/A'} kcal / 100 g
+        </small>
+      </div>
+    `;
+
+                        label.addEventListener('click', e => {
+                            // 回写表单
+                            foodInput.value = food.name;
+                            if (hiddenIdInput) hiddenIdInput.value = food.id || '';
+                            quantityInput.value = food.quantity || 100;
+                            unitInput.value = food.unit || 'g';
+
+                            wrap.remove();
+                        });
+
+                        wrap.appendChild(label);
+                    });
+
+                    container.appendChild(wrap);
+                }
+
+
+            } else {
+                const warn = document.createElement('div');
+                warn.id = 'noResultContainer';
+                warn.className = 'alert alert-warning mt-2';
+                warn.innerHTML = `
+        <strong>No results found.</strong>
+        You can add this food manually in
+        <a href="{{ url_for('main.settings') }}" 
+           class="btn btn-sm btn-outline-secondary ms-2">Settings</a>
+      `;
+                container.appendChild(warn);
+            }
+        });
+    });
+</script>
 {% endblock %}
