@@ -42,3 +42,4 @@ wsproto==1.2.0
 WTForms==3.2.1
 WTForms-SQLAlchemy==0.4.2
 pytest-flask>=1.2
+requests>=2.31.0

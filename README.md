@@ -1,7 +1,7 @@
 # CITS5505 Group Project
 
 # DailyBite
-## Group Members
+## 1.Group Members
 
 | Student ID | Student Name     | GitHub Username   |
 |------------|------------------|-------------------|
@@ -11,7 +11,7 @@
 | 24180266   | Haoran Yu        | MuzzleThing       |
 
 
-## Project Overview
+## 2. Project Overview
 
 DailyBite is a web application to help users record and track their daily meals and nutrition intake. Users can:
 
@@ -20,7 +20,7 @@ DailyBite is a web application to help users record and track their daily meals 
 - Share their nutrition data and charts with friends  
 - Manage favorite meals for quicker entry  
 
-## Design & Tech Stack
+## 3. Design & Tech Stack
 
 **Requirement and Prototype**  
 https://o67l5u.axshare.com
@@ -46,14 +46,15 @@ https://o67l5u.axshare.com
 - **Settings:** user preferences and custom meal management  
 
 
-## Local Setup
+## 4. Local Setup
 
-### Requirements
+### 4.1 Requirements
 
 - Python 3.8+  
 - SQLite (bundled with Python standard library)  
+  
 
-### Install Dependencies
+### 4.2 Install Dependencies
 
 ```bash
 git clone https://github.com/ocele/CITS5505.git
@@ -63,17 +64,52 @@ python3 -m venv venv
 source venv/bin/activate
 # Windows
 venv\Scripts\activate
+```
+### 4.3 Configure API KEY 
+
+This project uses environment variables for sensitive settings. Follow these steps:
+
+1. Copy the example file:
+  ```bash
+   cp .env.example .env
+  ```
+
+2. Open `.env` in your editor and set the values:
+
+  ```dotenv
+  # USDA API key for food search
+  #(register at https://fdc.nal.usda.gov/api-key-signup.html)
+  USDA_API_KEY=your_usda_api_key_here
+  ```
+  
+3. Make sure `.env` is **NOT** checked into git (it’s already in `.gitignore`).
+
+#### Example `.env.example`
+
+```dotenv
+# .env.example
+
+# USDA API key (register at https://fdc.nal.usda.gov/api-key-signup.html)
+USDA_API_KEY=xxxxxx
+
+# Flask secret key
+FLASK_SECRET_KEY=
+```
+
+After this, install dependencies and run:
+
+```bash
 pip install -r requirements.txt
 ```
 
-### Configure the Database
+### 4.4 Configure the Database
 
 ```bash
 # Create the SQLite database and seed initial data
 python seed.py
 ```
 
-### Run the Application
+### 4.5 Run the Application
 
 ```bash
 export FLASK_APP=run.py
@@ -94,7 +130,7 @@ Open your browser at [http://localhost:5000](http://localhost:5000)
 | admin@dailybite.com       | admin_DailyBite  |
 
 
-## Testing
+## 5. Testing
 
 This project uses **pytest** for both unit and end-to-end (Selenium) tests. All test files live under the `tests/` folder:
 

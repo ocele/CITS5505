@@ -239,90 +239,87 @@
                 return;
             }
 
-            searchTimeout = setTimeout(() => {
-                console.log('Searching Open Food Facts for:', searchTerm);
-                searchResultsContainer.innerHTML = '<li class="list-group-item text-muted list-group-item-light"><i>Searching...</i></li>';
+            searchTimeout = setTimeout(async () => {
+                console.log('Searching local API for:', searchTerm);
+                searchResultsContainer.innerHTML =
+                    '<li class="list-group-item text-muted"><i>Searching...</i></li>';
                 searchResultsContainer.style.display = 'block';
 
-                const apikey = 'sPVhIv0bGzO7YH9bW5Dca7XRb2YAIY7GYfqaUvwe'
-                const apiUrl = `https://api.nal.usda.gov/fdc/v1/foods/search?query=${encodeURIComponent(searchTerm)}&pageSize=5&api_key=${apikey}`;
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 28000);
 
-                fetch(apiUrl, { signal: controller.signal })
-                    .then(response => {
-                        clearTimeout(timeoutId);
-                        if (!response.ok) throw new Error(`Network error (${response.status})`);
-                        return response.json();
-                    })
-                    .then(data => {
-                        searchResultsContainer.innerHTML = '';
-                        if (data.foods && data.foods.length > 0) {
-                            data.foods.forEach(food => {
-                                const foodName = food.description || 'Unknown Food';
-                                const nutrients = {};
-                                food.foodNutrients.forEach(n => {
-                                    if (n.nutrientName === 'Energy' && n.unitName === 'KCAL') nutrients.calories = n.value;
-                                    if (n.nutrientName === 'Protein') nutrients.protein = n.value;
-                                    if (n.nutrientName === 'Total lipid (fat)') nutrients.fat = n.value;
-                                    if (n.nutrientName === 'Carbohydrate, by difference') nutrients.carbs = n.value;
-                                });
+                try {
+                    const resp = await fetch(
+                        `/api/food/search?name=${encodeURIComponent(searchTerm)}`,
+                        { signal: controller.signal }
+                    );
+                    clearTimeout(timeoutId);
 
-                                const listItem = document.createElement('a');
-                                listItem.href = '#';
-                                listItem.className = 'list-group-item list-group-item-action api-search-result';
-                                listItem.innerHTML = `
-                            <strong>${foodName}</strong><br>
-                            <small class="text-muted">
-                                Cal: ${nutrients.calories || 'N/A'} kcal, 
-                                P: ${nutrients.protein || 'N/A'}g, 
-                                F: ${nutrients.fat || 'N/A'}g, 
-                                C: ${nutrients.carbs || 'N/A'}g (per 100g)
-                            </small>
-                        `;
+                    if (!resp.ok) throw new Error(`Network error (${resp.status})`);
+                    const json = await resp.json();
+                    const items = json.results || [];
 
-                                listItem.dataset.foodName = foodName;
-                                listItem.dataset.calories = nutrients.calories || null;
-                                listItem.dataset.protein = nutrients.protein || null;
-                                listItem.dataset.fat = nutrients.fat || null;
-                                listItem.dataset.carbs = nutrients.carbs || null;
+                    // 清空旧内容
+                    searchResultsContainer.innerHTML = '';
 
-                                listItem.addEventListener('click', function (e) {
-                                    e.preventDefault();
-                                    const foodDataForBackend = {
-                                        name: this.dataset.foodName,
-                                        calories_per_100: this.dataset.calories !== 'null' && this.dataset.calories !== 'N/A' ? parseFloat(this.dataset.calories) : null,
-                                        protein_per_100: this.dataset.protein !== 'null' && this.dataset.protein !== 'N/A' ? parseFloat(this.dataset.protein) : null,
-                                        fat_per_100: this.dataset.fat !== 'null' && this.dataset.fat !== 'N/A' ? parseFloat(this.dataset.fat) : null,
-                                        carbs_per_100: this.dataset.carbs !== 'null' && this.dataset.carbs !== 'N/A' ? parseFloat(this.dataset.carbs) : null,
-                                    };
+                    if (items.length > 0) {
+                        items.forEach(food => {
+                            const listItem = document.createElement('a');
+                            listItem.href = '#';
+                            listItem.className = 'list-group-item list-group-item-action api-search-result';
+                            listItem.innerHTML = `
+          <strong>${food.name}</strong><br>
+          <small class="text-muted">
+            Cal: ${food.calories ?? 'N/A'} kcal,
+            P: ${food.protein ?? 'N/A'}g,
+            F: ${food.fat ?? 'N/A'}g,
+            C: ${food.carbs ?? 'N/A'}g
+          </small>
+        `;
+                            // 存下 dataset 以备后用
+                            listItem.dataset.name = food.name;
+                            listItem.dataset.calories = food.calories;
+                            listItem.dataset.protein = food.protein;
+                            listItem.dataset.fat = food.fat;
+                            listItem.dataset.carbs = food.carbs;
 
-                                    console.log('Sending to /api/ensure_food_item:', foodDataForBackend);
-                                    this.innerHTML = "<i>Processing... Please wait.</i>";
-                                    this.style.pointerEvents = "none";
 
-                                    fetch('/api/ensure_food_item', {
-                                        method: 'POST',
-                                        headers: {
-                                            'Content-Type': 'application/json',
-                                        },
-                                        body: JSON.stringify(foodDataForBackend)
+                            listItem.addEventListener('click', function (e) {
+                                e.preventDefault();
+                                const foodDataForBackend = {
+                                    name: this.dataset.name,
+                                    calories_per_100: this.dataset.calories !== 'null' && this.dataset.calories !== 'N/A' ? parseFloat(this.dataset.calories) : null,
+                                    protein_per_100: this.dataset.protein !== 'null' && this.dataset.protein !== 'N/A' ? parseFloat(this.dataset.protein) : null,
+                                    fat_per_100: this.dataset.fat !== 'null' && this.dataset.fat !== 'N/A' ? parseFloat(this.dataset.fat) : null,
+                                    carbs_per_100: this.dataset.carbs !== 'null' && this.dataset.carbs !== 'N/A' ? parseFloat(this.dataset.carbs) : null,
+                                };
+
+                                console.log('Sending to /api/ensure_food_item:', foodDataForBackend);
+                                this.innerHTML = "<i>Processing... Please wait.</i>";
+                                this.style.pointerEvents = "none";
+
+                                fetch('/api/ensure_food_item', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify(foodDataForBackend)
+                                })
+                                    .then(response => {
+                                        if (!response.ok) {
+                                            return response.json().then(errData => {
+                                                throw new Error(errData.error || `Server error: ${response.status}`);
+                                            }).catch(() => {
+                                                throw new Error(`Server error: ${response.status} - ${response.statusText}`);
+                                            });
+                                        }
+                                        return response.json();
                                     })
-                                        .then(response => {
-                                            if (!response.ok) {
-                                                return response.json().then(errData => {
-                                                    throw new Error(errData.error || `Server error: ${response.status}`);
-                                                }).catch(() => {
-                                                    throw new Error(`Server error: ${response.status} - ${response.statusText}`);
-                                                });
-                                            }
-                                            return response.json();
-                                        })
-                                        .then(result => {
-                                            if (result.error) {
-                                                console.error('Error ensuring food item from backend:', result.error);
-                                                flash('Error: ' + result.error);
-                                                this.innerHTML = `
+                                    .then(result => {
+                                        if (result.error) {
+                                            console.error('Error ensuring food item from backend:', result.error);
+                                            flash('Error: ' + result.error);
+                                            this.innerHTML = `
                                         <strong>${foodDataForBackend.name}</strong><br>
                                         <small class="text-muted">
                                             Cal: ${foodDataForBackend.calories_per_100 || 'N/A'} kcal,
@@ -331,22 +328,22 @@
                                             C: ${foodDataForBackend.carbs_per_100 || 'N/A'}g (per 100g)
                                         </small>
                                     `;
-                                                this.style.pointerEvents = "auto";
-                                            } else {
-                                                console.log('Food item ensured/added to local DB:', result);
-                                                foodInput.value = result.name;
-                                                quantityInput.value = '100';
-                                                unitInput.value = 'g';
+                                            this.style.pointerEvents = "auto";
+                                        } else {
+                                            console.log('Food item ensured/added to local DB:', result);
+                                            foodInput.value = result.name;
+                                            quantityInput.value = '100';
+                                            unitInput.value = 'g';
 
-                                                searchResultsContainer.innerHTML = '';
-                                                searchResultsContainer.style.display = 'none';
-                                            }
-                                        })
-                                        .catch(error => {
-                                            console.error('Error in /api/ensure_food_item API call:', error);
-                                            flash('Failed to process selected food: ' + error.message + '. Please try again or add manually.');
-                                            // 恢复列表项的原始状态
-                                            this.innerHTML = `
+                                            searchResultsContainer.innerHTML = '';
+                                            searchResultsContainer.style.display = 'none';
+                                        }
+                                    })
+                                    .catch(error => {
+                                        console.error('Error in /api/ensure_food_item API call:', error);
+                                        flash('Failed to process selected food: ' + error.message + '. Please try again or add manually.');
+                                        // 恢复列表项的原始状态
+                                        this.innerHTML = `
                                     <strong>${foodDataForBackend.name}</strong><br>
                                     <small class="text-muted">
                                         Cal: ${foodDataForBackend.calories_per_100 || 'N/A'} kcal,
@@ -355,21 +352,23 @@
                                         C: ${foodDataForBackend.carbs_per_100 || 'N/A'}g (per 100g)
                                     </small>
                                 `;
-                                            this.style.pointerEvents = "auto";
-                                        });
-                                });
-
-                                searchResultsContainer.appendChild(listItem);
+                                        this.style.pointerEvents = "auto";
+                                    });
                             });
-                        } else {
-                            searchResultsContainer.innerHTML = '<li class="list-group-item text-muted list-group-item-light">No results. Try a different keyword.</li>';
-                        }
-                    })
-                    .catch(error => {
-                        clearTimeout(timeoutId);
-                        console.error('USDA API Error:', error);
-                        searchResultsContainer.innerHTML = `<li class="list-group-item text-danger list-group-item-light">Error: ${error.message}</li>`;
-                    });
+
+                            searchResultsContainer.appendChild(listItem);
+                        });
+                    } else {
+                        searchResultsContainer.innerHTML =
+                            '<li class="list-group-item text-muted">No results. Try a different keyword.</li>';
+                    }
+
+                } catch (err) {
+                    clearTimeout(timeoutId);
+                    console.error('Search API Error:', err);
+                    searchResultsContainer.innerHTML =
+                        `<li class="list-group-item text-danger">Error: ${err.message}</li>`;
+                }
             }, 700);
         });
     });
@@ -381,7 +380,7 @@
         const searchLink = document.getElementById('searchFoodLink');
         const foodInput = document.getElementById('foodInput');
         const container = document.getElementById('foodinputcontainer');
-        const hiddenIdInput = document.getElementById('foodItemId');   
+        const hiddenIdInput = document.getElementById('foodItemId');
 
 
         searchLink.addEventListener('click', async e => {
@@ -456,7 +455,7 @@
                             if (hiddenIdInput) hiddenIdInput.value = food.id || '';
                             quantityInput.value = food.quantity || 100;
                             unitInput.value = food.unit || 'g';
-                            
+
                             wrap.remove();
                         });
 

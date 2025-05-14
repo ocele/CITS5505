@@ -482,12 +482,14 @@ def call_usda_api(name: str, max_results: int = 5) -> list[dict]:
     调用 USDA API 返回最多 max_results 条数据
     每条数据包含 name, calories, protein, fat, carbs
     """
-    apikey = 'sPVhIv0bGzO7YH9bW5Dca7XRb2YAIY7GYfqaUvwe'
+    api_key = os.getenv('USDA_API_KEY')
+    if not api_key:
+        raise RuntimeError("USDA_API_KEY is not set in environment")
     url = 'https://api.nal.usda.gov/fdc/v1/foods/search'
     params = {
         'query': name,
         'pageSize': max_results,
-        'api_key': apikey
+        'api_key': api_key
     }
     resp = requests.get(url, params=params, timeout=10)
     items = []
@@ -507,48 +509,53 @@ def call_usda_api(name: str, max_results: int = 5) -> list[dict]:
         })
     return items
 
-@bp.route('/api/food/search', methods=['POST'])
+@bp.route('/api/food/search', methods=['GET', 'POST'])
 def search_food():
-    payload = request.get_json() or {}
-    name = (payload.get('name') or '').strip()
+    # 兼容 GET（autocomplete）和 POST（搜索按钮）
+    if request.method == 'POST':
+        payload = request.get_json() or {}
+        name = (payload.get('name') or '').strip()
+    else:  # GET
+        name = (request.args.get('name') or '').strip()
+
     if not name:
         return jsonify(results=[]), 200
 
-    # —— 构造 “自己或 admin 添加” 的过滤条件 ——
-    admin = User.query.filter_by(email='admin@dailybite.com').first()
-    if hasattr(FoodItem, 'user_id'):
-        user_cond = (FoodItem.user_id == current_user.id)
-        if admin:
-            suggestion_filter = or_(user_cond, FoodItem.user_id == admin.id)
-        else:
-            suggestion_filter = user_cond
-    else:
-        suggestion_filter = None
-
+    # 下面复用你原来的 DB -> API 填充逻辑
     max_total = 10
     results = []
 
-    # —— 1. 数据库查询（加上 suggestion_filter） ——
+    # 构造过滤条件（只搜自己或 admin）
+    admin = User.query.filter_by(email='admin@dailybite.com').first()
+    if hasattr(FoodItem, 'user_id'):
+        user_cond = (FoodItem.user_id == current_user.id)
+        suggestion_filter = or_(user_cond, FoodItem.user_id == admin.id) if admin else user_cond
+    else:
+        suggestion_filter = None
+
+    # 1) 查本地
     query = FoodItem.query
     if suggestion_filter is not None:
         query = query.filter(suggestion_filter)
     db_items = (
-        query
-        .filter(FoodItem.name.ilike(f'%{name}%'))
-        .order_by(FoodItem.name)
-        .limit(max_total)
-        .all()
+        query.filter(FoodItem.name.ilike(f'%{name}%'))
+             .order_by(FoodItem.name)
+             .limit(max_total)
+             .all()
     )
     for it in db_items:
         results.append({
+            'id':       it.id,
             'name':     it.name,
             'calories': it.calories_per_100,
             'protein':  it.protein_per_100,
             'fat':      it.fat_per_100,
-            'carbs':    it.carbs_per_100
+            'carbs':    it.carbs_per_100,
+            'quantity_per_100': it.quantity_per_100,
+            'unit':     it.serving_unit or 'g'
         })
 
-    # —— 2. 本地不足，补 USDA —— 
+    # 2) 补足外部 API
     if len(results) < max_total:
         usda_list = call_usda_api(name, max_results=max_total - len(results))
         seen = {r['name'] for r in results}
@@ -558,6 +565,7 @@ def search_food():
                 seen.add(u['name'])
 
     return jsonify(results=results), 200
+
 
 @bp.get('/addMeal')
 @login_required
