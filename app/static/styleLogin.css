@@ -40,7 +40,6 @@ form {
 }
 .col {
     width: 50vw;
-    /* height: 70vh; */
     padding: 0;
 }
 
@@ -49,20 +48,6 @@ img {
     height: calc(100vh - 15rem);
     object-fit: cover;
 }
-/* #all {
-    max-width: 800px;
-    border: 1px solid black;
-} */
-
-
-
-/* #loginContainer {
-    width: 60%;
-}
-
-#registerContainer {
-    width: 80%;
-} */
 
 @media (max-width: 832px) {
     #carousel {

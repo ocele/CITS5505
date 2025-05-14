@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
+    // This function allows user to click an entry of suggestion,
+    // and automatically fill the form with the relevant information.
     const suggestionLinks = document.querySelectorAll('.add-suggestion');
 
     suggestionLinks.forEach(link => {
@@ -30,6 +32,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 document.addEventListener('DOMContentLoaded', function(){
+    // Similar to the function above, but handles search results.
     const searchResults = document.querySelectorAll('.searchResult');
 
     searchResults.forEach( result => {

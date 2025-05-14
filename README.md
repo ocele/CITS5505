@@ -142,7 +142,7 @@ pytest tests/unit
 pytest tests/selenium/test_user_journey_full.py
 
 # If you're using pytest-selenium with Chrome
-pytest --driver Chrome tests/selenium
+pytest --driver Chrome tests/selenium/test_user_journey_full.py
 
 # Generate an HTML coverage report
 pytest --cov=app --cov-report=html
@@ -157,4 +157,4 @@ To test this:
 1. Create a Gmail account.
 2. Enable 2-Step Verification.
 3. Generate an App Password: https://myaccount.google.com/apppasswords
-4. Replace the password in `.env` or `config.py`.
+4. Replace the sender_email and sender_passoword in main.py under def send_email(to_email, subject, body):
