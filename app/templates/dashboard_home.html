@@ -39,10 +39,14 @@
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Leaderboard</h5>
                     <div class="btn-group btn-group-sm leaderboard-toggle" role="group">
-                        <button type="button" class="btn btn-warning active leaderboard-period-btn"
-                            data-period="7d">Last 7 Days</button>
-                        <button type="button" class="btn btn-outline-warning leaderboard-period-btn"
-                            data-period="30d">This Month</button>
+                        <button type="button" class="btn btn-warning active leaderboard-period-btn" data-period="7d">
+                            <span class="full-text">Last 7 Days</span>
+                            <span class="short-text">W</span>
+                        </button>
+                        <button type="button" class="btn btn-outline-warning leaderboard-period-btn" data-period="30d">
+                            <span class="full-text">This Month</span>
+                            <span class="short-text">M</span>
+                        </button>
                     </div>
                 </div>
                 <div class="card-body d-flex flex-column" id="leaderboardBody">
@@ -157,282 +161,189 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const toastElList = [].slice.call(document.querySelectorAll('.toast'));
-      toastElList.forEach(function (toastEl) {
-        const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
-        toast.show();
-      });
-    });
-</script>
-  
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const chartDom = document.getElementById('calorieTrendChart');
-        let calorieChart = chartDom ? echarts.init(chartDom, null, { locale: 'EN' }) : null;
-        const calorieButtons = document.querySelectorAll('.calorie-trend-toggle .time-range-btn');
-
-        function updateCalorieChart(timeRange = 'week') {
-            console.log('Fetching ECharts options for range:', timeRange);
-            const currentChartDom = document.getElementById('calorieTrendChart');
-            if (!currentChartDom || !calorieChart) {
-                console.error("Calorie chart instance or DOM element missing!");
-                return;
-            }
-            calorieChart.showLoading();
-
-            fetch(`/api/get_calorie_chart_options?range=${timeRange}`)
-                .then(response => {
-                    if (!response.ok) throw new Error(`Network response was not ok for chart options (status: ${response.status})`);
-                    try {
-                        return response.json();
-                    } catch (e) {
-                        throw new Error("Failed to parse JSON response");
-                    }
-                })
-                .then(chartOptions => {
-                    console.log('ECharts options received:', chartOptions);
-                    if (!chartOptions || typeof chartOptions !== 'object') {
-                        throw new Error("Received invalid chart options data");
-                    }
-                    calorieChart.hideLoading();
-                    calorieChart.setOption(chartOptions, true);
-                    console.log('ECharts option set.');
-                })
-                .catch(error => {
-                    console.error('Error loading ECharts options:', error);
-                    if (calorieChart) calorieChart.hideLoading();
-                    currentChartDom.innerHTML = `<p class="text-danger text-center small mt-3">Could not load chart data. Please check console.</p>`;
-                });
-        }
-
-        calorieButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                this.closest('.btn-group').querySelectorAll('.time-range-btn').forEach(btn => {
-                    btn.classList.remove('active', 'btn-warning');
-                    btn.classList.add('btn-outline-warning');
-                });
-                this.classList.add('active', 'btn-warning');
-                this.classList.remove('btn-outline-warning');
-
-                const selectedRange = this.dataset.range;
-                updateCalorieChart(selectedRange);
-            });
-        });
-
-        if (calorieChart) {
-            updateCalorieChart('week');
-        } else {
-            console.warn('DIV element with ID "calorieTrendChart" not found.');
-        }
-
-        window.addEventListener('resize', function () {
-            if (calorieChart) {
-                setTimeout(() => {
-                    calorieChart.resize();
-                }, 250);
-            }
-        });
-
-        const nutritionCompDom = document.querySelector('.card-body .fa-chart-bar')?.closest('.card-body');
-        if (nutritionCompDom && !document.getElementById('nutritionChart')) {
-            nutritionCompDom.innerHTML = '<p class="text-muted text-center small mt-3">Nutrition Breakdown Chart Coming Soon</p>';
-        }
-        const categoryDom = document.querySelector('.card-body .fa-chart-pie')?.closest('.card-body');
-        if (categoryDom && !document.getElementById('categoryChart')) {
-            categoryDom.innerHTML = '<p class="text-muted text-center small mt-3">Food Categories Chart Coming Soon</p>';
-        }
-
-        const nutritionRatioDom = document.getElementById('nutritionRatioChart');
-        let nutritionRatioChart = nutritionRatioDom ? echarts.init(nutritionRatioDom, null, { locale: 'EN' }) : null;
-
-        function updateNutritionRatioChart(targetDate = null) {
-            console.log('Fetching nutrition ratio options for date:', targetDate || 'today');
-            const currentChartDom = document.getElementById('nutritionRatioChart');
-            if (!currentChartDom || !nutritionRatioChart) { /* ... */ return; }
-            nutritionRatioChart.showLoading();
-
-            let apiUrl = '/api/nutrition_ratio';
-            if (targetDate) {
-                apiUrl += `?date=${targetDate}`;
-            }
-
-            fetch(apiUrl)
-                .then(response => {
-                    if (!response.ok) throw new Error(`Network response was not ok for ratio options (status: ${response.status})`);
-                    try { return response.json(); } catch (e) { throw new Error("Failed to parse JSON for ratio"); }
-                })
-                .then(chartOptions => {
-                    console.log('Nutrition ratio options received:', chartOptions);
-                    if (!chartOptions || typeof chartOptions !== 'object') {
-                        throw new Error("Received invalid ratio chart options data");
-                    }
-                    nutritionRatioChart.hideLoading();
-                    nutritionRatioChart.setOption(chartOptions, true);
-                    console.log('Nutrition ratio chart updated.');
-                })
-                .catch(error => {
-                    console.error('Error loading nutrition ratio chart:', error);
-                    if (nutritionRatioChart) nutritionRatioChart.hideLoading();
-                    currentChartDom.innerHTML = `
-                        <div class="text-center placeholder-glow ">
-                            <div
-                            class="placeholder mx-auto"
-                            style="
-                                width: 200px;
-                                height: 200px;
-                                border: 20px solid #e0e0e0;
-                                border-radius: 50%;
-                                background-color: transparent;
-                            "
-                            ></div>
-                        </div>
-                        <p class="text-center text-muted small mt-4">
-                            You haven’t added any data today.<br>
-                        </p>
-                    `;
-                });
-        }
-
-        if (nutritionRatioChart) {
-            updateNutritionRatioChart();
-        } else {
-            console.warn('DIV element with ID "nutritionRatioChart" not found.');
-        }
-
-        window.addEventListener('resize', function () {
-            setTimeout(() => {
-                if (calorieChart) calorieChart.resize();
-                if (nutritionCompChart) nutritionCompChart.resize();
-                if (nutritionRatioChart) nutritionRatioChart.resize();
-            }, 250);
-        });
-
-        const leaderboardList = document.getElementById('leaderboardList');
-        const leaderboardLoading = document.getElementById('leaderboardLoading');
-        const leaderboardError = document.getElementById('leaderboardError');
-        const leaderboardFooter = document.getElementById('leaderboardFooter');
-        const leaderboardButtons = document.querySelectorAll('.leaderboard-toggle .leaderboard-period-btn');
-
-        function updateLeaderboard(period = '7d') {
-            console.log('Fetching leaderboard data for period:', period);
-            if (!leaderboardList || !leaderboardLoading || !leaderboardError || !leaderboardFooter) {
-                console.error("Leaderboard DOM elements missing!");
-                return;
-            }
-
-            leaderboardLoading.style.display = 'block';
-            leaderboardList.style.display = 'none';
-            leaderboardError.style.display = 'none';
-            leaderboardFooter.style.display = 'none';
-            leaderboardList.innerHTML = '';
-
-            fetch(`/api/goal_leaderboard?period=${period}`)
-                .then(response => {
-                    if (!response.ok) throw new Error(`Network response was not ok for leaderboard (status: ${response.status})`);
-                    try { return response.json(); } catch (e) { throw new Error("Failed to parse JSON for leaderboard"); }
-                })
-                .then(leaderboardData => {
-                    console.log('Leaderboard data received:', leaderboardData);
-                    leaderboardLoading.style.display = 'none';
-
-                    if (!Array.isArray(leaderboardData)) {
-                        throw new Error("Received invalid leaderboard data format");
-                    }
-
-                    if (leaderboardData.length === 0) {
-                        leaderboardList.innerHTML = `
-                             <div class="text-center py-4 placeholder-glow">
-                            <i 
-                                class="fa-solid fa-trophy fa-5x" 
-                                style="color: #e0e0e0; opacity: .6;"
-                            ></i>
-                            </div>
-                            <p class="text-center text-muted small mt-4">
-                            No data available for this period.
-                            </p>
-                        `;
-                    } else {
-                        const medals = ['🥇', '🥈', '🥉'];
-                        const medalRankMap = {};  // 映射 rank -> medal index（最多3个）
-                        let medalAssigned = 0;
-
-                        leaderboardData.forEach(entry => {
-                            // 最多只处理三种不同 rank
-                            if (!(entry.rank in medalRankMap)) {
-                                if (medalAssigned >= 3) return; // 超过前三名，直接不渲染
-                                medalRankMap[entry.rank] = medalAssigned;
-                                medalAssigned += 1;
-                            }
-
-                            const medalIndex = medalRankMap[entry.rank];
-
-                            const listItem = document.createElement('li');
-                            listItem.className = 'list-group-item d-flex justify-content-between align-items-center py-3';
-
-                            const nameDiv = document.createElement('div');
-                            nameDiv.className = 'ms-2 me-auto';
-
-                            const rankSpan = document.createElement('span');
-                            rankSpan.className = 'me-3';
-                            rankSpan.style.fontSize = '1.1em';
-                            rankSpan.textContent = medals[medalIndex] || '';
-
-                            nameDiv.appendChild(rankSpan);
-                            nameDiv.appendChild(document.createTextNode(entry.full_name || 'Unknown User'));
-
-                            const badge = document.createElement('span');
-                            let badgeClass = 'bg-secondary';
-                            if (medalIndex === 0) badgeClass = 'bg-warning text-dark';
-                            else if (medalIndex === 1) badgeClass = 'bg-info text-dark';
-                            else if (medalIndex === 2) badgeClass = 'bg-success';
-
-                            badge.className = `badge ${badgeClass} rounded-pill`;
-                            badge.textContent = `${entry.days_met} ${entry.days_met === 1 ? 'day met' : 'days met'}`;
-
-                            listItem.appendChild(nameDiv);
-                            listItem.appendChild(badge);
-                            leaderboardList.appendChild(listItem);
-                        });                   
-                    }
-
-                    leaderboardList.style.display = 'block';
-                    leaderboardFooter.style.display = 'block';
-                    console.log('Leaderboard updated.');
-
-                })
-                .catch(error => {
-                    console.error('Error loading leaderboard:', error);
-                    leaderboardLoading.style.display = 'none';
-                    leaderboardError.style.display = 'block';
-                    leaderboardList.style.display = 'none';
-                    leaderboardFooter.style.display = 'none';
-                });
-        }
-
-        leaderboardButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                this.closest('.btn-group').querySelectorAll('.leaderboard-period-btn').forEach(btn => {
-                    btn.classList.remove('active', 'btn-warning');
-                    btn.classList.add('btn-outline-warning');
-                });
-                this.classList.add('active', 'btn-warning');
-                this.classList.remove('btn-outline-warning');
-
-                const selectedPeriod = this.dataset.period;
-                updateLeaderboard(selectedPeriod);
-            });
-        });
-
-        if (leaderboardList) {
-            updateLeaderboard('7d');
-        } else {
-            console.warn('Element with ID "leaderboardList" not found.');
-        }
-
+document.addEventListener('DOMContentLoaded', function () {
+    // Show Bootstrap Toasts
+    const toastElList = [].slice.call(document.querySelectorAll('.toast'));
+    toastElList.forEach(function (toastEl) {
+        const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+        toast.show();
     });
 
+    // ==============================
+    // 1. Calorie Intake Chart
+    // ==============================
+    const chartDom = document.getElementById('calorieTrendChart');
+    let calorieChart = chartDom ? echarts.init(chartDom, null, { locale: 'EN' }) : null;
+
+    const calorieButtons = document.querySelectorAll('.calorie-trend-toggle .time-range-btn');
+
+    function updateCalorieChart(timeRange = 'week') {
+        if (!chartDom || !calorieChart) return;
+        calorieChart.showLoading();
+        fetch(`/api/get_calorie_chart_options?range=${timeRange}`)
+            .then(res => res.ok ? res.json() : Promise.reject(res.status))
+            .then(options => {
+                calorieChart.hideLoading();
+                calorieChart.setOption(options, true);
+            })
+            .catch(err => {
+                console.error('Failed to load calorie chart:', err);
+                calorieChart.hideLoading();
+                chartDom.innerHTML = `<p class="text-danger text-center small mt-3">Could not load chart data.</p>`;
+            });
+    }
+
+    if (calorieChart) updateCalorieChart();
+
+    calorieButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            this.closest('.btn-group').querySelectorAll('.time-range-btn').forEach(btn => {
+                btn.classList.remove('active', 'btn-warning');
+                btn.classList.add('btn-outline-warning');
+            });
+            this.classList.add('active', 'btn-warning');
+            this.classList.remove('btn-outline-warning');
+            updateCalorieChart(this.dataset.range);
+        });
+    });
+
+    // ==============================
+    // 2. Nutrition Ratio Chart
+    // ==============================
+    let nutritionRatioChart = null;
+
+    function waitForNutritionChartDomAndInit() {
+        const nutritionRatioDom = document.getElementById('nutritionRatioChart');
+        if (!nutritionRatioDom || nutritionRatioDom.clientWidth === 0) {
+            return setTimeout(waitForNutritionChartDomAndInit, 100);
+        }
+        nutritionRatioChart = echarts.init(nutritionRatioDom, null, { locale: 'EN' });
+        updateNutritionRatioChart();
+    }
+
+    function updateNutritionRatioChart(targetDate = null) {
+        const dom = document.getElementById('nutritionRatioChart');
+        if (!dom || !nutritionRatioChart) return;
+
+        nutritionRatioChart.showLoading();
+        let url = '/api/nutrition_ratio';
+        if (targetDate) url += `?date=${targetDate}`;
+        fetch(url)
+            .then(res => res.ok ? res.json() : Promise.reject(res.status))
+            .then(options => {
+                nutritionRatioChart.hideLoading();
+                nutritionRatioChart.setOption(options, true);
+            })
+            .catch(err => {
+                console.error('Error loading nutrition chart:', err);
+                nutritionRatioChart.hideLoading();
+                dom.innerHTML = `
+                    <div class="text-center placeholder-glow">
+                        <div class="placeholder mx-auto" style="width:200px;height:200px;border:20px solid #e0e0e0;border-radius:50%;"></div>
+                    </div>
+                    <p class="text-center text-muted small mt-4">You haven’t added any data today.</p>
+                `;
+            });
+    }
+
+    waitForNutritionChartDomAndInit();
+
+    // ==============================
+    // 3. Leaderboard
+    // ==============================
+    const leaderboardList = document.getElementById('leaderboardList');
+    const leaderboardLoading = document.getElementById('leaderboardLoading');
+    const leaderboardError = document.getElementById('leaderboardError');
+    const leaderboardFooter = document.getElementById('leaderboardFooter');
+    const leaderboardButtons = document.querySelectorAll('.leaderboard-toggle .leaderboard-period-btn');
+
+    function updateLeaderboard(period = '7d') {
+        if (!leaderboardList || !leaderboardLoading || !leaderboardError || !leaderboardFooter) return;
+        leaderboardLoading.style.display = 'block';
+        leaderboardList.style.display = 'none';
+        leaderboardError.style.display = 'none';
+        leaderboardFooter.style.display = 'none';
+        leaderboardList.innerHTML = '';
+
+        fetch(`/api/goal_leaderboard?period=${period}`)
+            .then(res => res.ok ? res.json() : Promise.reject(res.status))
+            .then(data => {
+                leaderboardLoading.style.display = 'none';
+
+                if (!Array.isArray(data)) throw new Error('Invalid leaderboard format');
+                if (data.length === 0) {
+                    leaderboardList.innerHTML = `
+                        <div class="text-center py-4 placeholder-glow">
+                            <i class="fa-solid fa-trophy fa-5x" style="color: #e0e0e0; opacity: .6;"></i>
+                        </div>
+                        <p class="text-center text-muted small mt-4">No data available for this period.</p>
+                    `;
+                } else {
+                    const medals = ['🥇', '🥈', '🥉'];
+                    const rankMap = {};
+                    let count = 0;
+
+                    data.forEach(entry => {
+                        if (!(entry.rank in rankMap)) {
+                            if (count >= 3) return;
+                            rankMap[entry.rank] = count++;
+                        }
+
+                        const medal = medals[rankMap[entry.rank]] || '';
+                        const li = document.createElement('li');
+                        li.className = 'list-group-item d-flex justify-content-between align-items-center py-3';
+
+                        const nameDiv = document.createElement('div');
+                        nameDiv.className = 'ms-2 me-auto';
+                        nameDiv.innerHTML = `<span class="me-3" style="font-size:1.1em">${medal}</span>${entry.full_name || 'Unknown User'}`;
+
+                        const badge = document.createElement('span');
+                        const badgeClass = ['bg-warning text-dark', 'bg-info text-dark', 'bg-success'][rankMap[entry.rank]] || 'bg-secondary';
+                        badge.className = `badge ${badgeClass} rounded-pill`;
+                        badge.textContent = `${entry.days_met} ${entry.days_met === 1 ? 'day met' : 'days met'}`;
+
+                        li.appendChild(nameDiv);
+                        li.appendChild(badge);
+                        leaderboardList.appendChild(li);
+                    });
+                }
+
+                leaderboardList.style.display = 'block';
+                leaderboardFooter.style.display = 'block';
+            })
+            .catch(err => {
+                console.error('Leaderboard error:', err);
+                leaderboardLoading.style.display = 'none';
+                leaderboardError.style.display = 'block';
+            });
+    }
+
+    leaderboardButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            this.closest('.btn-group').querySelectorAll('.leaderboard-period-btn').forEach(btn => {
+                btn.classList.remove('active', 'btn-warning');
+                btn.classList.add('btn-outline-warning');
+            });
+            this.classList.add('active', 'btn-warning');
+            this.classList.remove('btn-outline-warning');
+            updateLeaderboard(this.dataset.period);
+        });
+    });
+
+    updateLeaderboard();
+
+    // ==============================
+    // 4. Resize handler
+    // ==============================
+    window.addEventListener('resize', () => {
+        setTimeout(() => {
+            if (calorieChart) calorieChart.resize();
+            if (nutritionRatioChart) nutritionRatioChart.resize();
+        }, 250);
+    });
+});
 </script>
+
 {% endblock %}

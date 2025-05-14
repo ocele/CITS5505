@@ -224,6 +224,7 @@ body {
     border-radius: 8px;
     margin-bottom: 20px;
     color: #aaa;
+    /* overflow: hidden; */
 }
 
 /* Activity items */
@@ -274,11 +275,11 @@ body {
     height: 300px;
 }
 
-#leaderboardList .list-group-item {
+/* #leaderboardList .list-group-item {
     border: 1px solid #ced4da;
     margin-bottom: 0.5rem;
     border-radius: 0.375rem;
-}
+} */
 
 /* Footer styles */
 .footer {
@@ -291,7 +292,7 @@ body {
 }
 
 /* 关闭按钮样式 */
-.sidebar-close {
+/* .sidebar-close {
     position: absolute;
     top: 15px;
     right: 15px;
@@ -301,11 +302,45 @@ body {
     border: none;
     cursor: pointer;
     z-index: 1060;
-}
+} */
 
 /* ======================= */
 /* 响应式布局调整 */
 /* ======================= */
+@media (max-width: 440px) {
+    body {
+      min-width: 420px;
+      overflow-x: auto;
+    }
+  }
+
+@media (max-width: 999px) {
+    .row.row-cols-1.row-cols-md-2 {
+      flex-direction: column;
+    }
+  
+    .row.row-cols-1.row-cols-md-2 > .col,
+    .row.row-cols-1.row-cols-md-2 > [class^="col-"] {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+  }
+
+/* .sidebar-close {
+    display: none;
+  } */
+  
+  
+/* .sidebar-close {
+    display: block;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 1.5rem;
+    z-index: 1100;
+    background: transparent;
+    border: none;
+}   */
 
 /* 大屏幕设备 (992px-1199px) */
 @media (max-width: 1199px) {
@@ -371,11 +406,7 @@ body {
         margin-bottom: 20px;
     }
     
-    /* 确保图表在平板电脑上有足够的高度 */
-    #calorieTrendChart,
-    #nutritionRatioChart {
-        height: 250px !important;
-    }
+
     
     /* 调整按钮组在平板电脑上的样式 */
     .btn-group.btn-group-sm .btn {
@@ -567,84 +598,62 @@ body {
         font-size: 0.75rem;
     }
     
-    /* 调整图表容器在移动设备上的高度 */
-    #calorieTrendChart, 
+
+}
+
+/* default style */
+#nutritionRatioChart {
+    width: 100% !important; 
+    max-width: 300px;
+    height: auto !important; 
+    margin: 0 auto;
+    display: block;
+}
+
+.chart-placeholder {
+   width: 100%; 
+}
+
+/* Small screen (max-width: 480px) */
+@media (max-width: 480px) {
     #nutritionRatioChart {
+        max-width: 100% !important;
         height: 200px !important;
     }
 }
 
-/* 超小屏幕设备 (小于480px) */
-@media (max-width: 480px) {
-    /* 调整侧边栏布局为更紧凑的样式 */
-    .profile-section {
-        padding: 15px 10px;
-        min-height: 140px;
+.leaderboard-toggle .btn .short-text {
+    display: none;
+}
+
+@media (max-width: 1460px) and (min-width: 999px) { 
+    .leaderboard-toggle .btn .full-text {
+        display: none;
     }
-    
-    /* 更小的导航图标 */
-    .nav-icon {
-        width: 70px;
-        height: 70px;
-        border-radius: 12px;
+
+    .leaderboard-toggle .btn .short-text {
+        display: inline;
     }
-    
-    .nav-icon i {
-        font-size: 1.5rem;
+}
+
+.sidebar-close {
+    display: block;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 1.5rem;
+    z-index: 1100;
+    background: transparent;
+    border: none;
+}
+
+@media (min-width: 768px) {
+    .sidebar-close {
+        display: none;
     }
-    
-    /* 超小屏幕保持两列布局 */
-    .nav-icon-row {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    
-    /* 调整按钮组样式，使其更适合小屏幕 */
-    .btn-group.calorie-trend-toggle,
-    .btn-group.leaderboard-toggle {
-        flex-direction: row;
-        width: 100%;
-        margin-bottom: 8px;
-    }
-    
-    .btn-group.calorie-trend-toggle .btn,
-    .btn-group.leaderboard-toggle .btn {
-        flex: 1;
-        padding: 0.2rem 0.4rem;
-        font-size: 0.7rem;
-    }
-    
-    /* 调整卡片标题和内容的间距 */
-    .card-header h5 {
-        font-size: 1rem;
-        margin-bottom: 0;
-    }
-    
-    /* 调整活动列表项的样式 */
-    .activity-item {
-        flex-wrap: wrap;
-    }
-    
-    .activity-details {
-        width: 100%;
-        margin-bottom: 5px;
-    }
-    
-    .activity-time {
-        width: 100%;
-        text-align: right;
-    }
-    
-    /* 优化用户信息显示 */
-    .username {
-        font-size: 1.2rem;
-    }
-    
-    .userid {
-        font-size: 0.8rem;
-    }
-    
-    .calorie-badge {
-        padding: 5px 12px;
-        font-size: 0.9rem;
-    }
+}
+
+.chart-placeholder {
+    padding-bottom: 2rem;
+    min-height: 220px; 
 }
