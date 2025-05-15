@@ -1,8 +1,8 @@
-from flask import redirect, render_template, request, url_for, Blueprint,current_app, flash, jsonify, session, request
+from flask import redirect, render_template, request, url_for, Blueprint,current_app, flash, jsonify, session, request, abort
 from app.forms import AddMealForm, AddMealTypeForm, SetGoalForm, AddNewProductForm, ShareForm
 from flask_login import current_user, login_required
 from app import db
-from sqlalchemy import select, func, cast, Date, extract, func, cast, Date, extract, or_
+from sqlalchemy import select, func, cast, Date, extract, or_
 from sqlalchemy.orm import selectinload
 from sqlalchemy.orm import selectinload
 from app.models import User
@@ -58,12 +58,13 @@ def get_week_of_year(dt):
 def get_year_month(dt):
     return dt.year, dt.month
 
+# API endpoint to get calorie chart options
 @bp.route('/api/get_calorie_chart_options')
 @login_required
 def get_calorie_chart_options():
     time_range = request.args.get('range', 'week')
     share_id   = request.args.get('share_id', type=int)
-
+    # Get the user ID based on the share_id or current user
     if share_id:
         share = ShareRecord.query.get_or_404(share_id)
         user_id = share.sender_id
@@ -87,7 +88,7 @@ def get_calorie_chart_options():
         query_start_date = today.replace(day=1)
     else:
         return jsonify({"error": "Invalid time range parameter"}), 400
-
+    # Ensure the start date is not in the future
     try:
         calories_per_log = (
             func.coalesce(FoodLog.quantity_consumed, 0) / 100.0
@@ -172,7 +173,7 @@ def get_calorie_chart_options():
 
         if chart_object is None:
              raise ValueError("Chart object was not created.")
-
+        # Set chart options
         chart_object.set_global_opts(
              title_opts=opts.TitleOpts(title=chart_title, pos_left="center", title_textstyle_opts=opts.TextStyleOpts(font_size=14)),
              tooltip_opts=opts.TooltipOpts(trigger="axis" if time_range != 'day' else "item", axis_pointer_type="cross"),
@@ -191,13 +192,14 @@ def get_calorie_chart_options():
         print(f"Error generating chart options with pyecharts: {e}")
         print(traceback.format_exc())
         return jsonify({"error": "Could not generate chart options"}), 500
-
+    
+# API endpoint to get nutrition ratio
 @bp.route('/api/nutrition_ratio')
 @login_required
 def api_nutrition_ratio():
     target_date_str = request.args.get('date', date.today().isoformat())
     share_id   = request.args.get('share_id', type=int)
-
+    # Get the user ID based on the share_id or current user
     if share_id:
         share = ShareRecord.query.get_or_404(share_id)
         user_id = share.sender_id
@@ -208,7 +210,7 @@ def api_nutrition_ratio():
         target_date = date.fromisoformat(target_date_str)
     except ValueError:
         target_date = date.today()
-
+    
     try:
         protein_per_log = (func.coalesce(FoodLog.quantity_consumed, 0) / 100.0) * func.coalesce(FoodItem.protein_per_100, 0)
         fat_per_log = (func.coalesce(FoodLog.quantity_consumed, 0) / 100.0) * func.coalesce(FoodItem.fat_per_100, 0)
@@ -222,7 +224,7 @@ def api_nutrition_ratio():
                 func.sum(fat_per_log).label('total_fat'),
                 func.sum(carbs_per_log).label('total_carbs')
             )
-            .select_from(FoodLog) # 明确 select_from
+            .select_from(FoodLog) 
             .join(FoodItem, FoodLog.food_item_id == FoodItem.id)
             .where(
                 FoodLog.user_id == user_id,
@@ -239,7 +241,7 @@ def api_nutrition_ratio():
         print(f"Error querying nutrition data for ratio: {e}")
         db.session.rollback()
         return jsonify({"error": "Could not retrieve nutrition data for ratio"}), 500
-
+    # Calculate the total calories from protein, fat, and carbs
     protein_kcal = round(protein_g * 4, 1)
     fat_kcal = round(fat_g * 9, 1)
     carbs_kcal = round(carbs_g * 4, 1)
@@ -252,7 +254,7 @@ def api_nutrition_ratio():
         ('Carbs', carbs_kcal)
     ]
     pie_data = [item for item in pie_data if item[1] > 0]
-
+    # Sort the data by kcal value in descending order
     try:
         pie_chart = (
             Pie(init_opts=opts.InitOpts(width="100%", height="250px", bg_color="#FFFFFF"))
@@ -290,6 +292,7 @@ def api_nutrition_ratio():
         print(traceback.format_exc())
         return jsonify({"error": "Could not generate pie chart options"}), 500
 
+# API endpoint to get goal leaderboard
 @bp.route('/api/goal_leaderboard')
 @login_required
 def api_goal_leaderboard():
@@ -311,7 +314,7 @@ def api_goal_leaderboard():
 
     LOWER_BOUND_FACTOR = 0.90
     UPPER_BOUND_FACTOR = 1.10
-
+    # Calculate the calores consumed per log
     try:
         calories_per_log = (
             func.coalesce(FoodLog.quantity_consumed, 0) / 100.0
@@ -370,7 +373,7 @@ def api_goal_leaderboard():
             current_check_date += timedelta(days=1)
 
         print(f"Achieved days count: {dict(achieved_days_count)}")
-
+        # Prepare the leaderboard data
         leaderboard = []
         for user_id, user_info in user_data_map.items():
             days_met = achieved_days_count.get(user_id, 0)
@@ -416,13 +419,14 @@ def api_goal_leaderboard():
         db.session.rollback()
         return jsonify({"error": "Could not generate leaderboard"}), 500
 
+# API endpoint to ensure food item exists in local DB
 @bp.route('/api/ensure_food_item', methods=['POST'])
 @login_required
 def api_ensure_food_item():
     data = request.get_json()
     if not data or not data.get('name'):
         return jsonify({'error': 'Missing food name from API data'}), 400
-
+    # Get the food name and nutritional data from the API data
     food_name_from_api = data.get('name')
     calories_100 = data.get('calories_per_100')
     protein_100 = data.get('protein_per_100')
@@ -478,11 +482,9 @@ def api_ensure_food_item():
                 'name_suggestion': food_name_from_api
             }), 400
 
+# Call USDA API to search for food items
 def call_usda_api(name: str, max_results: int = 5) -> list[dict]:
-    """
-    调用 USDA API 返回最多 max_results 条数据
-    每条数据包含 name, calories, protein, fat, carbs
-    """
+    # API key should be set in the environment variable 'USDA_API_KEY
     api_key = os.getenv('USDA_API_KEY')
     if not api_key:
         raise RuntimeError("USDA_API_KEY is not set in environment")
@@ -499,7 +501,7 @@ def call_usda_api(name: str, max_results: int = 5) -> list[dict]:
 
     data = resp.json().get('foods', [])
     for f in data:
-        # 提取常用营养素
+        
         nuts = {n['nutrientName']: n['value'] for n in f.get('foodNutrients', [])}
         items.append({
             'name':     f.get('description'),
@@ -510,10 +512,11 @@ def call_usda_api(name: str, max_results: int = 5) -> list[dict]:
         })
     return items
 
+# API endpoint to search for food items
 @bp.route('/api/food/search', methods=['GET', 'POST'])
 @login_required
 def search_food():
-    # GET 和 POST 都走同样逻辑，只是读取 name 的方式不同
+    
     if request.method == 'POST':
         payload = request.get_json() or {}
         name = (payload.get('name') or '').strip()
@@ -526,7 +529,7 @@ def search_food():
     max_total = 10
     results = []
 
-    # —— 构造 “自己或 admin 添加” 的过滤条件 —— 
+    # Only show food items that are either added by the current user or by the admin 
     admin = User.query.filter_by(email='admin@dailybite.com').first()
     if hasattr(FoodItem, 'user_id'):
         user_cond = (FoodItem.user_id == current_user.id)
@@ -534,7 +537,7 @@ def search_food():
     else:
         suggestion_filter = None
 
-    # 1) 本地数据库匹配
+    # 1) local DB
     query = FoodItem.query
     if suggestion_filter is not None:
         query = query.filter(suggestion_filter)
@@ -558,7 +561,7 @@ def search_food():
             'unit':     it.serving_unit or 'g'
         })
 
-    # 2) 再调外部 API，补足到 max_total 条
+    # 2) Then call USDA API
     if len(results) < max_total:
         try:
             usda_list = call_usda_api(name, max_results=max_total - len(results))
@@ -571,10 +574,10 @@ def search_food():
                 results.append(u)
                 seen.add(u['name'])
 
-    # 3) 如果两者都没数据，results 为空，前端会提示 “No results”
+    # 3) If both local and USDA API results are empty, return an empty list
     return jsonify(results=results), 200
 
-
+# This endpoint is used to add a meal
 @bp.get('/addMeal')
 @login_required
 def addMeal():
@@ -583,6 +586,8 @@ def addMeal():
     if request.method == 'GET':
         edit_profile_form.first_name.data = current_user.first_name
         edit_profile_form.last_name.data = current_user.last_name
+
+    # Get the meal types added by the current user and the admin
     user_meal_types_query = MealType.query.filter(MealType.user_id == current_user.id)
     system_default_meal_types_query = MealType.query.filter(MealType.user_id == None) 
     user_types = user_meal_types_query.order_by(MealType.type_name).all()
@@ -614,11 +619,13 @@ def addMeal():
 
     print(f"Choices after form init and route processing: {form.mealType.choices}")
 
+    # Get the food items from the user's history
     historyItemsID = db.session.execute(select(FoodLog.food_item_id).where(FoodLog.user_id == current_user.id)).scalars().all()
     historyItemsNames = []
     if historyItemsID:
         historyItemsNames = db.session.execute(select(FoodItem.name).where(FoodItem.id.in_(historyItemsID))).scalars().all()
 
+    # Get the food items added by the current user and the admin
     admin = User.query.filter_by(email='admin@dailybite.com').first()
     suggestion_filter = None
     if hasattr(FoodItem, 'user_id'):
@@ -635,17 +642,14 @@ def addMeal():
 
     suggestions_for_template = suggestions_query_result[:10]
 
-    foodSearched = request.args.get("food")
+    # Not used in the template, but can be used for debugging
     foodFound = []
-    if foodSearched:
-        foodFound = db.session.execute(
-            select(FoodItem).where(FoodItem.name.ilike(f"%{foodSearched}%"))
-        ).scalars().all()
 
     mealTypeParam = request.args.get('mealType')
     if mealTypeParam:
         form.mealType.data = mealTypeParam
 
+    # History item name
     historyItemName = request.args.get('item')
     if historyItemName:
         historyItem = db.session.execute(
@@ -670,6 +674,7 @@ def addMeal():
         edit_profile_form=edit_profile_form
     )
 
+# This endpoint is used to add a meal
 @bp.post('/addMeal')
 @login_required
 def addMealPost():
@@ -722,12 +727,12 @@ def settings():
     edit_profile_form = EditProfileForm()
     
     admin = User.query.filter_by(email='admin@dailybite.com').first()
-
+    # Get the meal types added by the current user and the admin
     meal_types = (
         MealType.query
                 .filter(or_(
                     MealType.user_id == admin.id,             # Admin added
-                    MealType.user_id == current_user.id   # user added
+                    MealType.user_id == current_user.id   # user added can be deleted
                 ))
                 .order_by(MealType.id.desc())
                 .all()
@@ -735,6 +740,7 @@ def settings():
     
     return render_template('settings.html', form1=form1, form2=form2, form3=form3, meal_types=meal_types, edit_profile_form=edit_profile_form)
 
+# This endpoint is used to add the meal type by the user themselves
 @bp.post('/addMealType')
 @login_required
 def addMealType():
@@ -748,6 +754,7 @@ def addMealType():
         flash('Failed to add meal type.', 'danger')
     return redirect(url_for('main.settings', _anchor='mealType'))
 
+# This endpoint is used to delete the meal type by the user themselves
 @bp.delete('/meal-types/<int:mt_id>')
 @login_required
 def delete_meal_type(mt_id):
@@ -758,6 +765,7 @@ def delete_meal_type(mt_id):
     db.session.commit()
     return jsonify(success=True)
 
+# This endpoint is used to set the goal by the user themselves
 @bp.post('/setGoal')
 @login_required
 def setGoal():
@@ -770,6 +778,7 @@ def setGoal():
         flash('Failed to set your goal.', 'danger')
     return redirect(url_for('main.settings', _anchor='mealType'))
 
+# This endpoint is used to add a new product by the user themselves
 @bp.post('/addNewProduct')
 @login_required
 def addNewProduct():
@@ -841,7 +850,8 @@ def send_email(to_email, subject, body):
             print(f"[✅] Email sent to {to_email}")
     except Exception as e:
         print("[❌] Failed to send email:", e)
-    
+
+# This endpoint is used to share the data with friends    
 @bp.route('/share', methods=['GET','POST'])
 @login_required
 def share():
@@ -902,6 +912,7 @@ def share():
 
     return redirect(request.referrer or url_for('main.dashboard'))
 
+# This endpoint is used to view the sharing list
 @bp.route('/sharing_list')
 def sharing_list():
     edit_profile_form = EditProfileForm()
@@ -914,6 +925,7 @@ def sharing_list():
         share.elapsed_time = time_ago(share.timestamp)
     return render_template('sharing_list.html', shares=all_shares, unread_count=unread_count, edit_profile_form=edit_profile_form)
 
+# This endpoint is used to view the share details
 @bp.route('/share/<int:share_id>')
 @login_required
 def view_share(share_id):
@@ -943,6 +955,7 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+# This endpoint is used to update the profile
 @bp.route('/update_profile', methods=['POST'])
 @login_required
 def update_profile():

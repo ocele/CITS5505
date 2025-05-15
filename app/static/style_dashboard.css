@@ -13,7 +13,7 @@ body {
     min-height: 100vh;
 }
 
-/* 导航栏水平排列样式 */
+/* navigation bar styles */
 .navbar {
     background-color: #FFB84D !important;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -33,14 +33,14 @@ body {
     font-size: 1.25rem;
 }
 
-/* 确保所有设备上的导航容器使用flex布局并水平排列 */
+/* Horizontal navigation bar */
 .navbar .navbar-nav {
     display: flex;
     flex-direction: row;
     align-items: center;
 }
 
-/* 导航链接样式 */
+/* Link */
 .navbar .nav-link {
     color: white !important;
     padding: 0.5rem;
@@ -48,7 +48,7 @@ body {
     align-items: center;
 }
 
-/* 汉堡菜单按钮样式 */
+/* Hamburger menu */
 .navbar-toggler {
     display: none;
     background: transparent;
@@ -167,10 +167,10 @@ body {
     font-size: 1.5rem;
 }
 
-/* 修改导航图标布局为网格 - 桌面视图 */
+/* Desktop navigation icons */
 .nav-icon-row {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* 每行2个图标 */
+    grid-template-columns: repeat(2, 1fr);
     grid-gap: 15px;
     width: 100%;
     justify-items: center;
@@ -291,21 +291,10 @@ body {
     margin-top: auto;
 }
 
-/* 关闭按钮样式 */
-/* .sidebar-close {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    font-size: 1.5rem;
-    color: #fff;
-    background: none;
-    border: none;
-    cursor: pointer;
-    z-index: 1060;
-} */
+
 
 /* ======================= */
-/* 响应式布局调整 */
+/* Responsive Styles */
 /* ======================= */
 @media (max-width: 440px) {
     body {
@@ -326,23 +315,8 @@ body {
     }
   }
 
-/* .sidebar-close {
-    display: none;
-  } */
-  
-  
-/* .sidebar-close {
-    display: block;
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    font-size: 1.5rem;
-    z-index: 1100;
-    background: transparent;
-    border: none;
-}   */
 
-/* 大屏幕设备 (992px-1199px) */
+/* Big screen (992px-1199px) */
 @media (max-width: 1199px) {
     .sidebar {
         width: 260px;
@@ -352,7 +326,6 @@ body {
         padding: 25px 15px;
     }
     
-    /* 调整导航布局 */
     .navigation-section {
         padding: 20px 10px;
     }
@@ -363,21 +336,21 @@ body {
     }
 }
 
-/* 中等屏幕设备 (768px-991px) */
+/* middle screed (768px-991px) */
 @media (min-width: 768px) and (max-width: 1199px) {
-    /* 确保导航链接水平排列 */
+    /* Horizontal layout  */
     .navbar .navbar-nav {
         flex-direction: row;
         align-items: center;
     }
     
-    /* 调整导航链接的样式 */
+    /* Link */
     .navbar .nav-link {
         padding: 0.5rem 0.5rem;
         margin-right: 0.5rem;
     }
     
-    /* 侧边栏在平板电脑上的样式调整 */
+    /* iPad */
     .sidebar {
         width: 200px;
     }
@@ -390,18 +363,18 @@ body {
         padding: 15px;
     }
     
-    /* 导航图标在平板电脑上的样式 */
+    /* Navbar on iPad */
     .nav-icon {
         width: 55px;
         height: 55px;
     }
     
-    /* 调整主内容区域在平板电脑上的样式 */
+    /* main content on IPad */
     .main-content {
         padding: 20px 15px;
     }
     
-    /* 调整卡片在平板电脑上的布局 */
+    /* card on iPad */
     .card {
         margin-bottom: 20px;
     }

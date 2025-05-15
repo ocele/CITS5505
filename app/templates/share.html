@@ -45,7 +45,7 @@
             </div>
         </div>
 
-        <!-- 3. 好友搜索 -->
+        <!-- Search for Friends -->
         <div class="friend-search mb-3">
             <div class="input-group">
                 <input id="friendSearchInput" type="text" placeholder="Find your friend" class="form-control"
@@ -60,7 +60,7 @@
         </div>
 
 
-        <!-- 4. 好友列表 -->
+        <!-- Friend List Section -->
         <div id="friendListContainer" class="friend-list">
             {% if friends %}
             {% for friend in friends %}
@@ -76,7 +76,7 @@
             {% endif %}
         </div>
 
-        <!-- 5. 提交按钮（唯一的 submit） -->
+        <!-- Submit Button -->
         <div class="action-buttons mt-3">
             <button type="submit" class="btn-confirm">Confirm</button>
             <a href="{{ url_for('main.dashboard') }}" class="btn-cancel">Cancel</a>

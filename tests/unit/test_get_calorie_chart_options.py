@@ -32,7 +32,7 @@ def empty_db(app):
         db.drop_all()
 
 def login_test_user(client):
-    """在 session 中模拟登录一个用户"""
+    """Mocks a user login for testing purposes."""
     user = User(
         first_name="Test",      
         last_name="User",       
