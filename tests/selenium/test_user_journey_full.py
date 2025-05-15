@@ -119,3 +119,43 @@ def test_share_and_receive():
     print("[✅] Share & receive test passed")
     time.sleep(1)
     driver.quit()
+
+def test_update_profile():
+    driver = webdriver.Chrome()
+    try:
+        login(driver, DEFAULT_EMAIL, DEFAULT_PASSWORD)
+        driver.get(f"{BASE_URL}/dashboard_home.html")
+
+        WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, 'button[data-bs-target="#editProfileModal"]'))
+        ).click()
+        WebDriverWait(driver, 10).until(
+            EC.visibility_of_element_located((By.ID, "editProfileModal"))
+        )
+        WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.NAME, "first_name"))
+        )
+
+        first_name_input = driver.find_element(By.NAME, "first_name")
+        last_name_input = driver.find_element(By.NAME, "last_name")
+        driver.execute_script("arguments[0].scrollIntoView(true);", first_name_input)
+        time.sleep(0.3)
+        first_name_input.clear()
+        first_name_input.send_keys("CITS5505")
+        last_name_input.clear()
+        last_name_input.send_keys("User")
+
+        submit_button = driver.find_element(By.CSS_SELECTOR, 'input[type="submit"]')
+        driver.execute_script("arguments[0].click();", submit_button)
+
+        WebDriverWait(driver, 5).until(
+            EC.presence_of_element_located((By.CLASS_NAME, "toast-body"))
+        )
+        updated_name = driver.find_element(By.CLASS_NAME, "username").text
+        assert "CITS5505" in updated_name
+
+        print("[✅] Profile name update test passed")
+
+    finally:
+        time.sleep(1)
+        driver.quit()
