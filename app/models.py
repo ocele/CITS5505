@@ -146,6 +146,6 @@ class ShareRecord(db.Model):
     content_type = db.Column(db.String(20), nullable=False)   # 'ranking' or 'calorie' or 'nutrition'
     date_range = db.Column(db.String(20), nullable=False)     # 'daily', 'weekly', 'monthly'
     timestamp = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
-    is_read = db.Column(db.Boolean, default=False) # 用于消息提醒系统
+    is_read = db.Column(db.Boolean, default=False) # Used to track if the share has been read by the receiver
     sender = db.relationship('User', foreign_keys=[sender_id], backref='sent_shares')
     receiver = db.relationship('User', foreign_keys=[receiver_id], backref='received_shares')

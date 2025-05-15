@@ -32,7 +32,7 @@
         <div class="mb-3" id="foodinputcontainer">
             <label for="foodInput" class="form-label">Food</label>
             <div class="input-group">
-                {{ form.food(class="form-control", id="foodInput", placeholder="Search food...") }}
+                {{ form.food(class="form-control", id="foodInput", placeholder="Enter food") }}
                 <span class="input-group-text">
                     <a href="#" id="searchFoodLink" class="text-warning">
                         <i class="fa-solid fa-magnifying-glass"></i>
@@ -73,8 +73,7 @@
         <div class="mb-3">
             <label for="quantityInput" class="form-label">Quantity (in grams)</label>
             <div class="input-group">
-                {{ form.quantity(class="form-control", id="quantityInput", type="number", step="any", placeholder="Enter
-                grams") }}
+                {{ form.quantity(class="form-control", id="quantityInput", type="number", step="any", placeholder="Enter grams") }}
                 {{ form.unit(class="form-control", id="unitInput", value="g", readonly="readonly") }}
             </div>
             {% for error in form.quantity.errors %} <span class="text-danger">{{ error }}</span> {% endfor %}

@@ -6,7 +6,7 @@
 
     if (!shareModalEl) return;
     const shareModal = new bootstrap.Modal(shareModalEl);
-
+    // Close modal on backdrop click
     const trigger = document.querySelector('a[data-bs-target="#shareModal"]');
     console.log('trigger el:', trigger);
     if (trigger) {
@@ -33,7 +33,7 @@
       });
       return;
     }
-
+    // Set up form submission
     function renderFriends(users, query) {
       if (!users.length) {
         listContainer.innerHTML = `<p class="text-muted">
@@ -50,7 +50,7 @@
         </label>
       `).join('');
     }
-
+    // Search for friends
     async function doSearch() {
       const q = input.value.trim();
       if (!q) {
@@ -86,7 +86,7 @@
 
     const typeRadios    = shareModalEl.querySelectorAll('input[name="content_type"]');
     const rangeWrappers = shareModalEl.querySelectorAll('[data-range]');
-
+    // Set up date range selection
     function updateRanges() {
       const selected = shareModalEl.querySelector('input[name="content_type"]:checked').value;
       rangeWrappers.forEach(w => {

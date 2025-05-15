@@ -138,7 +138,7 @@ with app.app_context():
                     db.session.add(FoodLog(user_id=user_obj.id, food_item_id=food1.id, meal_type='Breakfast', quantity_consumed=qty1, unit_consumed=food1.serving_unit or 'g', log_date=datetime.combine(log_day, datetime.min.time().replace(hour=8))))
                     daily_total_kcal += kcal1
 
-                # 午餐
+                # Lunch
                 if random.random() < 0.9:
                     food2 = random.choice(available_food_items)
                     qty2 = random.randint(100, 300) if food2.serving_unit == 'g' else random.randint(1,2) * (food2.serving_size or 100)

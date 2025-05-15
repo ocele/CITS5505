@@ -44,16 +44,6 @@ def register():
                     email=form.emailRegister.data,)
         user.set_password(form.passwordRegister.data)
 
-        # username_to_save = f"{form.firstName.data}{form.lastName.data}"
-        # existing_user_username = User.query.filter_by(username=username_to_save).first()
-
-        # if existing_user_username:
-        #     flash(f'Username "{username_to_save}" (derived from name) is already taken.', 'danger')
-        #     return render_template('login.html', title='Register Failed', form2=form, form1=login_form)
-        
-        # user = User(username=username_to_save, email=form.emailRegister.data)
-        # user.set_password(form.passwordRegister.data)
-
         try:
             db.session.add(user)
             db.session.commit()

@@ -12,7 +12,7 @@ load_dotenv()
 
 @app.shell_context_processor
 def make_shell_context():
-    return {'db': db, 'User': User} # 加入你想在 shell 中方便使用的对象
+    return {'db': db, 'User': User}
 
 if __name__ == '__main__':
      app.run(debug=True) # start the Flask app in debug mode
