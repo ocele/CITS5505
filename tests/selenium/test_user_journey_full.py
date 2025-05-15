@@ -126,7 +126,6 @@ def test_update_profile():
         login(driver, DEFAULT_EMAIL, DEFAULT_PASSWORD)
         driver.get(f"{BASE_URL}/dashboard_home.html")
 
-        # 打开 Edit Profile 弹窗
         WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.CSS_SELECTOR, 'button[data-bs-target="#editProfileModal"]'))
         ).click()
@@ -137,7 +136,6 @@ def test_update_profile():
             EC.element_to_be_clickable((By.NAME, "first_name"))
         )
 
-        # 修改名字为 CITS5505 User
         first_name_input = driver.find_element(By.NAME, "first_name")
         last_name_input = driver.find_element(By.NAME, "last_name")
         driver.execute_script("arguments[0].scrollIntoView(true);", first_name_input)
@@ -147,11 +145,9 @@ def test_update_profile():
         last_name_input.clear()
         last_name_input.send_keys("User")
 
-        # 提交表单
         submit_button = driver.find_element(By.CSS_SELECTOR, 'input[type="submit"]')
         driver.execute_script("arguments[0].click();", submit_button)
 
-        # 验证更新成功
         WebDriverWait(driver, 5).until(
             EC.presence_of_element_located((By.CLASS_NAME, "toast-body"))
         )
