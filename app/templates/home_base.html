@@ -333,34 +333,34 @@
         });
     </script>
 
-    <!-- 汉堡菜单功能的 JavaScript -->
-    <script>
+<!-- Hamburger menu JavaScript -->
+<script>
     document.addEventListener('DOMContentLoaded', function() {
-        // 获取汉堡菜单按钮和侧边栏元素
+        // Get hamburger button and sidebar elements
         const hamburgerBtn = document.querySelector('.navbar-toggler');
         const sidebar = document.querySelector('.sidebar');
         const mainContent = document.querySelector('.main-content');
         const sidebarClose = document.querySelector('.sidebar-close');
         
-        // 如果汉堡菜单按钮和侧边栏存在，则添加点击事件
+        // If hamburger and sidebar exist, bind click events
         if (hamburgerBtn && sidebar) {
             hamburgerBtn.addEventListener('click', function() {
                 sidebar.classList.add('show');
                 if (mainContent) {
                     mainContent.classList.add('sidebar-active');
                 }
-                // 阻止页面滚动
+                // Prevent page scroll when sidebar is open
                 document.body.style.overflow = 'hidden';
             });
             
-            // 关闭按钮点击事件
+            // Close button click handler
             if (sidebarClose) {
                 sidebarClose.addEventListener('click', function() {
                     closeSidebar();
                 });
             }
             
-            // 处理导航图标的点击事件
+            // Automatically close sidebar when a nav icon is clicked
             const navIcons = document.querySelectorAll('.nav-icon');
             navIcons.forEach(icon => {
                 icon.addEventListener('click', function() {
@@ -370,17 +370,17 @@
                 });
             });
             
-            // 关闭侧边栏的函数
+            // Sidebar close function
             function closeSidebar() {
                 sidebar.classList.remove('show');
                 if (mainContent) {
                     mainContent.classList.remove('sidebar-active');
                 }
-                // 恢复页面滚动
+                // Restore page scroll
                 document.body.style.overflow = '';
             }
             
-            // 点击 ESC 键关闭侧边栏
+            // Close sidebar when ESC key is pressed
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape' && sidebar.classList.contains('show')) {
                     closeSidebar();
@@ -389,6 +389,6 @@
         }
     });
     </script>
-</body>
-
-</html>
+    </body>
+    
+    </html>

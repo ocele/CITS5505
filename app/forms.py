@@ -23,10 +23,7 @@ class RegisterForm(FlaskForm):
     subscription = BooleanField('Subscribe for Sales & New Themes')
     submit = SubmitField('Register')
 
-    # def validate_email(self, email):
-    # user = User.query.filter_by(email=email.data).first()
-    # if user is not None:
-    #     raise ValidationError('Email address already registered.')
+   
 
 def meal_type_query():
     return MealType.query
@@ -66,11 +63,7 @@ class AddMealTypeForm(FlaskForm):
 class SetGoalForm(FlaskForm):
     goal = DecimalField('kilojoules/ Day', validators=[DataRequired(), NumberRange(min=0)])
 
-# class AddNewProductForm(FlaskForm):
-#     productName = StringField('Product Name', validators=[DataRequired(), Length(min=1, max = 128)])
-#     quantity = DecimalField('Quantity', validators=[DataRequired(), NumberRange(min=0)])
-#     unit = SelectField('Unit', choices=['gram', 'medium', 'cup', 'ml', 'serving'], validators=[DataRequired()])
-#     kilojoules = DecimalField('Kilojoules', validators=[DataRequired(), NumberRange(min=0)])
+
 
 class AddNewProductForm(FlaskForm):
     name = StringField('Product Name', validators=[DataRequired(), Length(max=100)])

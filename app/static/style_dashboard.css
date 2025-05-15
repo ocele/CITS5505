@@ -13,7 +13,7 @@ body {
     min-height: 100vh;
 }
 
-/* 导航栏水平排列样式 */
+/* Horizontal navigation bar styles */
 .navbar {
     background-color: #FFB84D !important;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -33,14 +33,14 @@ body {
     font-size: 1.25rem;
 }
 
-/* 确保所有设备上的导航容器使用flex布局并水平排列 */
+/* Ensure navigation containers use flex layout and horizontal arrangement on all devices */
 .navbar .navbar-nav {
     display: flex;
     flex-direction: row;
     align-items: center;
 }
 
-/* 导航链接样式 */
+/* Navigation link styles */
 .navbar .nav-link {
     color: white !important;
     padding: 0.5rem;
@@ -48,7 +48,7 @@ body {
     align-items: center;
 }
 
-/* 汉堡菜单按钮样式 */
+/* Hamburger menu button styles */
 .navbar-toggler {
     display: none;
     background: transparent;
@@ -167,10 +167,10 @@ body {
     font-size: 1.5rem;
 }
 
-/* 修改导航图标布局为网格 - 桌面视图 */
+/* Modify navigation icon layout to grid - desktop view */
 .nav-icon-row {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* 每行2个图标 */
+    grid-template-columns: repeat(2, 1fr); /* 2 icons per row */
     grid-gap: 15px;
     width: 100%;
     justify-items: center;
@@ -251,7 +251,7 @@ body {
 /* Card styles */
 .card {
     border: none;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     margin-bottom: 20px;
 }
 
@@ -291,7 +291,7 @@ body {
     margin-top: auto;
 }
 
-/* 关闭按钮样式 */
+/* Close button styles */
 /* .sidebar-close {
     position: absolute;
     top: 15px;
@@ -305,7 +305,7 @@ body {
 } */
 
 /* ======================= */
-/* 响应式布局调整 */
+/* Responsive layout adjustments */
 /* ======================= */
 @media (max-width: 440px) {
     body {
@@ -342,7 +342,7 @@ body {
     border: none;
 }   */
 
-/* 大屏幕设备 (992px-1199px) */
+/* Large screen devices (992px-1199px) */
 @media (max-width: 1199px) {
     .sidebar {
         width: 260px;
@@ -352,7 +352,7 @@ body {
         padding: 25px 15px;
     }
     
-    /* 调整导航布局 */
+    /* Adjust navigation layout */
     .navigation-section {
         padding: 20px 10px;
     }
@@ -363,21 +363,21 @@ body {
     }
 }
 
-/* 中等屏幕设备 (768px-991px) */
+/* Medium screen devices (768px-991px) */
 @media (min-width: 768px) and (max-width: 1199px) {
-    /* 确保导航链接水平排列 */
+    /* Ensure navigation links are horizontally arranged */
     .navbar .navbar-nav {
         flex-direction: row;
         align-items: center;
     }
     
-    /* 调整导航链接的样式 */
+    /* Adjust navigation link styles */
     .navbar .nav-link {
         padding: 0.5rem 0.5rem;
         margin-right: 0.5rem;
     }
     
-    /* 侧边栏在平板电脑上的样式调整 */
+    /* Sidebar style adjustments for tablets */
     .sidebar {
         width: 200px;
     }
@@ -390,49 +390,49 @@ body {
         padding: 15px;
     }
     
-    /* 导航图标在平板电脑上的样式 */
+    /* Navigation icon styles on tablets */
     .nav-icon {
         width: 55px;
         height: 55px;
     }
     
-    /* 调整主内容区域在平板电脑上的样式 */
+    /* Adjust main content area styles on tablets */
     .main-content {
         padding: 20px 15px;
     }
     
-    /* 调整卡片在平板电脑上的布局 */
+    /* Adjust card layout on tablets */
     .card {
         margin-bottom: 20px;
     }
     
 
     
-    /* 调整按钮组在平板电脑上的样式 */
+    /* Adjust button group styles on tablets */
     .btn-group.btn-group-sm .btn {
         padding: 0.3rem 0.6rem;
     }
 }
 
-/* 小屏幕设备 (小于768px) */
+/* Small screen devices (less than 768px) */
 @media (max-width: 767px) {
-    /* 移动设备上隐藏Home链接 */
+    /* Hide Home link on mobile devices */
     .navbar .nav-link.home-link {
         display: none;
     }
     
-    /* 汉堡菜单按钮显示 */
+    /* Show hamburger menu button */
     .navbar-toggler {
         display: block;
     }
     
-    /* 确保在小屏幕上导航元素正确对齐 */
+    /* Ensure navigation elements are properly aligned on small screens */
     .navbar .container-fluid {
         padding-left: 0.75rem;
         padding-right: 0.75rem;
     }
     
-    /* 减小品牌名称和导航链接之间的间距 */
+    /* Reduce spacing between brand name and navigation links */
     .navbar-brand {
         font-size: 1.1rem;
     }
@@ -442,29 +442,29 @@ body {
         font-size: 0.9rem;
     }
     
-    /* 仪表板布局调整 */
+    /* Dashboard layout adjustments */
     .dashboard-content {
         flex-direction: column;
     }
     
-    /* 完全重新设计侧边栏 - 全屏模式 */
+    /* Completely redesign sidebar - fullscreen mode */
     .sidebar {
-        display: none; /* 默认隐藏 */
+        display: none; /* Hidden by default */
         position: fixed;
         top: 0;
         left: 0;
         height: 100vh;
-        width: 100vw; /* 占满整个屏幕宽度 */
+        width: 100vw; /* Takes up entire screen width */
         flex-direction: column;
         background-color: #fff;
-        z-index: 1050; /* 高于其他元素 */
+        z-index: 1050; /* Higher than other elements */
     }
     
     .sidebar.show {
-        display: flex; /* 显示时变为flex */
+        display: flex; /* Display as flex when shown */
     }
     
-    /* 侧边栏顶部个人资料部分 */
+    /* Sidebar top profile section */
     .profile-section {
         width: 100%;
         height: auto;
@@ -477,7 +477,7 @@ body {
         border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     }
     
-    /* 个人资料显示 */
+    /* Profile display */
     .profile-section .username {
         font-size: 1.2rem;
         text-align: center;
@@ -511,7 +511,7 @@ body {
         margin-top: 10px;
     }
     
-    /* 导航部分垂直居中布局 */
+    /* Navigation section vertical centered layout */
     .navigation-section {
         width: 100%;
         flex: 1;
@@ -523,7 +523,7 @@ body {
         justify-content: center;
     }
     
-    /* 移动设备上的导航布局 */
+    /* Mobile device navigation layout */
     .nav-icon-row {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
@@ -534,7 +534,7 @@ body {
         padding: 0 20px;
     }
     
-    /* 调整每个导航图标样式 */
+    /* Adjust each navigation icon style */
     .nav-icon {
         width: 80px;
         height: 80px;
@@ -553,42 +553,42 @@ body {
         margin-bottom: 5px;
     }
     
-    /* 添加导航标签文本 */
+    /* Add navigation label text */
     .nav-icon:after {
         content: attr(data-label);
         font-size: 0.8rem;
         margin-top: 5px;
     }
     
-    /* 主内容区域调整 */
+    /* Main content area adjustments */
     .main-content {
         width: 100%;
         margin-left: 0;
         padding: 15px 10px;
     }
     
-    /* 点击汉堡菜单时，内容区域隐藏 */
+    /* Hide content area when clicking hamburger menu */
     .main-content.sidebar-active {
         display: none;
     }
     
-    /* 调整行布局，确保卡片垂直堆叠 */
+    /* Adjust row layout, ensure cards stack vertically */
     .row-cols-1.row-cols-md-2 > * {
         flex: 0 0 100%;
         max-width: 100%;
     }
     
-    /* 调整卡片在移动设备上的样式 */
+    /* Adjust card styles on mobile devices */
     .card {
         margin-bottom: 15px;
     }
     
-    /* 调整卡片头部在移动设备上的样式 */
+    /* Adjust card header styles on mobile devices */
     .card-header {
         padding: 12px 15px;
     }
     
-    /* 调整按钮组在移动设备上的样式 */
+    /* Adjust button group styles on mobile devices */
     .btn-group.btn-group-sm {
         flex-wrap: wrap;
     }

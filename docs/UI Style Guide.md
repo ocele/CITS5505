@@ -4,15 +4,16 @@
 
 ## 1. **Color Palette**
 
-| Role                                     | HEX 值  | 说明                  |
-| ---------------------------------------- | ------- | --------------------- |
-| 主色橙  Primary                          | #FFB84D | 品牌色、按钮、重要高  |
-| 灰底  Grey card board                    | #F3F3F3 | 灰底辅助背景          |
-| 卡片白色  Surface & 按钮文字 Button Text | #FFFFFF | 内容区块、卡片、表单  |
-| 主文字黑灰  Main Text                    | #212121 | 主标题/正文（高对比） |
-| 次文字浅灰  Sub Text                     | #757575 | 辅助说明、标签、提示  |
-| 错误红  Error                            | #F44336 | 报错、无效、警告等    |
-| 分隔线浅灰  Divider                      | #E0E0E0 | 卡片/表单的分割线     |
+| Role                      | HEX       | Description                               |
+| ------------------------- | ----------| ----------------------------------------- |
+| Primary Orange            | #FFB84D | Brand color, buttons, key highlights      |
+| Grey Background           | #F3F3F3 | Background for cards and layouts          |
+| Card White / Button Text  | #FFFFFF | Surface blocks, cards, forms, button text |
+| Main Text (Black-Grey)    | #212121 | Headlines, main body text (high contrast) |
+| Sub Text (Light Grey)     | #757575 | Secondary info, labels, hints             |
+| Error Red                 | #F44336 | Error messages, invalid states, alerts    |
+| Divider Line (Light Grey) | #E0E0E0 | Dividers for cards and forms              |
+
 
 ------
 
