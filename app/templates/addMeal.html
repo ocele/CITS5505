@@ -117,8 +117,6 @@
 {% endblock %}
 
 {% block extra_js %}
-{#
-<script defer src="{{ url_for('static', filename='addMeal.js') }}"></script> #}
 
 <script defer>
     document.addEventListener('DOMContentLoaded', function () {
@@ -259,7 +257,7 @@
                     const json = await resp.json();
                     const items = json.results || [];
 
-                    // 清空旧内容
+                    // Empty old content
                     searchResultsContainer.innerHTML = '';
 
                     if (items.length > 0) {
@@ -276,7 +274,7 @@
             C: ${food.carbs ?? 'N/A'}g
           </small>
         `;
-                            // 存下 dataset 以备后用
+                            // Store dataset for later use
                             listItem.dataset.name = food.name;
                             listItem.dataset.calories = food.calories;
                             listItem.dataset.protein = food.protein;
@@ -342,7 +340,7 @@
                                     .catch(error => {
                                         console.error('Error in /api/ensure_food_item API call:', error);
                                         flash('Failed to process selected food: ' + error.message + '. Please try again or add manually.');
-                                        // 恢复列表项的原始状态
+                                        // Reset to the default state
                                         this.innerHTML = `
                                     <strong>${foodDataForBackend.name}</strong><br>
                                     <small class="text-muted">
@@ -405,7 +403,7 @@
                 return alert('Search failed: ' + err.message);
             }
 
-            // 移除旧的结果
+            // remove the old result
             const old = document.getElementById('foodFoundContainer');
             if (old) old.remove();
             const nores = document.getElementById('noResultContainer');
@@ -440,7 +438,7 @@
                         </div>
                     `;
 
-                    // 鼠标点整行时的表单填充
+                    // Fill the form when user clicks the whole row
                     label.addEventListener('click', () => {
                         foodInput.value = food.name;
                         if (hiddenIdInput) hiddenIdInput.value = food.id || '';
@@ -452,7 +450,7 @@
                     wrap.appendChild(label);
                 });
 
-                // ✅ 添加 change 监听，兼容 radio 被直接点击或 Selenium 自动选中
+                // ✅ Add a change listener，which is compatible to radio being clicked directly or Selenium test
                 wrap.addEventListener('change', (e) => {
                     if (e.target && e.target.matches('.form-check-input')) {
                         const selected = e.target;

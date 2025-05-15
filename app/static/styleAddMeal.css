@@ -25,6 +25,8 @@
     justify-content: center;
     align-items: center;
   }
+
+  /* Unit input is readonly so that user can not enter arbitrary units */
   #unitInput[readonly] { background-color: #e9ecef; }
   .wholeContainer form .mb-3 {
     background-color: white;
